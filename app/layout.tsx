@@ -18,8 +18,8 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "פורטל קליטת עובדים - Onboarding Portal",
-  description: "מערכת קליטה חכמה לעובדים חדשים",
+  title: "שם העסק - פתרונות מקצועיים לעסקים",
+  description: "אנחנו מספקים פתרונות מקצועיים ושירותים איכותיים לעסקים בכל התחומים. צרו קשר עוד היום!",
   generator: "v0.app",
   icons: {
     icon: [

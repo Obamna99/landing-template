@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
 
 type Blob = {
   id: number
@@ -14,7 +13,6 @@ type Blob = {
 }
 
 export function Hero() {
-  const router = useRouter()
   const [floatingBlobs, setFloatingBlobs] = useState<Blob[]>([])
 
   // Generate blobs only on client to avoid hydration mismatch
@@ -31,12 +29,18 @@ export function Hero() {
     )
   }, [])
 
-  const handleSignIn = () => {
-    router.push("/login")
+  const scrollToContact = () => {
+    const element = document.getElementById("contact")
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
   }
 
-  const handleSignUp = () => {
-    router.push("/signup")
+  const scrollToAbout = () => {
+    const element = document.getElementById("about")
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
   }
 
   return (
@@ -78,20 +82,20 @@ export function Hero() {
         }}
       />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-neutral-900 mb-6 leading-tight tracking-tight">
-            מודלים חכמים לאיקומרס
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-neutral-900 mb-4 sm:mb-6 leading-tight tracking-tight">
+            פתרונות מקצועיים
             <br />
-            <span className="text-orange-500">שותפות אסטרטגית</span>
+            <span className="text-orange-500">לעסק שלך</span>
           </h1>
-          <p className="text-xl md:text-2xl text-neutral-600 font-light max-w-2xl mx-auto">
-            בונים את העתיד של המסחר הדיגיטלי יחד
+          <p className="text-lg sm:text-xl md:text-2xl text-neutral-600 font-light max-w-2xl mx-auto px-4">
+            שירות איכותי, מקצועיות ללא פשרות ותוצאות מוכחות
           </p>
         </motion.div>
 
@@ -100,19 +104,19 @@ export function Hero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-neutral-200/50 p-8 md:p-12 mb-12"
+          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-neutral-200/50 p-6 sm:p-8 md:p-12 mb-8 sm:mb-12"
         >
           <p
-            className="text-neutral-700 text-lg md:text-xl leading-relaxed whitespace-pre-line"
+            className="text-neutral-700 text-base sm:text-lg md:text-xl leading-relaxed whitespace-pre-line"
             dir="rtl"
           >
-            אנחנו בונים מודלים של פרדיקציה לעולם האיקומרס ומחפשים אותך כשותף לדרך, על מנת שהמדגמים שלנו יהיו בלתי מוטים סטטטיסטית אנחנו מייצרים הפרדה מלאה בין החנויות עליהם אנחנו מריצים את הבדיקות שלנו. כאן אתה נכנס לתמונה :)
+            אנחנו מציעים מגוון רחב של שירותים מקצועיים המותאמים בדיוק לצרכים של העסק שלך. עם ניסיון רב שנים בתחום, אנחנו מתחייבים לספק לך את הפתרונות הטובים ביותר.
             <br />
             <br />
-            תמורת האפשרות להקים חנות על שמך אנחנו נשמח להציע לך שובר BuyMe בסך 230 ש"ח + אחוזים מההכנסות שאנחנו מייצרים. כל הבירוקרטיה מקצה לקצה - עלינו.
+            הצוות המנוסה שלנו עובד יחד איתך כדי להבין את האתגרים הייחודיים שלך ולפתח אסטרטגיה מנצחת שתניב תוצאות אמיתיות.
             <br />
             <br />
-            מזמינים אותך לצפות בסרטון ולקבל מידע נוסף:
+            השאירו פרטים ונחזור אליכם עם הצעה מותאמת אישית:
           </p>
         </motion.div>
 
@@ -121,27 +125,26 @@ export function Hero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4"
         >
           <motion.button
-            onClick={handleSignIn}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 w-full sm:w-auto"
+            onClick={scrollToContact}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 w-full sm:w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            התחבר
+            קבלו הצעת מחיר
           </motion.button>
           <motion.button
-            onClick={handleSignUp}
-            className="bg-white hover:bg-neutral-50 text-neutral-900 border-2 border-neutral-200 hover:border-neutral-300 px-8 py-4 rounded-2xl font-semibold text-lg shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:ring-offset-2 w-full sm:w-auto"
+            onClick={scrollToAbout}
+            className="bg-white hover:bg-neutral-50 text-neutral-900 border-2 border-neutral-200 hover:border-neutral-300 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-base sm:text-lg shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:ring-offset-2 w-full sm:w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            הירשם
+            קראו עוד עלינו
           </motion.button>
         </motion.div>
       </div>
     </section>
   )
 }
-

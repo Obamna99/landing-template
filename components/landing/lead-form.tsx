@@ -15,6 +15,7 @@ export function LeadForm() {
     fullName: "",
     phone: "",
     email: "",
+    message: "",
     consent: false,
   })
 
@@ -54,7 +55,7 @@ export function LeadForm() {
       // Simulate form submission
       toast({
         title: "תודה רבה!",
-        description: "קיבלנו את הפרטים שלך ונחזור אליך בהקדם.",
+        description: "קיבלנו את הפרטים שלכם ונחזור אליכם בהקדם.",
       })
 
       // Reset form
@@ -62,6 +63,7 @@ export function LeadForm() {
         fullName: "",
         phone: "",
         email: "",
+        message: "",
         consent: false,
       })
       setErrors({})
@@ -80,7 +82,7 @@ export function LeadForm() {
     <section
       id="contact"
       ref={ref}
-      className="py-24 bg-white"
+      className="py-16 sm:py-24 bg-white"
     >
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -88,21 +90,21 @@ export function LeadForm() {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-neutral-900 text-center mb-4">
-            צור קשר
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-neutral-900 text-center mb-4">
+            צרו קשר
           </h2>
-          <p className="text-center text-neutral-600 mb-12 text-lg">
-            מלא את הפרטים ונחזור אליך בהקדם
+          <p className="text-center text-neutral-600 mb-8 sm:mb-12 text-base sm:text-lg px-4">
+            השאירו פרטים ונחזור אליכם עם הצעה מותאמת אישית
           </p>
 
           <motion.form
             onSubmit={handleSubmit}
-            className="bg-white rounded-2xl shadow-xl border border-neutral-200/50 p-8 md:p-12"
+            className="bg-white rounded-2xl shadow-xl border border-neutral-200/50 p-6 sm:p-8 md:p-12"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6">
               {/* Full Name */}
               <div>
                 <label
@@ -116,7 +118,7 @@ export function LeadForm() {
                   id="fullName"
                   value={formData.fullName}
                   onChange={(e) => handleChange("fullName", e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border-2 ${
+                  className={`w-full px-4 py-3 rounded-xl border-2 text-base ${
                     errors.fullName
                       ? "border-red-300 focus:border-red-500"
                       : "border-neutral-200 focus:border-orange-500"
@@ -144,7 +146,7 @@ export function LeadForm() {
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border-2 ${
+                  className={`w-full px-4 py-3 rounded-xl border-2 text-base ${
                     errors.phone
                       ? "border-red-300 focus:border-red-500"
                       : "border-neutral-200 focus:border-orange-500"
@@ -172,7 +174,7 @@ export function LeadForm() {
                   id="email"
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border-2 ${
+                  className={`w-full px-4 py-3 rounded-xl border-2 text-base ${
                     errors.email
                       ? "border-red-300 focus:border-red-500"
                       : "border-neutral-200 focus:border-orange-500"
@@ -185,6 +187,24 @@ export function LeadForm() {
                     {errors.email}
                   </p>
                 )}
+              </div>
+
+              {/* Message */}
+              <div>
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-semibold text-neutral-900 mb-2"
+                >
+                  ספרו לנו על העסק שלכם (אופציונלי)
+                </label>
+                <textarea
+                  id="message"
+                  rows={4}
+                  value={formData.message}
+                  onChange={(e) => handleChange("message", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-colors text-neutral-900 text-base resize-none"
+                  placeholder="מה תחום העסק? מה האתגרים העיקריים?"
+                />
               </div>
 
               {/* Consent Checkbox */}
@@ -212,16 +232,16 @@ export function LeadForm() {
               {/* Submit Button */}
               <motion.button
                 type="submit"
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-2xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                שלחו לי פרטים
+                שלחו לי הצעה
               </motion.button>
 
               {/* Privacy Note */}
-              <p className="text-xs text-neutral-500 text-center mt-4">
-                הפרטים שלך מאובטחים ולא יועברו לגורמים חיצוניים. אנחנו משתמשים במידע רק למטרות יצירת קשר והצעת השותפות.
+              <p className="text-xs text-neutral-500 text-center mt-4 px-4">
+                הפרטים שלכם מאובטחים ולא יועברו לגורמים חיצוניים. אנחנו משתמשים במידע רק למטרות יצירת קשר.
               </p>
             </div>
           </motion.form>
@@ -230,4 +250,3 @@ export function LeadForm() {
     </section>
   )
 }
-

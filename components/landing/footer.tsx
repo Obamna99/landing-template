@@ -7,19 +7,19 @@ export function Footer() {
 
   return (
     <footer className="bg-neutral-900 text-neutral-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8 sm:mb-12">
           {/* Business Info */}
-          <div className="col-span-1 md:col-span-2">
-            <h3 className="text-2xl font-bold text-white mb-4">שם העסק</h3>
-            <p className="text-neutral-400 leading-relaxed max-w-md">
-              בונים מודלי פרדיקציה מתקדמים לעולם האיקומרס. שותפות אסטרטגית להצלחה משותפת.
+          <div className="col-span-1 sm:col-span-2">
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">שם העסק</h3>
+            <p className="text-neutral-400 leading-relaxed max-w-md text-sm sm:text-base">
+              פתרונות מקצועיים לעסקים בכל הגדלים. אנחנו כאן כדי לעזור לכם להצליח ולצמוח.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-white font-semibold mb-4">קישורים מהירים</h4>
+            <h4 className="text-white font-semibold mb-4 text-sm sm:text-base">קישורים מהירים</h4>
             <ul className="space-y-2">
               {[
                 { id: "how-it-works", label: "איך זה עובד" },
@@ -35,7 +35,7 @@ export function Footer() {
                         element.scrollIntoView({ behavior: "smooth", block: "start" })
                       }
                     }}
-                    className="text-neutral-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-neutral-900 rounded-sm"
+                    className="text-neutral-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-neutral-900 rounded-sm text-sm sm:text-base"
                   >
                     {link.label}
                   </button>
@@ -46,12 +46,12 @@ export function Footer() {
 
           {/* Social Placeholders */}
           <div>
-            <h4 className="text-white font-semibold mb-4">עקבו אחרינו</h4>
-            <div className="flex gap-4">
-              {["Facebook", "LinkedIn", "Twitter"].map((social) => (
+            <h4 className="text-white font-semibold mb-4 text-sm sm:text-base">עקבו אחרינו</h4>
+            <div className="flex gap-3 sm:gap-4">
+              {["Facebook", "LinkedIn", "Instagram"].map((social) => (
                 <button
                   key={social}
-                  className="w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                   aria-label={social}
                 >
                   <span className="text-xs text-neutral-400">{social[0]}</span>
@@ -62,8 +62,8 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-neutral-800 pt-8 text-center">
-          <p className="text-neutral-500 text-sm">
+        <div className="border-t border-neutral-800 pt-6 sm:pt-8 text-center">
+          <p className="text-neutral-500 text-xs sm:text-sm">
             © {currentYear} שם העסק. כל הזכויות שמורות.
           </p>
         </div>
@@ -71,4 +71,3 @@ export function Footer() {
     </footer>
   )
 }
-

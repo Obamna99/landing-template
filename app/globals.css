@@ -4,7 +4,9 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Etsy-inspired color palette - clean and beautiful */
+  /* Generic Business Landing Page Color Palette */
+  /* Clean and professional look suitable for any business type */
+  
   /* Warm off-white background */
   --background: oklch(0.99 0.005 60);
   /* Dark gray text for readability */
@@ -14,7 +16,7 @@
   --card-foreground: oklch(0.25 0.01 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.25 0.01 0);
-  /* Etsy Orange - primary brand color (#F16521) */
+  /* Primary orange - energetic and attention-grabbing */
   --primary: oklch(0.65 0.18 45);
   --primary-foreground: oklch(0.99 0 0);
   /* Light beige/cream secondary */
@@ -23,10 +25,10 @@
   /* Muted warm gray */
   --muted: oklch(0.95 0.005 60);
   --muted-foreground: oklch(0.45 0.01 0);
-  /* Deep teal accent */
+  /* Teal accent for variety */
   --accent: oklch(0.55 0.15 200);
   --accent-foreground: oklch(0.99 0 0);
-  /* Destructive red */
+  /* Destructive red for errors */
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.99 0 0);
   /* Light gray borders */
@@ -34,7 +36,7 @@
   --input: oklch(0.92 0.005 0);
   /* Orange ring for focus states */
   --ring: oklch(0.65 0.18 45);
-  /* Chart colors using Etsy palette */
+  /* Chart colors */
   --chart-1: oklch(0.65 0.18 45); /* Orange */
   --chart-2: oklch(0.55 0.15 200); /* Teal */
   --chart-3: oklch(0.75 0.12 200); /* Light turquoise */
@@ -53,7 +55,7 @@
 }
 
 .dark {
-  /* Dark mode with Etsy-inspired colors */
+  /* Dark mode colors - professional and modern */
   --background: oklch(0.15 0.01 0);
   --foreground: oklch(0.95 0.005 60);
   --card: oklch(0.18 0.01 0);
@@ -139,16 +141,64 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* Mobile optimizations */
+  
+  /* Mobile optimizations for RTL Hebrew layout */
   input, textarea, select {
-    @apply text-base; /* Prevents zoom on iOS */
+    @apply text-base; /* Prevents zoom on iOS when focusing inputs */
   }
-  /* Better scrolling on mobile */
+  
+  /* Better touch interactions on mobile */
   * {
     -webkit-tap-highlight-color: transparent;
   }
-  /* Smooth scrolling */
+  
+  /* Smooth scrolling for anchor links */
   html {
     scroll-behavior: smooth;
+  }
+  
+  /* Ensure RTL direction is properly inherited */
+  [dir="rtl"] {
+    text-align: right;
+  }
+  
+  /* Mobile-friendly touch targets */
+  button, a, input[type="checkbox"], input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Exception for inline elements that don't need large touch targets */
+  a:not([class*="button"]):not([class*="btn"]) {
+    min-height: auto;
+    min-width: auto;
+  }
+}
+
+/* Custom scrollbar for better mobile experience */
+@media (pointer: coarse) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+  .safe-area-inset-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
