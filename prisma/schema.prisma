@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  role         UserRole
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  candidate   Candidate?
+  adminLogs   AdminLog[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  admin
+  candidate
+
+  @@map("user_role")
+}
+
+model Candidate {
+  id                    Int          @id @default(autoincrement())
+  userId                Int          @unique @map("user_id")
+  firstName             String       @map("first_name") @db.VarChar(100)
+  lastName              String       @map("last_name") @db.VarChar(100)
+  phone                 String?      @db.VarChar(20)
+  idNumber              String?      @map("id_number") @db.VarChar(20)
+  address               String?      @db.Text
+  city                  String?      @db.VarChar(100)
+  zipCode               String?      @map("zip_code") @db.VarChar(20)
+  linkedinUsername      String?      @map("linkedin_username") @db.VarChar(255)
+  citizenship           Json?
+  maritalStatus         String?      @map("marital_status") @db.VarChar(50)
+  education             String?      @db.VarChar(100)
+  startDate             DateTime?    @map("start_date") @db.Date
+  employmentStatus      String?      @map("employment_status") @db.VarChar(50)
+  workplace             String?      @db.VarChar(255)
+  dateOfBirth           DateTime?    @map("date_of_birth") @db.Date
+  wasOfficer            Boolean?     @map("was_officer")
+  over100ReserveDays    Boolean?     @map("over_100_reserve_days")
+  status                CandidateStatus @default(pending)
+  progress              Int          @default(0)
+  createdAt             DateTime     @default(now()) @map("created_at")
+  updatedAt             DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents Document[]
+  tasks     Task[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("candidates")
+}
+
+enum CandidateStatus {
+  pending
+  in_progress
+  completed
+  approved
+
+  @@map("candidate_status")
+}
+
+model Document {
+  id          Int            @id @default(autoincrement())
+  candidateId Int            @map("candidate_id")
+  documentType String        @map("document_type") @db.VarChar(50)
+  fileName    String         @map("file_name") @db.VarChar(255)
+  fileUrl     String         @map("file_url") @db.Text
+  objectId    String?        @map("object_id") @db.VarChar(500)
+  fileSize    Int?           @map("file_size")
+  uploadedAt  DateTime       @default(now()) @map("uploaded_at")
+  status      DocumentStatus @default(pending)
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@map("documents")
+}
+
+enum DocumentStatus {
+  pending
+  approved
+  rejected
+
+  @@map("document_status")
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  candidateId Int       @map("candidate_id")
+  title       String    @db.VarChar(255)
+  description String?   @db.Text
+  completed   Boolean   @default(false)
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@map("tasks")
+}
+
+model AdminLog {
+  id         Int       @id @default(autoincrement())
+  adminId    Int?      @map("admin_id")
+  action     String    @db.VarChar(100)
+  targetType String?   @map("target_type") @db.VarChar(50)
+  targetId   Int?      @map("target_id")
+  details    String?   @db.Text
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  admin User? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  @@index([adminId])
+  @@map("admin_logs")
+}
+
