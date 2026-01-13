@@ -1,250 +1,641 @@
 "use client"
 
-import { useState, FormEvent } from "react"
-import { motion } from "framer-motion"
+import { useState, FormEvent, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { useInView } from "framer-motion"
 import { useRef } from "react"
 import { useToast } from "@/hooks/use-toast"
+
+// Form steps for progressive disclosure
+const formSteps = [
+  { id: 1, label: "פרטים אישיים" },
+  { id: 2, label: "על העסק" },
+  { id: 3, label: "סיום" },
+]
 
 export function LeadForm() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const { toast } = useToast()
 
+  const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
     email: "",
+    businessType: "",
+    businessSize: "",
+    urgency: "",
     message: "",
     consent: false,
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [typingUsers, setTypingUsers] = useState(0)
 
-  const validateForm = () => {
+  // Simulate other users typing (social proof)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTypingUsers(Math.floor(Math.random() * 4) + 2)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const validateStep = (step: number) => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "שדה חובה"
+    if (step === 1) {
+      if (!formData.fullName.trim()) {
+        newErrors.fullName = "איך קוראים לך?"
+      }
+      if (!formData.phone.trim()) {
+        newErrors.phone = "צריכים מספר ליצירת קשר"
+      } else if (!/^[0-9-+\s()]+$/.test(formData.phone)) {
+        newErrors.phone = "מספר לא תקין"
+      }
+      if (!formData.email.trim()) {
+        newErrors.email = "לאן נשלח את ההצעה?"
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = "כתובת לא תקינה"
+      }
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = "שדה חובה"
-    } else if (!/^[0-9-+\s()]+$/.test(formData.phone)) {
-      newErrors.phone = "מספר טלפון לא תקין"
+    if (step === 2) {
+      if (!formData.businessType) {
+        newErrors.businessType = "בחרו סוג עסק"
+      }
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "שדה חובה"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "כתובת אימייל לא תקינה"
-    }
-
-    if (!formData.consent) {
-      newErrors.consent = "יש לאשר קבלת מידע ועדכונים"
+    if (step === 3) {
+      if (!formData.consent) {
+        newErrors.consent = "נא לאשר קבלת מידע"
+      }
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep((prev) => Math.min(prev + 1, 3))
+    }
+  }
+
+  const handleBack = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1))
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
-    if (validateForm()) {
-      // Simulate form submission
-      toast({
-        title: "תודה רבה!",
-        description: "קיבלנו את הפרטים שלכם ונחזור אליכם בהקדם.",
-      })
-
-      // Reset form
-      setFormData({
-        fullName: "",
-        phone: "",
-        email: "",
-        message: "",
-        consent: false,
-      })
-      setErrors({})
+    if (validateStep(currentStep)) {
+      setIsSubmitting(true)
+      
+      try {
+        const response = await fetch("/api/leads", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            businessType: formData.businessType,
+            businessSize: formData.businessSize,
+            urgency: formData.urgency,
+            message: formData.message,
+          }),
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to submit")
+        }
+        
+        setIsSuccess(true)
+        toast({
+          title: "מעולה! קיבלנו את הפרטים 🎉",
+          description: "נחזור אליך תוך 24 שעות עם הצעה מותאמת אישית",
+        })
+      } catch (error) {
+        toast({
+          title: "אופס! משהו השתבש",
+          description: "נסו שוב מאוחר יותר או צרו קשר בטלפון",
+          variant: "destructive",
+        })
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }))
     }
   }
 
+  const progress = (currentStep / 3) * 100
+
   return (
     <section
       id="contact"
       ref={ref}
-      className="py-16 sm:py-24 bg-white"
+      className="py-16 sm:py-24 bg-gradient-to-b from-white via-teal-50/20 to-white relative overflow-hidden"
     >
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Background decoration */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-neutral-900 text-center mb-4">
-            צרו קשר
-          </h2>
-          <p className="text-center text-neutral-600 mb-8 sm:mb-12 text-base sm:text-lg px-4">
-            השאירו פרטים ונחזור אליכם עם הצעה מותאמת אישית
-          </p>
+          {/* Header */}
+          <div className="text-center mb-8 sm:mb-10">
+            <motion.span
+              initial={{ opacity: 0, y: 10 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3"
+            >
+              בואו נתחיל
+            </motion.span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+              מוכנים 
+              <span className="gradient-text"> לעשות את הצעד?</span>
+            </h2>
+            <p className="text-slate-600 text-lg">
+              פגישת היכרות קצרה, ללא עלות וללא התחייבות
+            </p>
+          </div>
 
-          <motion.form
-            onSubmit={handleSubmit}
-            className="bg-white rounded-2xl shadow-xl border border-neutral-200/50 p-6 sm:p-8 md:p-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+          {/* Social Proof - Live Activity */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex items-center justify-center gap-2 mb-6"
           >
-            <div className="space-y-5 sm:space-y-6">
-              {/* Full Name */}
-              <div>
-                <label
-                  htmlFor="fullName"
-                  className="block text-sm font-semibold text-neutral-900 mb-2"
-                >
-                  שם מלא
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  value={formData.fullName}
-                  onChange={(e) => handleChange("fullName", e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border-2 text-base ${
-                    errors.fullName
-                      ? "border-red-300 focus:border-red-500"
-                      : "border-neutral-200 focus:border-orange-500"
-                  } focus:outline-none focus:ring-2 focus:ring-orange-200 transition-colors text-neutral-900`}
-                  aria-invalid={!!errors.fullName}
-                  aria-describedby={errors.fullName ? "fullName-error" : undefined}
-                />
-                {errors.fullName && (
-                  <p id="fullName-error" className="mt-1 text-sm text-red-600" role="alert">
-                    {errors.fullName}
-                  </p>
-                )}
-              </div>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span className="text-sm text-slate-500">
+              <span className="font-medium text-slate-700">{typingUsers} אנשים</span> ממלאים את הטופס עכשיו
+            </span>
+          </motion.div>
 
-              {/* Phone */}
-              <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-semibold text-neutral-900 mb-2"
-                >
-                  טלפון
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border-2 text-base ${
-                    errors.phone
-                      ? "border-red-300 focus:border-red-500"
-                      : "border-neutral-200 focus:border-orange-500"
-                  } focus:outline-none focus:ring-2 focus:ring-orange-200 transition-colors text-neutral-900`}
-                  aria-invalid={!!errors.phone}
-                  aria-describedby={errors.phone ? "phone-error" : undefined}
-                />
-                {errors.phone && (
-                  <p id="phone-error" className="mt-1 text-sm text-red-600" role="alert">
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-neutral-900 mb-2"
-                >
-                  אימייל
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border-2 text-base ${
-                    errors.email
-                      ? "border-red-300 focus:border-red-500"
-                      : "border-neutral-200 focus:border-orange-500"
-                  } focus:outline-none focus:ring-2 focus:ring-orange-200 transition-colors text-neutral-900`}
-                  aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? "email-error" : undefined}
-                />
-                {errors.email && (
-                  <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              {/* Message */}
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-semibold text-neutral-900 mb-2"
-                >
-                  ספרו לנו על העסק שלכם (אופציונלי)
-                </label>
-                <textarea
-                  id="message"
-                  rows={4}
-                  value={formData.message}
-                  onChange={(e) => handleChange("message", e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-colors text-neutral-900 text-base resize-none"
-                  placeholder="מה תחום העסק? מה האתגרים העיקריים?"
+          {!isSuccess ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden"
+            >
+              {/* Progress Bar */}
+              <div className="h-1.5 bg-slate-100">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-teal-500 to-teal-400"
+                  initial={{ width: "33.33%" }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.3 }}
                 />
               </div>
 
-              {/* Consent Checkbox */}
-              <div>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.consent}
-                    onChange={(e) => handleChange("consent", e.target.checked)}
-                    className="mt-1 w-5 h-5 rounded border-2 border-neutral-300 text-orange-500 focus:ring-2 focus:ring-orange-200 focus:ring-offset-0 cursor-pointer"
-                    aria-invalid={!!errors.consent}
-                    aria-describedby={errors.consent ? "consent-error" : undefined}
-                  />
-                  <span className="text-sm text-neutral-700 flex-1">
-                    אני מאשר/ת קבלת מידע ועדכונים
-                  </span>
-                </label>
-                {errors.consent && (
-                  <p id="consent-error" className="mt-1 text-sm text-red-600 mr-8" role="alert">
-                    {errors.consent}
-                  </p>
-                )}
+              {/* Step Indicator */}
+              <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+                <div className="flex justify-between items-center">
+                  {formSteps.map((step) => (
+                    <div
+                      key={step.id}
+                      className={`flex items-center gap-2 ${
+                        step.id === currentStep
+                          ? "text-teal-600"
+                          : step.id < currentStep
+                          ? "text-slate-400"
+                          : "text-slate-300"
+                      }`}
+                    >
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
+                          step.id === currentStep
+                            ? "bg-teal-100 text-teal-600"
+                            : step.id < currentStep
+                            ? "bg-teal-500 text-white"
+                            : "bg-slate-100 text-slate-400"
+                        }`}
+                      >
+                        {step.id < currentStep ? (
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : (
+                          step.id
+                        )}
+                      </div>
+                      <span className="hidden sm:inline text-sm font-medium">{step.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Submit Button */}
-              <motion.button
-                type="submit"
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-2xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <form onSubmit={handleSubmit} className="p-6 sm:p-8">
+                <AnimatePresence mode="wait">
+                  {/* Step 1: Personal Details */}
+                  {currentStep === 1 && (
+                    <motion.div
+                      key="step1"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-5"
+                    >
+                      <h3 className="text-lg font-bold text-slate-900 mb-4">נתחיל בהכרות קצרה</h3>
+                      
+                      <div>
+                        <label htmlFor="fullName" className="block text-sm font-semibold text-slate-700 mb-2">
+                          איך קוראים לך?
+                        </label>
+                        <input
+                          type="text"
+                          id="fullName"
+                          placeholder="השם המלא שלך"
+                          value={formData.fullName}
+                          onChange={(e) => handleChange("fullName", e.target.value)}
+                          className={`w-full px-4 py-3.5 rounded-xl border-2 text-base ${
+                            errors.fullName
+                              ? "border-red-300 focus:border-red-500 bg-red-50"
+                              : "border-slate-200 focus:border-teal-500 bg-slate-50"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 placeholder:text-slate-400`}
+                        />
+                        {errors.fullName && (
+                          <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {errors.fullName}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-2">
+                          מספר הטלפון שלך
+                        </label>
+                        <input
+                          type="tel"
+                          id="phone"
+                          placeholder="050-1234567"
+                          value={formData.phone}
+                          onChange={(e) => handleChange("phone", e.target.value)}
+                          className={`w-full px-4 py-3.5 rounded-xl border-2 text-base ${
+                            errors.phone
+                              ? "border-red-300 focus:border-red-500 bg-red-50"
+                              : "border-slate-200 focus:border-teal-500 bg-slate-50"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 placeholder:text-slate-400`}
+                        />
+                        {errors.phone && (
+                          <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {errors.phone}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+                          כתובת המייל שלך
+                        </label>
+                        <input
+                          type="email"
+                          id="email"
+                          placeholder="your@email.com"
+                          value={formData.email}
+                          onChange={(e) => handleChange("email", e.target.value)}
+                          className={`w-full px-4 py-3.5 rounded-xl border-2 text-base ${
+                            errors.email
+                              ? "border-red-300 focus:border-red-500 bg-red-50"
+                              : "border-slate-200 focus:border-teal-500 bg-slate-50"
+                          } focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 placeholder:text-slate-400`}
+                        />
+                        {errors.email && (
+                          <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {errors.email}
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 2: Business Details */}
+                  {currentStep === 2 && (
+                    <motion.div
+                      key="step2"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-5"
+                    >
+                      <h3 className="text-lg font-bold text-slate-900 mb-4">ספר/י לנו על העסק</h3>
+                      
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-3">
+                          סוג העסק שלך
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { value: "service", label: "שירותים", emoji: "💼" },
+                            { value: "ecommerce", label: "מסחר אונליין", emoji: "🛒" },
+                            { value: "tech", label: "טכנולוגיה", emoji: "💻" },
+                            { value: "other", label: "אחר", emoji: "✨" },
+                          ].map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => handleChange("businessType", option.value)}
+                              className={`p-4 rounded-xl border-2 text-right transition-all ${
+                                formData.businessType === option.value
+                                  ? "border-teal-500 bg-teal-50 text-teal-700"
+                                  : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300"
+                              }`}
+                            >
+                              <span className="text-2xl block mb-1">{option.emoji}</span>
+                              <span className="font-medium">{option.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                        {errors.businessType && (
+                          <p className="mt-2 text-sm text-red-600">{errors.businessType}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-3">
+                          גודל העסק
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            { value: "solo", label: "עצמאי" },
+                            { value: "small", label: "1-5 עובדים" },
+                            { value: "medium", label: "6-20 עובדים" },
+                            { value: "large", label: "20+ עובדים" },
+                          ].map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => handleChange("businessSize", option.value)}
+                              className={`px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
+                                formData.businessSize === option.value
+                                  ? "border-teal-500 bg-teal-50 text-teal-700"
+                                  : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300"
+                              }`}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-3">
+                          מתי תרצו להתחיל?
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            { value: "asap", label: "בהקדם האפשרי 🔥" },
+                            { value: "month", label: "תוך חודש" },
+                            { value: "exploring", label: "רק בודק/ת" },
+                          ].map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => handleChange("urgency", option.value)}
+                              className={`px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
+                                formData.urgency === option.value
+                                  ? "border-teal-500 bg-teal-50 text-teal-700"
+                                  : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300"
+                              }`}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 3: Final */}
+                  {currentStep === 3 && (
+                    <motion.div
+                      key="step3"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-5"
+                    >
+                      <h3 className="text-lg font-bold text-slate-900 mb-4">כמעט סיימנו!</h3>
+                      
+                      <div>
+                        <label htmlFor="message" className="block text-sm font-semibold text-slate-700 mb-2">
+                          רוצה להוסיף משהו? (אופציונלי)
+                        </label>
+                        <textarea
+                          id="message"
+                          rows={3}
+                          value={formData.message}
+                          onChange={(e) => handleChange("message", e.target.value)}
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 bg-slate-50 text-base resize-none placeholder:text-slate-400"
+                          placeholder="ספר/י לנו על האתגרים או המטרות של העסק..."
+                        />
+                      </div>
+
+                      {/* Consent */}
+                      <div className="bg-slate-50 rounded-xl p-4">
+                        <label className="flex items-start gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.consent}
+                            onChange={(e) => handleChange("consent", e.target.checked)}
+                            className="mt-1 w-5 h-5 rounded border-2 border-slate-300 text-teal-500 focus:ring-2 focus:ring-teal-200 cursor-pointer"
+                          />
+                          <span className="text-sm text-slate-600 flex-1">
+                            אני מאשר/ת קבלת מידע ועדכונים. הפרטים מאובטחים ולא יועברו לצד שלישי.
+                          </span>
+                        </label>
+                        {errors.consent && (
+                          <p className="mt-2 text-sm text-red-600">{errors.consent}</p>
+                        )}
+                      </div>
+
+                      {/* Summary */}
+                      <div className="bg-teal-50 rounded-xl p-4 border border-teal-100">
+                        <h4 className="font-semibold text-teal-800 mb-2">מה קורה עכשיו?</h4>
+                        <ul className="text-sm text-teal-700 space-y-1">
+                          <li className="flex items-center gap-2">
+                            <svg className="w-4 h-4 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            נחזור אליך תוך 24 שעות
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <svg className="w-4 h-4 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            שיחת היכרות קצרה (15 דק')
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <svg className="w-4 h-4 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            הצעה מותאמת אישית
+                          </li>
+                        </ul>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Navigation Buttons */}
+                <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
+                  {currentStep > 1 ? (
+                    <button
+                      type="button"
+                      onClick={handleBack}
+                      className="flex items-center gap-2 text-slate-600 hover:text-slate-800 font-medium transition-colors"
+                    >
+                      <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                      <span>חזרה</span>
+                    </button>
+                  ) : (
+                    <div />
+                  )}
+
+                  {currentStep < 3 ? (
+                    <motion.button
+                      type="button"
+                      onClick={handleNext}
+                      className="flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-teal-500/20 transition-all"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <span>המשך</span>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </motion.button>
+                  ) : (
+                    <motion.button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 px-8 py-3.5 rounded-xl font-bold shadow-lg transition-all disabled:opacity-70"
+                      whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                      whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          <span>שולח...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>שלחו לי הצעה!</span>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </>
+                      )}
+                    </motion.button>
+                  )}
+                </div>
+              </form>
+            </motion.div>
+          ) : (
+            /* Success State */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 sm:p-12 text-center"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.2 }}
+                className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg shadow-teal-500/30"
               >
-                שלחו לי הצעה
-              </motion.button>
-
-              {/* Privacy Note */}
-              <p className="text-xs text-neutral-500 text-center mt-4 px-4">
-                הפרטים שלכם מאובטחים ולא יועברו לגורמים חיצוניים. אנחנו משתמשים במידע רק למטרות יצירת קשר.
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </motion.div>
+              
+              <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
+                מעולה, {formData.fullName.split(" ")[0]}! 🎉
+              </h3>
+              <p className="text-slate-600 text-lg mb-6">
+                קיבלנו את הפרטים שלך ונחזור אליך תוך 24 שעות
               </p>
-            </div>
-          </motion.form>
+              
+              <div className="bg-teal-50 rounded-xl p-4 text-right mb-6">
+                <h4 className="font-semibold text-teal-800 mb-2">בינתיים, כדאי לדעת:</h4>
+                <p className="text-sm text-teal-700">
+                  98% מהלקוחות שלנו רואים תוצאות ראשונות תוך 30 יום. אתם בידיים טובות! 💪
+                </p>
+              </div>
+              
+              <button
+                onClick={() => {
+                  setIsSuccess(false)
+                  setCurrentStep(1)
+                  setFormData({
+                    fullName: "",
+                    phone: "",
+                    email: "",
+                    businessType: "",
+                    businessSize: "",
+                    urgency: "",
+                    message: "",
+                    consent: false,
+                  })
+                }}
+                className="text-teal-600 hover:text-teal-700 font-medium underline"
+              >
+                שליחת פנייה נוספת
+              </button>
+            </motion.div>
+          )}
+
+          {/* Privacy Note */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="text-center text-sm text-slate-500 mt-6 flex items-center justify-center gap-2"
+          >
+            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            הפרטים שלכם מאובטחים ומוצפנים. לא נשתף עם צד שלישי.
+          </motion.p>
         </motion.div>
       </div>
     </section>

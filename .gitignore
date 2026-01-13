@@ -16,8 +16,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
-.env*
+# env files (IMPORTANT: keep your secrets safe!)
+.env
+.env.*
+.env.local
+.env.production
+!.env.example
 
 # vercel
 .vercel
@@ -25,3 +29,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma
+/lib/generated/prisma
+*.db
+*.db-journal
+prisma/dev.db
+prisma/*.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
