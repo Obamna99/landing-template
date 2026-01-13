@@ -1,15 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // Allow external images
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.amazonaws.com',
+      },
+    ],
   },
+  // Optimize for production
+  poweredByHeader: false,
+  reactStrictMode: true,
+  // Experimental features
   experimental: {
-    serverActions: {
-      bodySizeLimit: '10mb',
-    },
+    optimizePackageImports: ['framer-motion', 'lucide-react'],
   },
 }
 
