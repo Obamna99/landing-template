@@ -4,18 +4,20 @@
  * ========================================
  * 
  * This is the central configuration file for the entire website.
- * Modify these values to customize the site for different projects.
+ * Modify these values to customize the site for different clients.
  * No need to edit individual components - all text comes from here.
+ * 
+ * 🎯 TEMPLATE READY - Replace placeholder values with client data
  */
 
 export const siteConfig = {
   // ========================================
-  // BASIC INFO
+  // BASIC INFO - Update for each client
   // ========================================
-  name: "שם העסק",
-  tagline: "פתרונות מקצועיים לעסקים",
-  description: "אנחנו מספקים פתרונות מקצועיים ושירותים איכותיים לעסקים בכל התחומים",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://example.com",
+  name: "Starter",
+  tagline: "Launch Your Business Forward",
+  description: "We help ambitious businesses grow faster with data-driven strategies, cutting-edge technology, and proven results. Transform your vision into measurable success.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://starter.agency",
   locale: "he",
   direction: "rtl" as const,
   
@@ -23,28 +25,28 @@ export const siteConfig = {
   // CONTACT INFO
   // ========================================
   contact: {
-    phone: "050-1234567",
-    email: "info@example.com",
-    address: "תל אביב, ישראל",
-    whatsapp: "972501234567", // Without + or spaces
+    phone: "03-123-4567",
+    email: "hello@starter.agency",
+    address: "מגדל אלקטרה, רחוב יגאל אלון 98, תל אביב",
+    whatsapp: "972312345678",
   },
   
   // ========================================
   // SOCIAL LINKS
   // ========================================
   social: {
-    facebook: "https://facebook.com/yourbusiness",
-    instagram: "https://instagram.com/yourbusiness",
-    linkedin: "https://linkedin.com/company/yourbusiness",
-    twitter: "https://twitter.com/yourbusiness",
+    facebook: "https://facebook.com/starteragency",
+    instagram: "https://instagram.com/starteragency",
+    linkedin: "https://linkedin.com/company/starteragency",
+    twitter: "https://twitter.com/starteragency",
   },
   
   // ========================================
   // BRANDING
   // ========================================
   branding: {
-    logo: "/logo.svg", // Path to logo file
-    logoText: "ש", // Fallback letter for logo
+    logo: "/logo.svg",
+    logoText: "S",
     primaryColor: "teal",
     accentColor: "amber",
   },
@@ -53,12 +55,12 @@ export const siteConfig = {
   // STATS / SOCIAL PROOF NUMBERS
   // ========================================
   stats: {
-    clients: "500+",
-    clientsLabel: "לקוחות מרוצים",
-    years: "12",
-    yearsLabel: "שנות ניסיון",
-    satisfaction: "98%",
-    satisfactionLabel: "שביעות רצון",
+    clients: "200+",
+    clientsLabel: "לקוחות פעילים",
+    years: "8",
+    yearsLabel: "שנות מומחיות",
+    satisfaction: "97%",
+    satisfactionLabel: "שיעור שימור",
     support: "24/7",
     supportLabel: "תמיכה",
   },
@@ -68,15 +70,15 @@ export const siteConfig = {
 // HERO SECTION
 // ========================================
 export const heroConfig = {
-  badge: "הפתרון המקצועי לעסקים",
+  badge: "הפלטפורמה לצמיחה עסקית",
   headline: {
-    line1: "הפכו את העסק שלכם",
-    highlight: "למכונת צמיחה",
+    line1: "הפכו את החזון שלכם",
+    highlight: "לתוצאות מדידות",
   },
-  subheadline: "אנחנו עוזרים לעסקים לצמוח עם פתרונות מותאמים אישית, שירות יוצא דופן ותוצאות מוכחות.",
+  subheadline: "אנחנו מלווים עסקים שאפתניים מהרעיון ועד להצלחה מוכחת—עם אסטרטגיה חכמה, ביצוע מדויק ותוצאות שמדברות בעד עצמן.",
   cta: {
     primary: {
-      text: "בואו נדבר",
+      text: "קבלו הצעה מותאמת",
       href: "#contact",
     },
     secondary: {
@@ -84,7 +86,7 @@ export const heroConfig = {
       href: "#how-it-works",
     },
   },
-  trustText: "מעל 1000 עסקים כבר צומחים איתנו",
+  trustText: "מצטרפים ל-200+ עסקים שכבר צומחים",
 }
 
 // ========================================
@@ -92,43 +94,43 @@ export const heroConfig = {
 // ========================================
 export const howItWorksConfig = {
   badge: "התהליך שלנו",
-  headline: "פשוט, ברור,",
-  headlineHighlight: " ויעיל",
-  subheadline: "ארבעה צעדים פשוטים מהפגישה הראשונה לתוצאות מוכחות",
-  ctaText: "מוכנים להתחיל? השיחה הראשונה",
-  ctaHighlight: " עלינו",
-  ctaButton: "תאמו שיחה עכשיו",
+  headline: "מסלול ברור",
+  headlineHighlight: " להצלחה",
+  subheadline: "ארבעה שלבים מובנים שלוקחים אתכם מהמצב הנוכחי לתוצאות שרציתם",
+  ctaText: "התייעצות ראשונית",
+  ctaHighlight: " ללא עלות",
+  ctaButton: "קבעו שיחת היכרות",
   steps: [
     {
       id: 1,
-      title: "שיחת היכרות",
-      description: "15 דקות להבין את העסק, האתגרים והמטרות שלכם. ללא עלות וללא התחייבות.",
-      duration: "15 דק'",
+      title: "שיחת אבחון",
+      description: "פגישה ממוקדת להבנת העסק, האתגרים והמטרות. נבנה תמונת מצב ברורה.",
+      duration: "30 דק'",
       highlight: "חינם",
-      icon: "chat", // Icon key
+      icon: "chat",
     },
     {
       id: 2,
-      title: "אסטרטגיה מותאמת",
-      description: "נבנה תכנית פעולה מפורטת עם יעדים ברורים, KPIs ולוחות זמנים.",
-      duration: "3-5 ימים",
+      title: "תכנית פעולה",
+      description: "מפת דרכים מותאמת אישית עם יעדים מדידים, ציר זמן ותקציב ברור.",
+      duration: "5 ימי עסקים",
       highlight: null,
       icon: "clipboard",
     },
     {
       id: 3,
-      title: "ביצוע מקצועי",
-      description: "הצוות המנוסה שלנו מתחיל לעבוד. תקבלו עדכונים שוטפים ושקיפות מלאה.",
-      duration: "מתמשך",
+      title: "הטמעה מקצועית",
+      description: "הצוות שלנו מבצע את התכנית עם עדכונים שוטפים ושקיפות מלאה.",
+      duration: "לפי תכנית",
       highlight: null,
       icon: "lightning",
     },
     {
       id: 4,
-      title: "צמיחה מתמדת",
-      description: "ניתוח תוצאות, אופטימיזציה מתמשכת וליווי להצלחה ארוכת טווח.",
-      duration: "לאורך זמן",
-      highlight: "98% שביעות רצון",
+      title: "מדידה ואופטימיזציה",
+      description: "ניטור ביצועים, התאמות נדרשות וליווי שוטף להצלחה ארוכת טווח.",
+      duration: "מתמשך",
+      highlight: "97% שביעות רצון",
       icon: "chart",
     },
   ],
@@ -138,83 +140,83 @@ export const howItWorksConfig = {
 // ABOUT SECTION
 // ========================================
 export const aboutConfig = {
-  badge: "הסיפור שלנו",
-  headline: "לא עוד חברה.",
-  headlineHighlight: " משפחה של מומחים.",
-  subheadline: "כי כשמכירים את הלקוחות שלנו בשם—התוצאות מדברות בעד עצמן",
+  badge: "מי אנחנו",
+  headline: "לא סוכנות רגילה.",
+  headlineHighlight: " שותפים לצמיחה.",
+  subheadline: "אנחנו צוות של מומחים שמאמינים שכל עסק ראוי ליחס אישי ולתוצאות אמיתיות",
   
   founder: {
-    name: "דני כהן",
+    name: "שם המייסד",
     role: "מייסד ומנכ\"ל",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face",
-    quote: "התחלתי את הדרך לפני 12 שנה עם אמונה פשוטה: כל עסק ראוי לקבל את אותו היחס שהייתי רוצה לעסק שלי. היום, עם צוות של 25 מומחים, אנחנו עדיין שומרים על האמונה הזו—כל לקוח הוא שותף, לא מספר.",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+    quote: "הקמתי את הסוכנות מתוך אמונה פשוטה: עסקים ראויים לשותפים אמיתיים, לא לספקי שירות. כל לקוח הוא סיפור הצלחה בהמתנה, ואנחנו כאן כדי לכתוב אותו יחד.",
     linkedin: "https://linkedin.com/in/founder",
   },
   
   timeline: [
-    { year: "2012", text: "הקמת החברה—התחלנו עם חזון ומחשב נייד" },
-    { year: "2016", text: "הלקוח ה-100—הבנו שמשהו עובד" },
-    { year: "2020", text: "הרחבה לשירותים דיגיטליים מלאים" },
-    { year: "2024", text: "500+ לקוחות מרוצים ועדיין מתקדמים" },
+    { year: "2016", text: "הקמת הסוכנות עם חזון ברור—להפוך עסקים טובים למצוינים" },
+    { year: "2018", text: "חצינו את רף 50 הלקוחות והרחבנו את הצוות" },
+    { year: "2021", text: "השקנו את מערך השירותים הדיגיטליים המלא" },
+    { year: "2024", text: "200+ לקוחות פעילים, 8 שנות מומחיות מצטברת" },
   ],
   
   trustItems: [
     {
-      title: "ניסיון מוכח",
-      description: "12 שנים של הצלחות מוכחות עם מאות לקוחות מרוצים בכל התחומים",
-      stat: "500+",
-      statLabel: "לקוחות",
+      title: "מומחיות מוכחת",
+      description: "צוות מנוסה עם רקורד של הצלחות בעשרות תחומים ותעשיות שונות",
+      stat: "200+",
+      statLabel: "פרויקטים",
       icon: "badge",
     },
     {
-      title: "שירות אישי",
-      description: "צוות ייעודי לכל לקוח—תמיד מישהו שמכיר אתכם ואת העסק שלכם לעומק",
+      title: "גישה אישית",
+      description: "כל לקוח מקבל מנהל לקוח ייעודי שמכיר את העסק לעומק",
       stat: "24/7",
-      statLabel: "תמיכה",
+      statLabel: "זמינות",
       icon: "user",
     },
     {
       title: "תוצאות מדידות",
-      description: "לא הבטחות—מספרים. דוחות שקופים ו-KPIs ברורים לכל פרויקט",
-      stat: "98%",
-      statLabel: "שביעות רצון",
+      description: "דשבורד שקוף עם KPIs ברורים ודוחות ביצועים חודשיים",
+      stat: "97%",
+      statLabel: "שימור לקוחות",
       icon: "chart",
     },
   ],
   
-  ctaText: "רוצים לשמוע איך נוכל לעזור לעסק שלכם?",
-  ctaButton: "בואו נכיר",
+  ctaText: "מוכנים לגלות איך נוכל לעזור לעסק שלכם?",
+  ctaButton: "בואו נדבר",
 }
 
 // ========================================
 // REVIEWS SECTION
 // ========================================
 export const reviewsConfig = {
-  badge: "ביקורות אמיתיות",
-  headline: "לקוחות מספרים.",
-  headlineHighlight: " המספרים מוכיחים.",
-  subheadline: "אל תאמינו לנו—תאמינו ללקוחות שכבר עברו את המסע",
+  badge: "מה אומרים עלינו",
+  headline: "הלקוחות מדברים.",
+  headlineHighlight: " התוצאות מוכיחות.",
+  subheadline: "סיפורי הצלחה אמיתיים מעסקים שעברו את המסע איתנו",
   
   stats: [
     { key: "clients", label: "לקוחות מרוצים" },
     { key: "rating", label: "דירוג ממוצע" },
-    { key: "recommend", value: "98%", label: "ממליצים עלינו" },
+    { key: "recommend", value: "97%", label: "ממליצים עלינו" },
   ],
   
   caseStudy: {
     show: true,
-    title: "סיפור הצלחה מעורר השראה",
-    company: "סטארטאפ X",
-    industry: "טכנולוגיה",
-    challenge: "אפס נוכחות דיגיטלית, תקציב מוגבל",
-    solution: "אסטרטגיית תוכן + פרסום ממוקד",
-    quote: "מסטארטאפ עם רעיון לחברה רווחית—תוך 8 חודשים בלבד.",
-    author: "רון, מייסד",
-    image: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&h=400&fit=crop",
+    title: "תיק עבודות מודגש",
+    company: "TechFlow Solutions",
+    industry: "SaaS B2B",
+    challenge: "מוצר מצוין ללא נוכחות שיווקית, תנועה אורגנית אפסית",
+    solution: "אסטרטגיית תוכן + SEO טכני + קמפיינים ממוקדים",
+    quote: "תוך 6 חודשים עברנו מאפס לידים ל-50+ פניות איכותיות בחודש. ROI שאי אפשר להתווכח איתו.",
+    author: "גל, VP Marketing",
+    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
     results: [
-      { metric: "500%", label: "גידול בתנועה" },
-      { metric: "₪2M", label: "הכנסות שנתיות" },
-      { metric: "45", label: "לקוחות חדשים" },
+      { metric: "340%", label: "גידול בתנועה" },
+      { metric: "52", label: "לידים חודשיים" },
+      { metric: "4.2x", label: "ROI על השקעה" },
     ],
     ctaText: "רוצים תוצאות דומות?",
   },
@@ -225,12 +227,29 @@ export const reviewsConfig = {
 // ========================================
 export const videoConfig = {
   show: true,
-  badge: "צפו בסרטון",
-  headline: "ראו איך אנחנו",
-  headlineHighlight: " עובדים",
-  subheadline: "בשני דקות תבינו למה לקוחות בוחרים בנו שוב ושוב",
-  videoId: "dQw4w9WgXcQ", // YouTube video ID
-  thumbnail: null, // Optional custom thumbnail URL
+  badge: "ראו אותנו בפעולה",
+  headline: "הכירו את",
+  headlineHighlight: " הגישה שלנו",
+  subheadline: "90 שניות שיעשו לכם סדר—למה עסקים בוחרים לעבוד איתנו",
+  
+  // Easy video swap - just change this ID
+  // YouTube: use video ID (e.g., "dQw4w9WgXcQ")
+  // Vimeo: use video ID (e.g., "123456789")
+  provider: "youtube" as "youtube" | "vimeo" | "custom",
+  videoId: "dQw4w9WgXcQ", // Replace with your video ID
+  
+  // Custom video URL (for self-hosted videos)
+  customVideoUrl: null as string | null,
+  
+  // Thumbnail (optional - leave null for auto-generated)
+  thumbnail: null as string | null,
+  
+  // Video highlights shown below
+  highlights: [
+    { icon: "🎯", text: "הגישה" },
+    { icon: "👥", text: "הצוות" },
+    { icon: "📈", text: "התוצאות" },
+  ],
 }
 
 // ========================================
@@ -239,31 +258,35 @@ export const videoConfig = {
 export const faqConfig = {
   badge: "שאלות נפוצות",
   headline: "יש שאלות?",
-  headlineHighlight: " יש לנו תשובות.",
-  subheadline: "כל מה שצריך לדעת לפני שמתחילים",
-  ctaText: "לא מצאתם תשובה? דברו איתנו ישירות",
-  ctaButton: "צרו קשר",
+  headlineHighlight: " הנה התשובות.",
+  subheadline: "כל מה שצריך לדעת לפני שמתחילים לעבוד יחד",
+  ctaText: "לא מצאתם תשובה? אנחנו כאן",
+  ctaButton: "שלחו הודעה",
   
   questions: [
     {
-      question: "כמה זמן לוקח לראות תוצאות?",
-      answer: "רוב הלקוחות שלנו רואים תוצאות ראשונות תוך 30-60 יום. התוצאות המלאות מגיעות בדרך כלל תוך 3-6 חודשים, תלוי בהיקף הפרויקט ובמטרות שהוגדרו.",
+      question: "כמה זמן עד שרואים תוצאות?",
+      answer: "תלוי בפרויקט ובמטרות. תוצאות ראשונות בדרך כלל נראות תוך 4-8 שבועות, עם תמונה מלאה תוך 3-6 חודשים. אנחנו מציבים יעדי ביניים ברורים כדי שתראו התקדמות מהיום הראשון.",
     },
     {
-      question: "מה העלות של השירותים?",
-      answer: "המחירים שלנו מותאמים אישית לכל לקוח בהתאם לצרכים והיקף הפרויקט. נשמח לתת לכם הצעת מחיר מפורטת לאחר שיחת היכרות קצרה.",
+      question: "מה כולל התמחור?",
+      answer: "התמחור מותאם אישית לצרכים ולהיקף הפרויקט. כל הצעה כוללת פירוט מלא של השירותים, ללא עלויות נסתרות. נשמח לתת הצעה מפורטת לאחר שיחת היכרות קצרה.",
     },
     {
-      question: "האם יש התחייבות לתקופה מסוימת?",
-      answer: "אנחנו מאמינים בשקיפות ובגמישות. רוב החבילות שלנו הן חודשיות ללא התחייבות ארוכת טווח. אנחנו סומכים על האיכות שלנו.",
+      question: "יש התחייבות לתקופה מסוימת?",
+      answer: "אנחנו מציעים גמישות מלאה. רוב החבילות הן חודשיות ללא התחייבות ארוכת טווח. יש גם אפשרות לתכניות שנתיות עם הטבות מיוחדות.",
     },
     {
       question: "איך מתחילים?",
-      answer: "פשוט מאוד! מלאו את הטופס למטה או התקשרו אלינו. נקבע שיחת היכרות קצרה (15 דקות) להבין את הצרכים שלכם, ומשם נבנה יחד תכנית פעולה.",
+      answer: "פשוט! מלאו את הטופס או התקשרו. נקבע שיחת היכרות קצרה (30 דקות) להבין את הצרכים, ותוך 5 ימי עסקים תקבלו הצעה מותאמת.",
     },
     {
-      question: "מה קורה אם אני לא מרוצה?",
-      answer: "שביעות הרצון שלכם היא בראש סדר העדיפויות שלנו. אם משהו לא עובד, נעשה הכל כדי לתקן. יש לנו מדיניות החזר כספי ברורה למקרים שנדרש.",
+      question: "מה ההבדל בינכם לסוכנויות אחרות?",
+      answer: "שלושה דברים: ראשית, אנחנו שותפים לצמיחה ולא ספקי שירות—ההצלחה שלכם היא ההצלחה שלנו. שנית, שקיפות מלאה עם דשבורד זמין 24/7. שלישית, צוות ייעודי שמכיר את העסק שלכם לעומק.",
+    },
+    {
+      question: "מה אם אני לא מרוצה?",
+      answer: "שביעות הרצון שלכם בראש סדר העדיפויות. יש לנו מדיניות ברורה: אם משהו לא עובד, נתקן. ואם עדיין לא מרוצים—יש מדיניות החזר כספי יחסי לתקופה שנותרה.",
     },
   ],
 }
@@ -272,14 +295,14 @@ export const faqConfig = {
 // CONTACT FORM SECTION
 // ========================================
 export const contactConfig = {
-  badge: "בואו נתחיל",
+  badge: "בואו נדבר",
   headline: "מוכנים",
-  headlineHighlight: " לעשות את הצעד?",
-  subheadline: "פגישת היכרות קצרה, ללא עלות וללא התחייבות",
+  headlineHighlight: " לצעד הבא?",
+  subheadline: "שיחת היכרות קצרה, ללא עלות וללא התחייבות",
   
   liveActivity: {
     show: true,
-    text: "אנשים ממלאים את הטופס עכשיו",
+    text: "אנשים פונים אלינו עכשיו",
     minUsers: 2,
     maxUsers: 5,
   },
@@ -291,70 +314,72 @@ export const contactConfig = {
   ],
   
   step1: {
-    title: "נתחיל בהכרות קצרה",
+    title: "נעים להכיר!",
     fields: {
-      fullName: { label: "איך קוראים לך?", placeholder: "השם המלא שלך" },
-      phone: { label: "מספר הטלפון שלך", placeholder: "050-1234567" },
-      email: { label: "כתובת המייל שלך", placeholder: "your@email.com" },
+      fullName: { label: "שם מלא", placeholder: "איך קוראים לך?" },
+      phone: { label: "טלפון", placeholder: "050-000-0000" },
+      email: { label: "אימייל", placeholder: "your@email.com" },
     },
   },
   
   step2: {
-    title: "ספר/י לנו על העסק",
+    title: "ספרו לנו על העסק",
     businessTypes: [
       { value: "service", label: "שירותים", emoji: "💼" },
-      { value: "ecommerce", label: "מסחר אונליין", emoji: "🛒" },
-      { value: "tech", label: "טכנולוגיה", emoji: "💻" },
+      { value: "ecommerce", label: "E-Commerce", emoji: "🛒" },
+      { value: "saas", label: "SaaS / Tech", emoji: "💻" },
+      { value: "local", label: "עסק מקומי", emoji: "📍" },
       { value: "other", label: "אחר", emoji: "✨" },
     ],
     businessSizes: [
       { value: "solo", label: "עצמאי" },
-      { value: "small", label: "1-5 עובדים" },
-      { value: "medium", label: "6-20 עובדים" },
-      { value: "large", label: "20+ עובדים" },
+      { value: "small", label: "2-10 עובדים" },
+      { value: "medium", label: "11-50 עובדים" },
+      { value: "large", label: "50+ עובדים" },
     ],
     urgencyOptions: [
-      { value: "asap", label: "בהקדם האפשרי 🔥" },
+      { value: "asap", label: "בהקדם 🔥" },
       { value: "month", label: "תוך חודש" },
-      { value: "exploring", label: "רק בודק/ת" },
+      { value: "quarter", label: "תוך רבעון" },
+      { value: "exploring", label: "בודק אפשרויות" },
     ],
   },
   
   step3: {
-    title: "כמעט סיימנו!",
-    messageLabel: "רוצה להוסיף משהו? (אופציונלי)",
-    messagePlaceholder: "ספר/י לנו על האתגרים או המטרות של העסק...",
-    consentText: "אני מאשר/ת קבלת מידע ועדכונים. הפרטים מאובטחים ולא יועברו לצד שלישי.",
+    title: "עוד צעד אחד קטן",
+    messageLabel: "משהו נוסף שחשוב לנו לדעת? (אופציונלי)",
+    messagePlaceholder: "ספרו על האתגרים, המטרות או כל דבר שיעזור לנו להבין טוב יותר...",
+    consentText: "אני מאשר/ת קבלת עדכונים. הפרטים מאובטחים ולא יועברו לצד שלישי.",
     whatHappensNext: {
-      title: "מה קורה עכשיו?",
+      title: "מה קורה אחרי?",
       items: [
-        "נחזור אליך תוך 24 שעות",
-        "שיחת היכרות קצרה (15 דק')",
-        "הצעה מותאמת אישית",
+        "ניצור קשר תוך יום עסקים אחד",
+        "שיחת אבחון ממוקדת (30 דק')",
+        "הצעה מותאמת תוך 5 ימי עסקים",
       ],
     },
   },
   
-  submitButton: "שלחו לי הצעה!",
+  submitButton: "שלחו ונדבר!",
   successMessage: {
     title: "מעולה, {{name}}! 🎉",
-    description: "קיבלנו את הפרטים שלך ונחזור אליך תוך 24 שעות",
-    tip: "98% מהלקוחות שלנו רואים תוצאות ראשונות תוך 30 יום. אתם בידיים טובות! 💪",
+    description: "קיבלנו את הפרטים ונחזור אליכם תוך יום עסקים",
+    tip: "בינתיים, 97% מהלקוחות שלנו ממשיכים איתנו לטווח ארוך. סימן שאתם בידיים טובות! 💪",
   },
   
-  privacyNote: "הפרטים שלכם מאובטחים ומוצפנים. לא נשתף עם צד שלישי.",
+  privacyNote: "הפרטים שלכם מאובטחים ומוצפנים בתקן הגבוה ביותר.",
 }
 
 // ========================================
 // FOOTER
 // ========================================
 export const footerConfig = {
-  description: "אנחנו כאן כדי לעזור לעסק שלכם לצמוח. צוות של מומחים עם ניסיון של שנים בתחום.",
+  description: "אנחנו כאן כדי להפוך עסקים טובים למצוינים. צוות מומחים, גישה אישית ותוצאות מוכחות.",
   
   quickLinks: [
     { label: "איך זה עובד", href: "#how-it-works" },
-    { label: "עלינו", href: "#about" },
-    { label: "ביקורות", href: "#reviews" },
+    { label: "מי אנחנו", href: "#about" },
+    { label: "המלצות", href: "#reviews" },
     { label: "שאלות נפוצות", href: "#faq" },
     { label: "צור קשר", href: "#contact" },
   ],
@@ -373,11 +398,11 @@ export const footerConfig = {
 export const headerConfig = {
   navLinks: [
     { id: "how-it-works", label: "איך זה עובד" },
-    { id: "about", label: "עלינו" },
-    { id: "reviews", label: "ביקורות" },
+    { id: "about", label: "מי אנחנו" },
+    { id: "reviews", label: "המלצות" },
     { id: "faq", label: "שאלות נפוצות" },
   ],
-  ctaButton: "התחילו עכשיו",
+  ctaButton: "דברו איתנו",
 }
 
 // ========================================
@@ -386,19 +411,19 @@ export const headerConfig = {
 export const floatingCtaConfig = {
   show: true,
   text: "דברו איתנו",
-  type: "whatsapp" as "whatsapp" | "phone" | "scroll", // whatsapp, phone, or scroll to contact
-  message: "שלום, אשמח לשמוע פרטים נוספים על השירותים שלכם", // WhatsApp message
+  type: "whatsapp" as "whatsapp" | "phone" | "scroll",
+  message: "היי, אשמח לשמוע פרטים על השירותים שלכם",
 }
 
 // ========================================
 // SEO / METADATA
 // ========================================
 export const seoConfig = {
-  title: `${siteConfig.name} - ${siteConfig.tagline}`,
+  title: `${siteConfig.name} | ${siteConfig.tagline}`,
   description: siteConfig.description,
-  keywords: ["עסקים", "שיווק", "פתרונות", "שירותים", "ייעוץ"],
+  keywords: ["סוכנות דיגיטל", "שיווק דיגיטלי", "צמיחה עסקית", "אסטרטגיה שיווקית", "SaaS", "B2B"],
   ogImage: "/og-image.jpg",
-  twitterHandle: "@yourbusiness",
+  twitterHandle: "@starteragency",
 }
 
 // ========================================
@@ -406,7 +431,7 @@ export const seoConfig = {
 // ========================================
 export const emailConfig = {
   fromName: siteConfig.name,
-  fromEmail: process.env.SES_FROM_EMAIL || "noreply@example.com",
+  fromEmail: process.env.SES_FROM_EMAIL || "hello@starter.agency",
   replyTo: siteConfig.contact.email,
   
   templates: {
@@ -424,35 +449,50 @@ export const emailConfig = {
 }
 
 // ========================================
-// TRUST BADGES (optional logos section)
+// TRUSTED BY LOGOS - Easy to swap
 // ========================================
-export const trustBadgesConfig = {
-  show: true,
-  title: "עובדים עם החברות המובילות",
+export const trustedByConfig = {
+  title: "נבחרנו על ידי חברות מובילות",
+  subtitle: "עובדים עם עסקים שרוצים לצמוח",
+  
+  // Add your client logos here
+  // Format: { name: "Company Name", logo: "/logos/company.svg" }
   logos: [
-    { name: "Company 1", logo: "/logos/company1.svg" },
-    { name: "Company 2", logo: "/logos/company2.svg" },
-    { name: "Company 3", logo: "/logos/company3.svg" },
-    { name: "Company 4", logo: "/logos/company4.svg" },
-    { name: "Company 5", logo: "/logos/company5.svg" },
+    { name: "TechCorp", logo: "/placeholder-logo.svg" },
+    { name: "GrowthLabs", logo: "/placeholder-logo.svg" },
+    { name: "ScaleUp", logo: "/placeholder-logo.svg" },
+    { name: "InnovateCo", logo: "/placeholder-logo.svg" },
+    { name: "FutureTech", logo: "/placeholder-logo.svg" },
+    { name: "NextGen", logo: "/placeholder-logo.svg" },
   ],
+  
+  certifications: [
+    { name: "Google Partner", icon: "google" },
+    { name: "Meta Partner", icon: "meta" },
+    { name: "HubSpot Partner", icon: "hubspot" },
+  ],
+  
+  guarantee: {
+    title: "הבטחת שביעות רצון",
+    description: "לא מרוצים? נתקן או נחזיר—פשוט וברור",
+  },
 }
 
 // ========================================
-// TRANSFORMATION SECTION (Before/After)
+// TRANSFORMATION SECTION
 // ========================================
 export const transformationConfig = {
   show: true,
-  badge: "השינוי",
-  headline: "מאיפה שאתם היום",
-  headlineHighlight: " לאן שתגיעו",
+  badge: "הטרנספורמציה",
+  headline: "מהמצב הנוכחי",
+  headlineHighlight: " לתוצאות שרציתם",
   
   before: {
     title: "לפני",
     items: [
-      "תחושת תקיעות בעסק",
-      "חוסר בהירות בכיוון",
-      "בזבוז זמן על דברים לא נכונים",
+      "תחושת תקיעות ואי ודאות",
+      "פיזור משאבים לכל הכיוונים",
+      "קושי למדוד החזר השקעה",
       "תוצאות לא עקביות",
     ],
   },
@@ -460,12 +500,12 @@ export const transformationConfig = {
   after: {
     title: "אחרי",
     items: [
-      "צמיחה עקבית ומתמשכת",
-      "אסטרטגיה ברורה וממוקדת",
-      "יעילות מקסימלית",
-      "תוצאות מוכחות ומדידות",
+      "כיוון ברור ויעדים מוגדרים",
+      "מיקוד במה שבאמת עובד",
+      "דשבורד שקוף עם מדדים ברורים",
+      "צמיחה עקבית וצפויה",
     ],
   },
   
-  ctaText: "מוכנים לשינוי?",
+  ctaText: "מוכנים לטרנספורמציה?",
 }

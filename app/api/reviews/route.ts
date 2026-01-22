@@ -1,28 +1,52 @@
 import { NextRequest, NextResponse } from "next/server"
-import prisma from "@/lib/db"
+import { db, isSupabaseConfigured } from "@/lib/supabase"
 
-// GET - Fetch reviews (use ?all=true for admin to see inactive reviews)
-export async function GET(request: NextRequest) {
+// Lazy load Prisma only if needed
+let prisma: any = null
+async function getPrisma() {
+  if (!prisma) {
+    const { default: prismaClient } = await import("@/lib/db")
+    prisma = prismaClient
+  }
+  return prisma
+}
+
+// GET - Fetch all active reviews
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const featured = searchParams.get("featured")
-    const limit = searchParams.get("limit")
-    const all = searchParams.get("all") === "true" // Include inactive reviews
-    
-    const reviews = await prisma.review.findMany({
-      where: {
-        // Only filter by active if not requesting all
-        ...(!all && { active: true }),
-        ...(featured === "true" && { featured: true }),
-      },
-      orderBy: [
-        { order: "asc" },
-        { createdAt: "desc" },
-      ],
-      ...(limit && { take: parseInt(limit) }),
-    })
-    
-    return NextResponse.json(reviews)
+    if (isSupabaseConfigured) {
+      const reviews = await db.reviews.getActive()
+      
+      // Transform Supabase snake_case to camelCase for frontend compatibility
+      const transformedReviews = reviews?.map((review: any) => ({
+        id: review.id,
+        name: review.name,
+        role: review.role,
+        company: review.company,
+        content: review.content,
+        rating: review.rating,
+        imageUrl: review.image_url,
+        result: review.result,
+        resultLabel: review.result_label,
+        featured: review.featured,
+        verified: review.verified,
+        active: review.active,
+        order: review.display_order,
+        createdAt: review.created_at,
+        updatedAt: review.updated_at,
+      })) || []
+      
+      return NextResponse.json(transformedReviews)
+    } else {
+      // Fallback to Prisma
+      const prismaClient = await getPrisma()
+      const reviews = await prismaClient.review.findMany({
+        where: { active: true },
+        orderBy: { order: "asc" },
+      })
+      
+      return NextResponse.json(reviews)
+    }
   } catch (error) {
     console.error("Error fetching reviews:", error)
     return NextResponse.json(
@@ -37,24 +61,54 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    const review = await prisma.review.create({
-      data: {
+    // Validate required fields
+    if (!body.name || !body.content) {
+      return NextResponse.json(
+        { error: "Name and content are required" },
+        { status: 400 }
+      )
+    }
+    
+    if (isSupabaseConfigured) {
+      const review = await db.reviews.create({
         name: body.name,
         role: body.role,
         company: body.company,
         content: body.content,
         rating: body.rating || 5,
-        imageUrl: body.imageUrl,
+        image_url: body.imageUrl,
         result: body.result,
-        resultLabel: body.resultLabel,
+        result_label: body.resultLabel,
         featured: body.featured || false,
         verified: body.verified ?? true,
         active: body.active ?? true,
-        order: body.order || 0,
-      },
-    })
-    
-    return NextResponse.json(review, { status: 201 })
+        display_order: body.order || 0,
+      })
+      
+      return NextResponse.json(review, { status: 201 })
+    } else {
+      // Fallback to Prisma
+      const prismaClient = await getPrisma()
+      
+      const review = await prismaClient.review.create({
+        data: {
+          name: body.name,
+          role: body.role,
+          company: body.company,
+          content: body.content,
+          rating: body.rating || 5,
+          imageUrl: body.imageUrl,
+          result: body.result,
+          resultLabel: body.resultLabel,
+          featured: body.featured || false,
+          verified: body.verified ?? true,
+          active: body.active ?? true,
+          order: body.order || 0,
+        },
+      })
+      
+      return NextResponse.json(review, { status: 201 })
+    }
   } catch (error) {
     console.error("Error creating review:", error)
     return NextResponse.json(

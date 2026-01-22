@@ -267,6 +267,24 @@
   animation: float 3s ease-in-out infinite;
 }
 
+/* Optimized blob animation - CSS-only, GPU accelerated */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+.animate-blob {
+  animation: blob 20s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Pulse ring animation */
 @keyframes pulse-ring {
   0% { transform: scale(0.8); opacity: 1; }

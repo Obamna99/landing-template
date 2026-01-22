@@ -20,17 +20,42 @@ npm install
 
 **No need to edit individual components - all text comes from the config file!**
 
-### 3. Set Up Environment Variables
+### 3. Set Up Database
 
-Create a `.env` file in the root directory:
+#### Option A: Supabase (Recommended for Production) 🌟
+
+1. Create a free project at [supabase.com](https://supabase.com)
+2. Go to **Project Settings > API** and copy your URL and anon key
+3. Create `.env.local` with:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+   ```
+4. Run this SQL in Supabase SQL Editor (see full script below)
+
+#### Option B: SQLite with Prisma (Local Development)
+
+If Supabase is not configured, the app automatically falls back to SQLite:
+```env
+DATABASE_URL="file:./prisma/dev.db"
+```
+Then run: `npm run db:push && npm run db:seed`
+
+### 4. Set Up Environment Variables
+
+Create a `.env.local` file in the root directory:
 
 ```env
-# Database (SQLite - local file)
+# Database - Choose one:
+# Option 1: Supabase (recommended)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+# Option 2: SQLite fallback
 DATABASE_URL="file:./prisma/dev.db"
 
 # Admin Authentication
-ADMIN_USERNAME="admin"
-ADMIN_PASSWORD="$2a$10$xxxxxxxxxxxxx"  # bcrypt hash (see below)
+ADMIN_PASSWORD="your-secure-password"
 JWT_SECRET="your-jwt-secret-key-at-least-32-characters-long"
 
 # Site URL
@@ -41,6 +66,81 @@ AWS_REGION="eu-west-1"
 AWS_ACCESS_KEY_ID="your-aws-access-key"
 AWS_SECRET_ACCESS_KEY="your-aws-secret-key"
 SES_FROM_EMAIL="noreply@yourdomain.com"
+```
+
+---
+
+## 🗄️ Supabase Database Setup
+
+Run this SQL in your Supabase SQL Editor:
+
+```sql
+-- Leads table
+CREATE TABLE leads (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  business_type TEXT,
+  business_size TEXT,
+  urgency TEXT,
+  message TEXT,
+  status TEXT DEFAULT 'new',
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Subscribers table
+CREATE TABLE subscribers (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  phone TEXT,
+  business_type TEXT,
+  business_size TEXT,
+  source TEXT,
+  status TEXT DEFAULT 'active',
+  subscribed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  unsubscribed_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Reviews table
+CREATE TABLE reviews (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT,
+  company TEXT,
+  content TEXT NOT NULL,
+  rating INTEGER DEFAULT 5,
+  image_url TEXT,
+  result TEXT,
+  result_label TEXT,
+  featured BOOLEAN DEFAULT FALSE,
+  verified BOOLEAN DEFAULT TRUE,
+  active BOOLEAN DEFAULT TRUE,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Row Level Security
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+
+-- Policies (public can submit leads, read reviews)
+CREATE POLICY "Allow public insert on leads" ON leads FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public insert on subscribers" ON subscribers FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public read on reviews" ON reviews FOR SELECT USING (active = true);
+
+-- Insert sample reviews
+INSERT INTO reviews (name, role, company, content, rating, result, result_label, active, display_order) VALUES
+('Sarah Cohen', 'Marketing Director', 'TechFlow', 'Working with this team transformed our digital presence. Results exceeded expectations.', 5, '+340%', 'Traffic Growth', true, 1),
+('David Levi', 'CEO', 'ScaleUp Inc', 'Professional, responsive, and truly understand business growth. Highly recommended.', 5, '52', 'Monthly Leads', true, 2),
+('Maya Goldberg', 'Founder', 'InnovateCo', 'From strategy to execution, they delivered exactly what we needed. Game changer.', 5, '4.2x', 'ROI', true, 3);
 ```
 
 #### Generate a bcrypt password hash:
