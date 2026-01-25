@@ -37,7 +37,6 @@ const rotatingWords = ["למכור", "להתבלט", "לצמוח", "להרשים
 
 export function Hero() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
-  const [spotsLeft] = useState(7)
 
   // Memoized static blobs for better performance - reduced count
   const floatingBlobs = useMemo(() => [
@@ -238,8 +237,8 @@ export function Hero() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   ),
-                  title: "שיווק במייל זול",
-                  description: "Amazon SES—$0.10 לכל 1,000 מיילים",
+                  title: "מערכת מיילים מקצועית",
+                  description: "שלחו אלפי מיילים בקלות ובמחיר נמוך",
                 },
                 {
                   icon: (
@@ -248,7 +247,7 @@ export function Hero() {
                     </svg>
                   ),
                   title: "מחיר שמנצח",
-                  description: "חיסכון של 70% מול המתחרים",
+                  description: "זול משמעותית מהמתחרים",
                 },
               ].map((feature, index) => (
                 <motion.div
@@ -276,22 +275,6 @@ export function Hero() {
           transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
           className="text-center"
         >
-          {/* Urgency Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, delay: 0.35 }}
-            className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-2 mb-4"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-            </span>
-            <span className="text-sm font-medium text-amber-800">
-              נותרו <span className="font-bold">{spotsLeft} מקומות</span> לפרויקטים החודש
-            </span>
-          </motion.div>
-
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
             <motion.button
@@ -327,7 +310,7 @@ export function Hero() {
             <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            שיחה קצרה ללא עלות • לא מרוצים? מחזירים כסף
+            שיחה קצרה ללא עלות
           </motion.p>
         </motion.div>
       </div>
