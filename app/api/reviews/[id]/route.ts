@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import prisma from "@/lib/db"
+import { db, isSupabaseConfigured } from "@/lib/supabase"
 
 // GET - Fetch single review
 export async function GET(
@@ -7,11 +7,16 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      )
+    }
+
     const { id } = await params
     
-    const review = await prisma.review.findUnique({
-      where: { id },
-    })
+    const review = await db.reviews.getById(id)
     
     if (!review) {
       return NextResponse.json(
@@ -36,13 +41,17 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      )
+    }
+
     const { id } = await params
     const body = await request.json()
     
-    const review = await prisma.review.update({
-      where: { id },
-      data: body,
-    })
+    const review = await db.reviews.update(id, body)
     
     return NextResponse.json(review)
   } catch (error) {
@@ -60,11 +69,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      )
+    }
+
     const { id } = await params
     
-    await prisma.review.delete({
-      where: { id },
-    })
+    await db.reviews.delete(id)
     
     return NextResponse.json({ success: true })
   } catch (error) {

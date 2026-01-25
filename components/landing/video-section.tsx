@@ -181,7 +181,7 @@ export function VideoSection() {
             className="text-center mt-8"
           >
             <p className="text-slate-600 mb-4">
-              אהבתם את מה שראיתם?
+              רוצים אתר כזה לעסק שלכם?
             </p>
             <motion.button
               onClick={() => {
@@ -190,7 +190,7 @@ export function VideoSection() {
               className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 font-semibold transition-colors"
               whileHover={{ x: -4 }}
             >
-              <span>בואו נדבר</span>
+              <span>דברו איתנו</span>
               <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>

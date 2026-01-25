@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { sendBulkEmail, createCampaignEmailTemplate } from "@/lib/email"
-import prisma from "@/lib/db"
+import { db, isSupabaseConfigured } from "@/lib/supabase"
 
 // GET - Get subscribers count and stats
 export async function GET(request: NextRequest) {
@@ -9,13 +9,17 @@ export async function GET(request: NextRequest) {
   if (authError) return authError
   
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      )
+    }
+
     const [totalSubscribers, activeSubscribers, recentCampaigns] = await Promise.all([
-      prisma.subscriber.count(),
-      prisma.subscriber.count({ where: { status: "active" } }),
-      prisma.emailCampaign.findMany({
-        orderBy: { sentAt: "desc" },
-        take: 5,
-      }),
+      db.subscribers.count(),
+      db.subscribers.count("active"),
+      db.emailCampaigns.getRecent(5),
     ])
     
     return NextResponse.json({
@@ -38,6 +42,13 @@ export async function POST(request: NextRequest) {
   if (authError) return authError
   
   try {
+    if (!isSupabaseConfigured) {
+      return NextResponse.json(
+        { error: "Database not configured" },
+        { status: 503 }
+      )
+    }
+
     const body = await request.json()
     const { subject, title, content, ctaText, ctaUrl } = body
     
@@ -49,12 +60,9 @@ export async function POST(request: NextRequest) {
     }
     
     // Get active subscribers
-    const subscribers = await prisma.subscriber.findMany({
-      where: { status: "active" },
-      select: { email: true, name: true },
-    })
+    const subscribers = await db.subscribers.getActive()
     
-    if (subscribers.length === 0) {
+    if (!subscribers || subscribers.length === 0) {
       return NextResponse.json(
         { error: "No active subscribers found" },
         { status: 400 }
@@ -72,13 +80,11 @@ export async function POST(request: NextRequest) {
     const { success, failed } = await sendBulkEmail(mappedSubscribers, subject, htmlContent)
     
     // Log campaign
-    await prisma.emailCampaign.create({
-      data: {
-        subject,
-        content: htmlContent,
-        recipientCount: subscribers.length,
-        status: failed === 0 ? "sent" : "sent",
-      },
+    await db.emailCampaigns.create({
+      subject,
+      content: htmlContent,
+      recipient_count: subscribers.length,
+      status: failed === 0 ? "sent" : "sent",
     })
     
     return NextResponse.json({

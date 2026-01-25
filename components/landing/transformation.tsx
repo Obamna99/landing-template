@@ -8,21 +8,21 @@ const beforeAfterItems = [
     before: {
       title: "לפני",
       items: [
-        "שיווק שלא מביא תוצאות",
-        "בזבוז זמן וכסף",
-        "אין מיתוג ברור",
-        "לידים לא איכותיים",
-        "תחושת תסכול",
+        "אתר וורדפרס איטי ומיושן",
+        "לא מותאם למובייל",
+        "$50-100/חודש על Mailchimp",
+        "עיצוב גנרי שנראה כמו כולם",
+        "פחות פניות מהאתר",
       ],
     },
     after: {
       title: "אחרי",
       items: [
-        "אסטרטגיה שעובדת",
-        "ROI מדיד וברור",
-        "מותג חזק ומזוהה",
-        "לקוחות שמחפשים אותך",
-        "ביטחון ושקט נפשי",
+        "דף נחיתה מהיר ומודרני",
+        "מושלם על כל מסך ומכשיר",
+        "$1 לכל 10,000 מיילים",
+        "עיצוב מותאם אישית לעסק שלך",
+        "יותר פניות ולידים איכותיים",
       ],
     },
   },
@@ -30,28 +30,28 @@ const beforeAfterItems = [
 
 const transformationStories = [
   {
-    emoji: "🏢",
-    label: "עסק קטן",
-    before: "₪15,000 הכנסה חודשית",
-    after: "₪85,000 הכנסה חודשית",
-    time: "8 חודשים",
-    growth: "+467%",
+    emoji: "💆",
+    label: "מכון יופי",
+    before: "$80/חודש על מיילים",
+    after: "$3/חודש על מיילים",
+    time: "שבוע",
+    growth: "-96%",
   },
   {
-    emoji: "🛒",
-    label: "חנות אונליין",
-    before: "20 הזמנות בחודש",
-    after: "350 הזמנות בחודש",
-    time: "6 חודשים",
-    growth: "+1,650%",
+    emoji: "🏠",
+    label: "סוכן נדל\"ן",
+    before: "5 פניות מהאתר בחודש",
+    after: "35 פניות מהאתר בחודש",
+    time: "חודש",
+    growth: "+600%",
   },
   {
-    emoji: "👨‍💼",
-    label: "יועץ עצמאי",
-    before: "3 לקוחות קבועים",
-    after: "28 לקוחות קבועים",
-    time: "12 חודשים",
-    growth: "+833%",
+    emoji: "🍽️",
+    label: "מסעדה",
+    before: "אתר שנטען 8 שניות",
+    after: "דף שנטען 1.2 שניות",
+    time: "5 ימים",
+    growth: "-85%",
   },
 ]
 
@@ -86,14 +86,14 @@ export function Transformation() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3"
           >
-            הטרנספורמציה
+            לפני ואחרי
           </motion.span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-            מאיפה שאתם—
-            <span className="gradient-text"> לאן שתרצו להגיע</span>
+            מאתר ישן ואיטי—
+            <span className="gradient-text"> לדף נחיתה שמוכר</span>
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            הנה מה שקורה כשעובדים איתנו
+            הנה מה שקורה כשמחליפים את האתר הישן בדף נחיתה מקצועי
           </p>
         </motion.div>
 
@@ -115,7 +115,7 @@ export function Transformation() {
                 </div>
                 <div>
                   <h3 className="text-xl sm:text-2xl font-bold text-slate-900">לפני</h3>
-                  <p className="text-sm text-slate-500">המצב הנוכחי</p>
+                  <p className="text-sm text-slate-500">האתר הישן</p>
                 </div>
               </div>
               
@@ -164,7 +164,7 @@ export function Transformation() {
                 </div>
                 <div>
                   <h3 className="text-xl sm:text-2xl font-bold text-slate-900">אחרי</h3>
-                  <p className="text-sm text-slate-500">עם הליווי שלנו</p>
+                  <p className="text-sm text-slate-500">עם דף נחיתה חדש</p>
                 </div>
               </div>
               
@@ -211,7 +211,7 @@ export function Transformation() {
           className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100"
         >
           <h3 className="text-xl sm:text-2xl font-bold text-slate-900 text-center mb-8">
-            תוצאות אמיתיות מלקוחות אמיתיים
+            מספרים שמדברים בעד עצמם
           </h3>
           
           {/* Story Tabs */}
@@ -292,7 +292,7 @@ export function Transformation() {
           className="mt-10 sm:mt-12 text-center"
         >
           <p className="text-lg text-slate-600 mb-4">
-            הסיפור הבא יכול להיות <span className="font-semibold text-slate-800">שלכם</span>
+            האתר הבא יכול להיות <span className="font-semibold text-slate-800">שלכם</span>
           </p>
           <motion.button
             onClick={() => {
@@ -303,7 +303,7 @@ export function Transformation() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
           >
-            <span>רוצים לעשות את הקפיצה?</span>
+            <span>רוצים דף נחיתה כזה?</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

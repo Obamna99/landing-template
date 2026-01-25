@@ -1,10 +1,7 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
 
-// Support multiple env variable names
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = 
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
 
 // Only create client if credentials are available
 let supabase: SupabaseClient | null = null
@@ -71,6 +68,16 @@ export interface Review {
   display_order?: number
   created_at?: string
   updated_at?: string
+}
+
+export interface EmailCampaign {
+  id?: string
+  subject: string
+  content: string
+  recipient_count: number
+  status?: "draft" | "sending" | "sent" | "failed"
+  sent_at?: string
+  created_at?: string
 }
 
 // Database operations
@@ -165,6 +172,33 @@ export const db = {
       if (error) throw error
       return data
     },
+
+    async getActive() {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      
+      const { data, error } = await client
+        .from("subscribers")
+        .select("email, name")
+        .eq("status", "active")
+      
+      if (error) throw error
+      return data
+    },
+
+    async count(status?: string) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      
+      let query = client.from("subscribers").select("*", { count: "exact", head: true })
+      if (status) {
+        query = query.eq("status", status)
+      }
+      
+      const { count, error } = await query
+      if (error) throw error
+      return count || 0
+    },
   },
 
   // Reviews
@@ -183,6 +217,20 @@ export const db = {
       return data
     },
 
+    async getById(id: string) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      
+      const { data, error } = await client
+        .from("reviews")
+        .select("*")
+        .eq("id", id)
+        .single()
+      
+      if (error) throw error
+      return data
+    },
+
     async create(review: Review) {
       const client = getSupabase()
       if (!client) throw new Error("Supabase not configured")
@@ -192,6 +240,71 @@ export const db = {
         .insert([review])
         .select()
         .single()
+      
+      if (error) throw error
+      return data
+    },
+
+    async update(id: string, review: Partial<Review>) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      
+      const { data, error } = await client
+        .from("reviews")
+        .update({ ...review, updated_at: new Date().toISOString() })
+        .eq("id", id)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    },
+
+    async delete(id: string) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      
+      const { error } = await client
+        .from("reviews")
+        .delete()
+        .eq("id", id)
+      
+      if (error) throw error
+      return { success: true }
+    },
+  },
+
+  // Email Campaigns
+  emailCampaigns: {
+    async create(campaign: EmailCampaign) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      
+      const { data, error } = await client
+        .from("email_campaigns")
+        .insert([{
+          subject: campaign.subject,
+          content: campaign.content,
+          recipient_count: campaign.recipient_count,
+          status: campaign.status || "sent",
+          sent_at: new Date().toISOString(),
+        }])
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    },
+
+    async getRecent(limit = 5) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      
+      const { data, error } = await client
+        .from("email_campaigns")
+        .select("*")
+        .order("sent_at", { ascending: false })
+        .limit(limit)
       
       if (error) throw error
       return data

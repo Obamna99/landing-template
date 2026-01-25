@@ -8,9 +8,9 @@ import { useToast } from "@/hooks/use-toast"
 
 // Form steps for progressive disclosure
 const formSteps = [
-  { id: 1, label: "פרטים אישיים" },
-  { id: 2, label: "על העסק" },
-  { id: 3, label: "סיום" },
+  { id: 1, label: "פרטי התקשרות" },
+  { id: 2, label: "על העסק שלך" },
+  { id: 3, label: "כמעט סיימנו" },
 ]
 
 export function LeadForm() {
@@ -116,7 +116,7 @@ export function LeadForm() {
         setIsSuccess(true)
         toast({
           title: "מעולה! קיבלנו את הפרטים 🎉",
-          description: "נחזור אליך תוך 24 שעות עם הצעה מותאמת אישית",
+          description: "נחזור אליך תוך 24 שעות ונתחיל לתכנן את האתר שלך",
         })
       } catch (error) {
         toast({
@@ -165,14 +165,14 @@ export function LeadForm() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3"
             >
-              בואו נתחיל
+              רוצים אתר כזה?
             </motion.span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-              מוכנים 
-              <span className="gradient-text"> לעשות את הצעד?</span>
+              בואו נדבר על
+              <span className="gradient-text"> האתר שלכם</span>
             </h2>
             <p className="text-slate-600 text-lg">
-              פגישת היכרות קצרה, ללא עלות וללא התחייבות
+              שיחה קצרה, ללא עלות, ותוך שבוע יש לכם אתר חדש
             </p>
           </div>
 
@@ -188,7 +188,7 @@ export function LeadForm() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
             <span className="text-sm text-slate-500">
-              <span className="font-medium text-slate-700">{typingUsers} אנשים</span> ממלאים את הטופס עכשיו
+              <span className="font-medium text-slate-700">{typingUsers} בעלי עסקים</span> מתעניינים עכשיו
             </span>
           </motion.div>
 
@@ -359,8 +359,10 @@ export function LeadForm() {
                         <div className="grid grid-cols-2 gap-3">
                           {[
                             { value: "service", label: "שירותים", emoji: "💼" },
-                            { value: "ecommerce", label: "מסחר אונליין", emoji: "🛒" },
-                            { value: "tech", label: "טכנולוגיה", emoji: "💻" },
+                            { value: "ecommerce", label: "חנות אונליין", emoji: "🛒" },
+                            { value: "realEstate", label: "נדל\"ן", emoji: "🏠" },
+                            { value: "health", label: "בריאות / יופי", emoji: "💆" },
+                            { value: "food", label: "מסעדות / אוכל", emoji: "🍽️" },
                             { value: "other", label: "אחר", emoji: "✨" },
                           ].map((option) => (
                             <button
@@ -460,7 +462,7 @@ export function LeadForm() {
                           value={formData.message}
                           onChange={(e) => handleChange("message", e.target.value)}
                           className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 bg-slate-50 text-base resize-none placeholder:text-slate-400"
-                          placeholder="ספר/י לנו על האתגרים או המטרות של העסק..."
+                          placeholder="יש לך אתר קיים? מה הסגנון שאתה מחפש? כמה מיילים אתה שולח בחודש?"
                         />
                       </div>
 
@@ -484,25 +486,25 @@ export function LeadForm() {
 
                       {/* Summary */}
                       <div className="bg-teal-50 rounded-xl p-4 border border-teal-100">
-                        <h4 className="font-semibold text-teal-800 mb-2">מה קורה עכשיו?</h4>
+                        <h4 className="font-semibold text-teal-800 mb-2">מה קורה אחרי?</h4>
                         <ul className="text-sm text-teal-700 space-y-1">
                           <li className="flex items-center gap-2">
                             <svg className="w-4 h-4 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
-                            נחזור אליך תוך 24 שעות
+                            ניצור קשר תוך 24 שעות
                           </li>
                           <li className="flex items-center gap-2">
                             <svg className="w-4 h-4 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
-                            שיחת היכרות קצרה (15 דק')
+                            שיחת היכרות (20 דק') - נבין מה אתה צריך
                           </li>
                           <li className="flex items-center gap-2">
                             <svg className="w-4 h-4 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
-                            הצעה מותאמת אישית
+                            הצעת מחיר מפורטת תוך יומיים
                           </li>
                         </ul>
                       </div>
@@ -592,13 +594,13 @@ export function LeadForm() {
                 מעולה, {formData.fullName.split(" ")[0]}! 🎉
               </h3>
               <p className="text-slate-600 text-lg mb-6">
-                קיבלנו את הפרטים שלך ונחזור אליך תוך 24 שעות
+                קיבלנו את הפרטים ונחזור אליך תוך 24 שעות
               </p>
               
               <div className="bg-teal-50 rounded-xl p-4 text-right mb-6">
-                <h4 className="font-semibold text-teal-800 mb-2">בינתיים, כדאי לדעת:</h4>
+                <h4 className="font-semibold text-teal-800 mb-2">בינתיים, תדמיינו:</h4>
                 <p className="text-sm text-teal-700">
-                  98% מהלקוחות שלנו רואים תוצאות ראשונות תוך 30 יום. אתם בידיים טובות! 💪
+                  האתר הזה שאתם רואים עכשיו—רק עם הלוגו שלכם, התמונות שלכם והצבעים שלכם. זה מה שתקבלו! 💪
                 </p>
               </div>
               
