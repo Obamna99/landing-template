@@ -10,6 +10,7 @@ import { FAQ } from "@/components/landing/faq"
 import { LeadForm } from "@/components/landing/lead-form"
 import { Footer } from "@/components/landing/footer"
 import { FloatingCTA } from "@/components/landing/floating-cta"
+import { ChatbotWidget } from "@/components/chatbot/ChatbotWidget"
 
 export default function LandingPage() {
   return (
@@ -26,6 +27,7 @@ export default function LandingPage() {
       <LeadForm />
       <Footer />
       <FloatingCTA />
+      <ChatbotWidget />
     </main>
   )
 }

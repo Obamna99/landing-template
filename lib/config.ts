@@ -25,10 +25,11 @@ export const siteConfig = {
   // CONTACT INFO
   // ========================================
   contact: {
-    phone: "03-123-4567",
+    phone: "0526555139",
     email: "hello@mailflow.co.il",
     address: "תל אביב, ישראל",
-    whatsapp: "972312345678",
+    whatsapp: "972526555139",  // Format: 972 + phone without leading 0
+    whatsappDefaultMessage: "היי, ראיתי את האתר שלכם ואשמח לשמוע עוד פרטים",
   },
   
   // ========================================
@@ -509,4 +510,98 @@ export const transformationConfig = {
   },
   
   ctaText: "מוכנים לשדרוג?",
+}
+
+// ========================================
+// CHATBOT WIDGET
+// ========================================
+export const chatbotConfig = {
+  enabled: true,
+  
+  // Appearance
+  title: "יש לנו תשובות",
+  subtitle: "שאלו אותנו הכל",
+  botName: "הצוות שלנו",
+  botAvatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face", // Professional avatar
+  
+  // Messages
+  placeholder: "הקלידו שאלה...",
+  fallbackMessage: "לא מצאתי תשובה מתאימה. רוצים לדבר עם נציג?",
+  
+  // Time-based greetings
+  greetings: {
+    morning: "בוקר טוב! איך אפשר לעזור לכם היום?",      // 5:00 - 11:59
+    afternoon: "צהריים טובים! איך אפשר לעזור?",          // 12:00 - 16:59
+    evening: "ערב טוב! איך אפשר לעזור לכם?",             // 17:00 - 20:59
+    night: "לילה טוב! איך אפשר לעזור?",                  // 21:00 - 4:59
+  },
+  
+  // Proactive popup settings
+  proactivePopup: {
+    enabled: true,
+    delay: 15000, // Show after 15 seconds on page
+    message: "יש שאלות? אני כאן לעזור! 💬",
+    scrollTrigger: 50, // Or after scrolling 50% of page
+  },
+  
+  // Feedback settings
+  feedback: {
+    enabled: true,
+    helpfulText: "התשובה עזרה?",
+    thankYouText: "תודה על המשוב!",
+  },
+  
+  // Fallback action when no answer found
+  fallbackCTA: {
+    type: "whatsapp" as "whatsapp" | "contact" | "phone",
+    text: "דברו איתנו בוואטסאפ",
+  },
+  
+  // Quick question buttons (indexes reference faqConfig.questions)
+  quickQuestions: [
+    { label: "מה אני מקבל?", questionIndex: 0 },
+    { label: "כמה זה עולה?", questionIndex: 1 },
+    { label: "כמה זמן לוקח?", questionIndex: 2 },
+  ],
+  
+  // Follow-up suggestions after FAQ answers (questionIndex -> suggested follow-ups)
+  followUpQuestions: {
+    0: [1, 2],      // After "מה אני מקבל" -> suggest "כמה זה עולה" and "כמה זמן לוקח"
+    1: [2, 3],      // After "כמה זה עולה" -> suggest "כמה זמן לוקח" and "למה המחיר נמוך"
+    2: [0, 1],      // After "כמה זמן לוקח" -> suggest "מה אני מקבל" and "כמה זה עולה"
+    3: [1, 4],      // After "למה המחיר נמוך" -> suggest "כמה זה עולה" and "אפשר לערוך"
+    4: [5, 0],      // After "אפשר לערוך" -> suggest "יש לי אתר" and "מה אני מקבל"
+    5: [1, 2],      // After "יש לי אתר" -> suggest "כמה זה עולה" and "כמה זמן לוקח"
+  } as Record<number, number[]>,
+  
+  // Default responses for common phrases (checked before FAQ)
+  defaultResponses: [
+    {
+      triggers: ["שלום", "היי", "הי", "hello", "hi", "בוקר טוב", "ערב טוב", "מה נשמע", "מה קורה"],
+      response: "שלום! שמחים שפניתם אלינו. איך אפשר לעזור לכם היום?",
+    },
+    {
+      triggers: ["מי אתם", "מה אתם", "ספרו על עצמכם", "על החברה", "מה זה"],
+      response: "אנחנו MailFlow - מתמחים בבניית דפי נחיתה מרהיבים ומערכות שיווק במייל במחירים משתלמים. האתר שאתם רואים עכשיו? זה בדיוק מה שתקבלו!",
+    },
+    {
+      triggers: ["תודה", "תודה רבה", "thanks", "thank you", "מעולה", "אחלה"],
+      response: "בשמחה! אם יש עוד שאלות, אנחנו כאן. רוצים לקבוע שיחת היכרות?",
+    },
+    {
+      triggers: ["ביי", "להתראות", "bye", "שלום וברכה"],
+      response: "להתראות! אם תצטרכו משהו, אנחנו תמיד כאן. יום נפלא!",
+    },
+    {
+      triggers: ["עזרה", "help", "צריך עזרה"],
+      response: "בטח! אפשר לשאול אותי על המחירים, זמני אספקה, מה כלול בשירות, או כל שאלה אחרת. מה מעניין אתכם?",
+    },
+    {
+      triggers: ["טלפון", "להתקשר", "מספר טלפון", "איך יוצרים קשר"],
+      response: "אפשר ליצור איתנו קשר בטלפון או דרך וואטסאפ. מה נוח לכם יותר?",
+    },
+  ],
+  
+  // Chatbot position (RTL: left is better since floating CTA is on right)
+  position: "left" as "left" | "right",
 }
