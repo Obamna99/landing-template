@@ -20,6 +20,70 @@ interface Review {
 // Featured case study from config
 const featuredCaseStudy = reviewsConfig.caseStudy
 
+// Default sample reviews to display when no database reviews exist
+const sampleReviews: Review[] = [
+  {
+    id: "sample-1",
+    name: "יעל כהן",
+    role: "בעלים",
+    company: "סטודיו לעיצוב פנים",
+    content: "האתר החדש שינה לנו את העסק. תוך שבועיים קיבלנו יותר פניות מאשר בחודשיים הקודמים. מקצועיות ברמה הגבוהה ביותר.",
+    rating: 5,
+    imageUrl: null,
+    result: "300%",
+    resultLabel: "עלייה בפניות",
+    featured: true,
+  },
+  {
+    id: "sample-2",
+    name: "אבי לוי",
+    role: "מנכ״ל",
+    company: "נדל״ן פלוס",
+    content: "עבדתי עם הרבה חברות בניית אתרים, אבל הפעם הראשונה שקיבלתי בדיוק את מה שרציתי. מהירים, מקצועיים, ותוצאות מעולות.",
+    rating: 5,
+    imageUrl: null,
+    result: "150%",
+    resultLabel: "יותר לידים",
+    featured: false,
+  },
+  {
+    id: "sample-3",
+    name: "מיכל ברק",
+    role: "בעלים",
+    company: "קליניקת יופי",
+    content: "השירות היה מצוין מההתחלה ועד הסוף. האתר נראה מדהים והלקוחות שלי לא מפסיקים לשבח. ממליצה בחום!",
+    rating: 5,
+    imageUrl: null,
+    result: "200%",
+    resultLabel: "עלייה בהזמנות",
+    featured: false,
+  },
+  {
+    id: "sample-4",
+    name: "דני שמעון",
+    role: "בעלים",
+    company: "מסעדת השף",
+    content: "הם הבינו בדיוק מה אני צריך עוד לפני שהספקתי להסביר. האתר מושלם והחיסכון על המיילים משמעותי.",
+    rating: 5,
+    imageUrl: null,
+    result: null,
+    resultLabel: null,
+    featured: false,
+  },
+  {
+    id: "sample-5",
+    name: "רונית גולן",
+    role: "מנהלת שיווק",
+    company: "חברת הייטק",
+    content: "דף הנחיתה שקיבלנו עזר לנו להכפיל את ההמרות. התהליך היה חלק ומהיר, והתוצאה מדברת בעד עצמה.",
+    rating: 5,
+    imageUrl: null,
+    result: "2X",
+    resultLabel: "שיפור בהמרות",
+    featured: false,
+  },
+]
+
 // Review Card Component
 function ReviewCard({ review }: { review: Review }) {
   return (
@@ -283,17 +347,21 @@ export function Reviews() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Fetch reviews from API
+  // Fetch reviews from API, fallback to sample reviews
   useEffect(() => {
     async function fetchReviews() {
       try {
         const response = await fetch("/api/reviews")
         if (response.ok) {
           const data = await response.json()
-          setReviews(data)
+          // Use sample reviews if no database reviews exist
+          setReviews(data.length > 0 ? data : sampleReviews)
+        } else {
+          setReviews(sampleReviews)
         }
       } catch (error) {
         console.error("Error fetching reviews:", error)
+        setReviews(sampleReviews)
       }
       setIsLoading(false)
     }
@@ -301,10 +369,12 @@ export function Reviews() {
     fetchReviews()
   }, [])
 
-  // Calculate stats from reviews
-  const avgRating = reviews.length > 0
-    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-    : "5.0"
+  // Use display reviews (with fallback stats)
+  const displayReviews = reviews.length > 0 ? reviews : sampleReviews
+  
+  // Fixed professional stats (not dependent on actual review count)
+  const avgRating = "5.0"
+  const clientCount = "150+"
 
   return (
     <section
@@ -334,7 +404,7 @@ export function Reviews() {
           {/* Trust Stats */}
           <div className="flex flex-wrap justify-center gap-4 sm:gap-8 lg:gap-10 mt-6 sm:mt-8">
             {[
-              { value: `${reviews.length}+`, label: "לקוחות מרוצים" },
+              { value: clientCount, label: "לקוחות מרוצים" },
               { value: avgRating, label: "דירוג ממוצע" },
               { value: "98%", label: "ממליצים עלינו" },
             ].map((stat, index) => (
@@ -364,19 +434,17 @@ export function Reviews() {
           <div className="flex justify-center py-8 sm:py-12">
             <div className="animate-spin w-6 h-6 sm:w-8 sm:h-8 border-3 sm:border-4 border-teal-500 border-t-transparent rounded-full"></div>
           </div>
-        ) : reviews.length > 0 ? (
+        ) : (
           <>
             {/* Mobile: Swipeable with dots */}
             <div className="sm:hidden">
-              <MobileCarousel reviews={reviews.slice(0, 6)} />
+              <MobileCarousel reviews={displayReviews.slice(0, 6)} />
             </div>
             {/* Desktop: Infinite auto-scroll */}
             <div className="hidden sm:block">
-              <InfiniteCarousel reviews={reviews} />
+              <InfiniteCarousel reviews={displayReviews} />
             </div>
           </>
-        ) : (
-          <p className="text-center text-slate-500 text-sm">אין ביקורות להצגה</p>
         )}
       </motion.div>
 

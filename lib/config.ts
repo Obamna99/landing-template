@@ -72,13 +72,13 @@ export const siteConfig = {
 export const heroConfig = {
   badge: "דפי נחיתה + שיווק במייל",
   headline: {
-    line1: "האתר הזה? נבנה לך",
-    highlight: "בדיוק כזה",
+    line1: "האתר שמאפשר לכם",
+    highlight: "",
   },
-  subheadline: "אנחנו לוקחים את העיצוב המרהיב הזה ומתאימים אותו בדיוק לעסק שלך—התמונות, הסרטונים, הטקסטים והצבעים. בנוסף, מערכת שיווק במייל במחירים שלא תמצאו אצל אף מתחרה.",
+  subheadline: "דף נחיתה מעוצב שמביא לקוחות, עם מערכת מיילים שחוסכת לכם כסף. פשוט, יפה, ומשתלם.",
   cta: {
     primary: {
-      text: "רוצה אתר כזה? דברו איתנו",
+      text: "רוצים דף נחיתה? דברו איתנו",
       href: "#contact",
     },
     secondary: {
@@ -86,7 +86,7 @@ export const heroConfig = {
       href: "#how-it-works",
     },
   },
-  trustText: "מצטרפים ל-150+ עסקים עם אתרים מרהיבים",
+  trustText: "מצטרפים ל-150+ עסקים עם דפי נחיתה מרהיבים",
 }
 
 // ========================================
@@ -111,10 +111,10 @@ export const howItWorksConfig = {
     },
     {
       id: 2,
-      title: "התאמה אישית",
-      description: "מחליפים תמונות, סרטונים וטקסטים כדי שהאתר ידבר בשפה של העסק שלך ויפנה לקהל שלך.",
+      title: "עיצוב ומיתוג",
+      description: "מתאימים את העיצוב לזהות המותג שלך: בחירת צבעים, טיפוגרפיה, תמונות מקצועיות וכתיבת תוכן שיווקי שמדבר ישירות לקהל היעד שלך.",
       duration: "3-5 ימים",
-      highlight: null,
+      highlight: "מותאם אישית",
       icon: "clipboard",
     },
     {
@@ -192,13 +192,13 @@ export const aboutConfig = {
 // REVIEWS SECTION
 // ========================================
 export const reviewsConfig = {
-  badge: "מה לקוחות אומרים",
-  headline: "עסקים שכבר קיבלו",
-  headlineHighlight: " אתר חדש",
-  subheadline: "הנה מה שקורה כשמחליפים אתר ישן בדף נחיתה מקצועי עם מערכת מיילים",
+  badge: "הלקוחות שלנו מספרים",
+  headline: "תוצאות שמדברות",
+  headlineHighlight: " בעד עצמן",
+  subheadline: "עסקים שעבדנו איתם משתפים את החוויה שלהם ואת התוצאות שהשיגו",
   
   stats: [
-    { key: "clients", label: "אתרים שהקמנו" },
+    { key: "clients", label: "לקוחות מרוצים" },
     { key: "rating", label: "דירוג ממוצע" },
     { key: "recommend", value: "98%", label: "ממליצים עלינו" },
   ],
@@ -227,16 +227,16 @@ export const reviewsConfig = {
 // ========================================
 export const videoConfig = {
   show: true,
-  badge: "ראו את האיכות",
-  headline: "רואים את האתר הזה?",
-  headlineHighlight: " זה מה שתקבלו.",
-  subheadline: "לא הדמיות, לא הבטחות באוויר. האתר שאתם רואים עכשיו הוא בדיוק מה שנבנה עבורכם—מותאם לעסק שלכם",
+  badge: "צפו בסרטון",
+  headline: "כך נראה התהליך",
+  headlineHighlight: " מהתחלה ועד הסוף",
+  subheadline: "מהרגע שאתם פונים אלינו ועד שהאתר עולה לאוויר—תהליך מקצועי, מהיר ושקוף",
   
   // Easy video swap - just change this ID
   // YouTube: use video ID (e.g., "dQw4w9WgXcQ")
   // Vimeo: use video ID (e.g., "123456789")
   provider: "youtube" as "youtube" | "vimeo" | "custom",
-  videoId: "dQw4w9WgXcQ", // Replace with your video ID
+  videoId: "lM02vNMRRB0", // Copyright-free calm background footage
   
   // Custom video URL (for self-hosted videos)
   customVideoUrl: null as string | null,
@@ -246,9 +246,9 @@ export const videoConfig = {
   
   // Video highlights shown below
   highlights: [
-    { icon: "🎨", text: "עיצוב מותאם" },
-    { icon: "📧", text: "מערכת מיילים" },
-    { icon: "💰", text: "מחיר משתלם" },
+    { icon: "✨", text: "עיצוב מקצועי" },
+    { icon: "⚡", text: "תהליך מהיר" },
+    { icon: "🎯", text: "תוצאות מוכחות" },
   ],
 }
 
@@ -453,8 +453,8 @@ export const emailConfig = {
 // TRUSTED BY LOGOS - Easy to swap
 // ========================================
 export const trustedByConfig = {
-  title: "עסקים שכבר בנינו להם אתרים",
-  subtitle: "הצטרפו ל-150+ עסקים עם דפי נחיתה מרהיבים",
+  title: "הלקוחות שלנו",
+  subtitle: "מצטרפים למעל 150 עסקים שכבר עובדים איתנו",
   
   // Add your client logos here
   // Format: { name: "Company Name", logo: "/logos/company.svg" }
