@@ -143,7 +143,7 @@ export function LeadForm() {
     <section
       id="contact"
       ref={ref}
-      className="py-16 sm:py-24 bg-gradient-to-b from-white via-teal-50/20 to-white relative overflow-hidden"
+      className="py-20 sm:py-28 lg:py-32 bg-gradient-to-b from-white via-teal-50/20 to-white relative overflow-hidden"
     >
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">

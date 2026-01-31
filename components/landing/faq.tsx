@@ -20,7 +20,7 @@ export function FAQ() {
     <section
       id="faq"
       ref={ref}
-      className="py-16 sm:py-24 bg-gradient-to-b from-slate-50 via-white to-slate-50 relative overflow-hidden"
+      className="py-20 sm:py-28 lg:py-32 bg-gradient-to-b from-slate-50 via-white to-slate-50 relative overflow-hidden"
     >
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">

@@ -58,7 +58,7 @@ export function TrustBadges() {
   return (
     <section
       ref={ref}
-      className="py-12 sm:py-16 bg-white border-y border-slate-100"
+      className="py-16 sm:py-20 lg:py-24 bg-white border-y border-slate-100"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}

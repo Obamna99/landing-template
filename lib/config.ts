@@ -522,7 +522,7 @@ export const chatbotConfig = {
   title: "יש לנו תשובות",
   subtitle: "שאלו אותנו הכל",
   botName: "הצוות שלנו",
-  botAvatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face", // Professional avatar
+  botAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face", // Young woman avatar
   
   // Messages
   placeholder: "הקלידו שאלה...",
@@ -602,6 +602,117 @@ export const chatbotConfig = {
     },
   ],
   
-  // Chatbot position (RTL: left is better since floating CTA is on right)
+  // Chatbot position
   position: "left" as "left" | "right",
+}
+
+// ========================================
+// SOCIAL PROOF NOTIFICATIONS
+// ========================================
+export const socialProofConfig = {
+  enabled: true,
+  
+  // Timing
+  initialDelay: 15000,     // First notification after 15 seconds
+  intervalMin: 30000,      // Minimum 30 seconds between notifications
+  intervalMax: 90000,      // Maximum 90 seconds between notifications
+  displayDuration: 3500,   // Show each notification for 3.5 seconds
+  
+  // Position - top-left on mobile to avoid conflicts, bottom-right on desktop
+  position: "top-left" as "bottom-left" | "bottom-right" | "top-left" | "top-right",
+  
+  // Content templates
+  actions: [
+    "הצטרף",
+    "נרשם",
+    "שלח פנייה",
+    "ביקש הצעת מחיר",
+  ],
+  
+  // Random names and cities for realistic notifications
+  names: [
+    { name: "יוסי", gender: "male" },
+    { name: "דני", gender: "male" },
+    { name: "אבי", gender: "male" },
+    { name: "משה", gender: "male" },
+    { name: "דוד", gender: "male" },
+    { name: "רוני", gender: "male" },
+    { name: "עומר", gender: "male" },
+    { name: "איתי", gender: "male" },
+    { name: "מיכל", gender: "female" },
+    { name: "שירה", gender: "female" },
+    { name: "נועה", gender: "female" },
+    { name: "רונית", gender: "female" },
+    { name: "אורית", gender: "female" },
+    { name: "דנה", gender: "female" },
+  ],
+  
+  cities: [
+    "תל אביב",
+    "ירושלים",
+    "חיפה",
+    "באר שבע",
+    "רמת גן",
+    "פתח תקווה",
+    "נתניה",
+    "אשדוד",
+    "הרצליה",
+    "רעננה",
+    "כפר סבא",
+    "ראשון לציון",
+    "חולון",
+    "בת ים",
+  ],
+  
+  // Business types for context
+  businessTypes: [
+    "בעל עסק",
+    "יזם",
+    "בעל חנות",
+    "מנהל שיווק",
+    "עצמאי",
+    "בעל מסעדה",
+    "מעצב",
+    "יועץ",
+  ],
+  
+  // Time ago options (in minutes)
+  timeAgoOptions: [2, 3, 5, 7, 10, 12, 15, 18, 22, 25, 30],
+}
+
+// ========================================
+// HESITATION HELPER (Proactive Assistant)
+// ========================================
+export const hesitationHelperConfig = {
+  enabled: true,
+  
+  // When to show (user inactivity in milliseconds)
+  hesitationDelay: 8000,  // Show after 8 seconds of no activity
+  
+  // Position
+  position: "right" as "left" | "right",
+  verticalPosition: "bottom" as "top" | "middle" | "bottom", // Changed to bottom to avoid conflicts
+  
+  // Messages
+  messages: [
+    "רוצה שאסכם לך את העיקר?",
+    "יש שאלות? אני כאן לעזור",
+    "רוצה לשמוע על המחירים?",
+    "בואו נדבר - שיחה קצרה ללא התחייבות",
+  ],
+  
+  // Actions
+  primaryAction: {
+    text: "כן, ספר לי",
+    type: "scroll" as "scroll" | "whatsapp" | "contact",
+    target: "#contact", // For scroll type
+  },
+  
+  secondaryAction: {
+    text: "לא תודה",
+    dismiss: true,
+  },
+  
+  // Icon
+  icon: "💡", // Can be emoji or custom icon
 }

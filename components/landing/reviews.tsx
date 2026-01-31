@@ -351,16 +351,20 @@ export function Reviews() {
   useEffect(() => {
     async function fetchReviews() {
       try {
-        const response = await fetch("/api/reviews")
+        const response = await fetch("/api/reviews", { 
+          // Short timeout to avoid long waits if API is down
+          signal: AbortSignal.timeout(3000)
+        })
         if (response.ok) {
           const data = await response.json()
           // Use sample reviews if no database reviews exist
           setReviews(data.length > 0 ? data : sampleReviews)
         } else {
+          // API not available, use sample reviews silently
           setReviews(sampleReviews)
         }
-      } catch (error) {
-        console.error("Error fetching reviews:", error)
+      } catch {
+        // API not available or timed out, use sample reviews silently
         setReviews(sampleReviews)
       }
       setIsLoading(false)
@@ -380,7 +384,7 @@ export function Reviews() {
     <section
       id="reviews"
       ref={ref}
-      className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-white via-slate-50/50 to-white overflow-hidden"
+      className="py-20 sm:py-28 lg:py-32 bg-gradient-to-b from-white via-slate-50/50 to-white overflow-hidden"
     >
       {/* Section Header */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">

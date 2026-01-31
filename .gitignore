@@ -35,14 +35,10 @@ next-env.d.ts
 *.db
 *.db-journal
 prisma/dev.db
-prisma/*.db
-
-# IDE
+prisma/*.db# IDE
 .idea/
 .vscode/
 *.swp
-*.swo
-
-# OS
+*.swo# OS
 .DS_Store
 Thumbs.db

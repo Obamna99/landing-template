@@ -40,7 +40,7 @@ export function HowItWorks() {
     <section
       id="how-it-works"
       ref={ref}
-      className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-slate-50 via-white to-slate-50 relative overflow-hidden"
+      className="py-20 sm:py-28 lg:py-32 bg-gradient-to-b from-slate-50 via-white to-slate-50 relative overflow-hidden"
     >
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">

@@ -88,7 +88,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://images.unsplash.com" />
       </head>
-      <body className={`${heebo.className} font-sans antialiased`}>
+      <body className={`${heebo.className} font-sans antialiased`} suppressHydrationWarning>
         {children}
         <Toaster />
         <Analytics />

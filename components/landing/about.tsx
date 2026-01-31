@@ -32,7 +32,7 @@ export function About() {
     <section
       id="about"
       ref={ref}
-      className="py-12 sm:py-16 lg:py-24 bg-white relative overflow-hidden"
+      className="py-20 sm:py-28 lg:py-32 bg-white relative overflow-hidden"
     >
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-teal-50/50 to-transparent pointer-events-none" />

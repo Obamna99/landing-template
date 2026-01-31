@@ -4,11 +4,9 @@ import { db, isSupabaseConfigured } from "@/lib/supabase"
 // GET - Fetch all active reviews
 export async function GET() {
   try {
+    // Return empty array if database not configured (frontend will use fallback)
     if (!isSupabaseConfigured) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      )
+      return NextResponse.json([])
     }
 
     const reviews = await db.reviews.getActive()

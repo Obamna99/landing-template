@@ -89,6 +89,7 @@ function findBestMatch(query: string, questions: typeof faqConfig.questions): FA
 }
 
 export function ChatbotWidget() {
+  const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState("")
@@ -100,8 +101,14 @@ export function ChatbotWidget() {
   const inputRef = useRef<HTMLInputElement>(null)
   const proactiveTimerRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Check localStorage for previous state
   useEffect(() => {
+    if (!mounted) return
     const wasOpen = localStorage.getItem("chatbot-open") === "true"
     const hadInteraction = localStorage.getItem("chatbot-interacted") === "true"
     const dismissedProactive = localStorage.getItem("chatbot-proactive-dismissed") === "true"
@@ -123,7 +130,7 @@ export function ChatbotWidget() {
 
   // Scroll-based proactive trigger
   useEffect(() => {
-    if (hasInteracted || !chatbotConfig.proactivePopup?.enabled) return
+    if (!mounted || hasInteracted || !chatbotConfig.proactivePopup?.enabled) return
     
     const handleScroll = () => {
       const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
@@ -150,7 +157,7 @@ export function ChatbotWidget() {
 
   // Add welcome message when opening for first time
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
+    if (mounted && isOpen && messages.length === 0) {
       setMessages([
         {
           id: "welcome",
@@ -159,7 +166,7 @@ export function ChatbotWidget() {
         },
       ])
     }
-  }, [isOpen, messages.length])
+  }, [mounted, isOpen, messages.length])
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -274,7 +281,8 @@ export function ChatbotWidget() {
     return chatbotConfig.followUpQuestions[lastAnsweredIndex] || []
   }
 
-  if (!chatbotConfig.enabled) return null
+  // Don't render until mounted to prevent hydration errors
+  if (!mounted || !chatbotConfig.enabled) return null
 
   const positionClasses = chatbotConfig.position === "left" 
     ? "left-4 sm:left-6" 
@@ -291,7 +299,7 @@ export function ChatbotWidget() {
             initial={{ opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
-            className={`fixed bottom-36 sm:bottom-24 ${positionClasses} z-40`}
+            className={`fixed bottom-24 sm:bottom-28 ${positionClasses} z-[100]`}
           >
             <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 max-w-[250px] relative">
               <button
@@ -309,39 +317,49 @@ export function ChatbotWidget() {
               </button>
             </div>
             {/* Arrow pointing to bubble */}
-            <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white border-r border-b border-slate-200 transform rotate-45" />
+            <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-l border-t border-slate-200 transform rotate-45" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Chat Bubble */}
-      <motion.button
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1, type: "spring", stiffness: 200 }}
-        onClick={() => setIsOpen(true)}
-        className={`fixed bottom-20 sm:bottom-6 ${positionClasses} z-40 w-14 h-14 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40 transition-all duration-200 flex items-center justify-center ${
-          isOpen ? "scale-0 opacity-0 pointer-events-none" : ""
-        }`}
-        aria-label="פתח צ'אט"
-      >
-        {chatbotConfig.botAvatar ? (
-          <img 
-            src={chatbotConfig.botAvatar} 
-            alt="Chat" 
-            className="w-full h-full rounded-full object-cover"
-          />
-        ) : (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-        )}
+      {/* Chat Bubble with Label */}
+      <div className={`fixed bottom-20 sm:bottom-6 ${positionClasses} z-[100] flex items-center gap-3 ${isOpen ? "scale-0 opacity-0 pointer-events-none" : ""}`}>
+        <motion.button
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 1, type: "spring", stiffness: 200 }}
+          onClick={() => setIsOpen(true)}
+          className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40 transition-all duration-200 flex items-center justify-center"
+          aria-label="פתח צ'אט"
+        >
+          {chatbotConfig.botAvatar ? (
+            <img 
+              src={chatbotConfig.botAvatar} 
+              alt="Chat" 
+              className="w-full h-full rounded-full object-cover"
+            />
+          ) : (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          )}
+          
+          {/* Notification dot */}
+          {!hasInteracted && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full border-2 border-white animate-pulse" />
+          )}
+        </motion.button>
         
-        {/* Notification dot */}
-        {!hasInteracted && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full border-2 border-white animate-pulse" />
-        )}
-      </motion.button>
+        {/* Helper Text */}
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 1.2 }}
+          className="hidden sm:block bg-white/90 backdrop-blur-sm border border-slate-200 rounded-lg px-3 py-1.5 shadow-md"
+        >
+          <p className="text-xs font-medium text-slate-700">איך אפשר לעזור?</p>
+        </motion.div>
+      </div>
 
       {/* Chat Window */}
       <AnimatePresence>
@@ -352,7 +370,7 @@ export function ChatbotWidget() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 sm:hidden"
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[99] sm:hidden"
             />
 
             <motion.div
@@ -360,7 +378,7 @@ export function ChatbotWidget() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className={`fixed ${positionClasses} bottom-0 sm:bottom-6 z-50 w-full sm:w-96 sm:max-w-[calc(100vw-3rem)]`}
+              className={`fixed ${positionClasses} bottom-20 sm:bottom-6 z-[100] w-full sm:w-96 sm:max-w-[calc(100vw-3rem)]`}
             >
               <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[85vh] sm:h-[520px]">
                 {/* Header with Avatar */}
