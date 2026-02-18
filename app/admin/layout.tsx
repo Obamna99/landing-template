@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
+import { siteConfig } from "@/lib/config"
 
 export const metadata: Metadata = {
-  title: "ניהול | שם העסק",
+  title: `ניהול | ${siteConfig.name}`,
   description: "פאנל ניהול האתר",
   robots: {
     index: false,

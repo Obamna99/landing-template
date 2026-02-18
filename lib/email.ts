@@ -1,7 +1,15 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
 import { siteConfig, emailConfig } from "@/lib/config"
 
-// Initialize SES client
+const hasSesCredentials =
+  !!process.env.AWS_ACCESS_KEY_ID?.trim() &&
+  !!process.env.AWS_SECRET_ACCESS_KEY?.trim() &&
+  !!process.env.SES_FROM_EMAIL?.trim()
+
+/** True when Amazon SES is configured and sending will work. */
+export const isEmailConfigured = hasSesCredentials
+
+// Initialize SES client (only used when isEmailConfigured)
 const sesClient = new SESClient({
   region: process.env.AWS_REGION || "eu-west-1",
   credentials: {
@@ -19,12 +27,16 @@ export interface EmailOptions {
 
 // Send a single email
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  if (!isEmailConfigured) {
+    console.warn("Email send skipped: SES not configured (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, SES_FROM_EMAIL)")
+    return false
+  }
   const { to, subject, htmlContent, textContent } = options
-  
+
   const toAddresses = Array.isArray(to) ? to : [to]
   const fromName = emailConfig.fromName
   const fromEmail = emailConfig.fromEmail
-  
+
   const command = new SendEmailCommand({
     Source: `${fromName} <${fromEmail}>`,
     Destination: {

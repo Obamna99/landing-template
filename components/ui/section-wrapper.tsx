@@ -7,25 +7,32 @@ interface SectionWrapperProps {
   children: ReactNode
   sectionId: string
   sectionName: string
+  /** When set, visibility is controlled by admin (server). No visitor toggle bar. */
+  visible?: boolean
   showToggle?: boolean
   isFirst?: boolean
 }
 
-export function SectionWrapper({ 
-  children, 
-  sectionId, 
+export function SectionWrapper({
+  children,
+  sectionId,
   sectionName,
+  visible: serverVisible,
   showToggle = true,
-  isFirst = false
+  isFirst = false,
 }: SectionWrapperProps) {
   const [isVisible, setIsVisible] = useState(true)
   const [mounted, setMounted] = useState(false)
 
-  // Prevent hydration mismatch
-  // All sections start visible on page load/refresh
+  // Admin-controlled visibility: no toggle bar, just show/hide
+  if (serverVisible !== undefined) {
+    if (!serverVisible) return null
+    return <>{children}</>
+  }
+
+  // Visitor-controlled (legacy): toggle bar + sessionStorage
   useEffect(() => {
     setMounted(true)
-    // Clear any previous hidden state on refresh - all sections start visible
     sessionStorage.removeItem(`section-hidden-${sectionId}`)
   }, [sectionId])
 
@@ -39,14 +46,12 @@ export function SectionWrapper({
     }
   }
 
-  // Don't show toggle until mounted to avoid hydration issues
   if (!mounted) {
     return <>{children}</>
   }
 
   return (
     <div className="relative">
-      {/* Toggle Bar - sticky only when visible, static when collapsed */}
       {showToggle && (
         <div className={`${isVisible ? 'sticky top-16 z-30' : `relative z-20 ${isFirst && 'mt-16'}`} border-b ${isVisible ? 'bg-white/60 backdrop-blur-sm border-slate-100' : 'bg-slate-100 border-slate-200'}`}>
           <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between gap-4">

@@ -26,7 +26,7 @@ export const siteConfig = {
   // ========================================
   contact: {
     phone: "0526555139",
-    email: "hello@mailflow.co.il",
+    email: "oser130309@gmail.com",
     address: "תל אביב, ישראל",
     whatsapp: "972526555139",  // Format: 972 + phone without leading 0
     whatsappDefaultMessage: "היי, ראיתי את האתר שלכם ואשמח לשמוע עוד פרטים",

@@ -33,13 +33,25 @@ npm install
    ```
 4. Run this SQL in Supabase SQL Editor (see full script below)
 
-#### Option B: SQLite with Prisma (Local Development)
+#### Option B: Neon (PostgreSQL) 🌐
 
-If Supabase is not configured, the app automatically falls back to SQLite:
-```env
-DATABASE_URL="file:./prisma/dev.db"
-```
-Then run: `npm run db:push && npm run db:seed`
+You can use [Neon](https://neon.tech) (serverless Postgres) instead of Supabase:
+
+1. Create a free project at [neon.tech](https://neon.tech)
+2. Copy the connection string from the dashboard (use the **pooled** connection for serverless)
+3. Create `.env.local` with:
+   ```env
+   DATABASE_URL="postgresql://user:password@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require"
+   ```
+4. Run:
+   ```bash
+   npm run db:push
+   npm run db:seed
+   ```
+   This creates the tables and seeds sample reviews.
+
+**Note:** If both Supabase and `DATABASE_URL` (Postgres) are set, the app uses Supabase. Use only one.  
+If you use **only Supabase** and don’t set `DATABASE_URL`, `prisma generate` (and thus `npm run build`) may fail; set a placeholder in `.env` if needed, e.g. `DATABASE_URL="postgresql://localhost/dummy"` — the app will still use Supabase for data.
 
 ### 4. Set Up Environment Variables
 
@@ -51,8 +63,8 @@ Create a `.env.local` file in the root directory:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-# Option 2: SQLite fallback
-DATABASE_URL="file:./prisma/dev.db"
+# Option 2: Neon (or any Postgres) - use pooled connection string from Neon dashboard
+# DATABASE_URL="postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require"
 
 # Admin Authentication
 ADMIN_PASSWORD="your-secure-password"
@@ -61,11 +73,13 @@ JWT_SECRET="your-jwt-secret-key-at-least-32-characters-long"
 # Site URL
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 
-# Amazon SES Configuration (optional - for email campaigns)
+# Amazon SES (optional - for email campaigns + lead notifications)
+# When set: campaign sends work in admin; new leads trigger a notification email to site contact.
+# When missing: admin shows "Email not configured" and send is disabled; no lead notification.
 AWS_REGION="eu-west-1"
 AWS_ACCESS_KEY_ID="your-aws-access-key"
 AWS_SECRET_ACCESS_KEY="your-aws-secret-key"
-SES_FROM_EMAIL="noreply@yourdomain.com"
+SES_FROM_EMAIL="noreply@yourdomain.com"   # Must be verified in SES
 ```
 
 ---
@@ -126,15 +140,24 @@ CREATE TABLE reviews (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Site settings (section visibility, etc.)
+CREATE TABLE site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
 -- Row Level Security
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 -- Policies (public can submit leads, read reviews)
 CREATE POLICY "Allow public insert on leads" ON leads FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public insert on subscribers" ON subscribers FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public read on reviews" ON reviews FOR SELECT USING (active = true);
+CREATE POLICY "Allow public read on site_settings" ON site_settings FOR SELECT USING (true);
+CREATE POLICY "Allow public write on site_settings" ON site_settings FOR ALL WITH CHECK (true);
 
 -- Insert sample reviews
 INSERT INTO reviews (name, role, company, content, rating, result, result_label, active, display_order) VALUES
@@ -142,6 +165,19 @@ INSERT INTO reviews (name, role, company, content, rating, result, result_label,
 ('David Levi', 'CEO', 'ScaleUp Inc', 'Professional, responsive, and truly understand business growth. Highly recommended.', 5, '52', 'Monthly Leads', true, 2),
 ('Maya Goldberg', 'Founder', 'InnovateCo', 'From strategy to execution, they delivered exactly what we needed. Game changer.', 5, '4.2x', 'ROI', true, 3);
 ```
+
+#### Option B (Neon): Create tables with Prisma
+
+If you're using Neon (or any Postgres via `DATABASE_URL`), run:
+
+```bash
+npm run db:push
+npm run db:seed
+```
+
+No SQL needed — the schema is in `prisma/schema.prisma`.
+
+---
 
 #### Generate a bcrypt password hash:
 ```bash

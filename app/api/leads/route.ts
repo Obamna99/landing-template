@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db, isSupabaseConfigured } from "@/lib/supabase"
+import { db, isDbConfigured } from "@/lib/db"
+import { sendEmail, createLeadNotificationEmail, isEmailConfigured } from "@/lib/email"
+import { siteConfig, emailConfig } from "@/lib/config"
 
 // GET - Fetch all leads (admin only)
 export async function GET() {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json(
         { error: "Database not configured" },
         { status: 503 }
@@ -25,7 +27,7 @@ export async function GET() {
 // POST - Create a new lead (from contact form)
 export async function POST(request: NextRequest) {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json(
         { error: "Database not configured" },
         { status: 503 }
@@ -66,7 +68,28 @@ export async function POST(request: NextRequest) {
     } catch {
       // Subscriber creation is optional
     }
-    
+
+    // Notify site contact email when SES is configured
+    if (isEmailConfigured) {
+      try {
+        const notifyTo = siteConfig.contact.email
+        const html = createLeadNotificationEmail({
+          fullName: body.fullName,
+          email: body.email,
+          phone: body.phone,
+          businessType: body.businessType,
+          message: body.message,
+        })
+        await sendEmail({
+          to: notifyTo,
+          subject: emailConfig.templates.leadNotification.subject,
+          htmlContent: html,
+        })
+      } catch {
+        // Don't fail the request if notification email fails
+      }
+    }
+
     return NextResponse.json(lead, { status: 201 })
   } catch (error) {
     console.error("Error creating lead:", error)

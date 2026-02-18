@@ -1,7 +1,10 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+// Support both standard Supabase env name and legacy name (SETUP.md uses ANON_KEY)
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
 
 // Only create client if credentials are available
 let supabase: SupabaseClient | null = null
@@ -308,6 +311,34 @@ export const db = {
       
       if (error) throw error
       return data
+    },
+  },
+
+  // Site settings (e.g. section visibility)
+  settings: {
+    async getSectionVisibility() {
+      const client = getSupabase()
+      if (!client) return null
+      const { data, error } = await client
+        .from("site_settings")
+        .select("value")
+        .eq("key", "section_visibility")
+        .maybeSingle()
+      if (error || !data?.value) return null
+      try {
+        return JSON.parse(data.value) as Record<string, boolean>
+      } catch {
+        return null
+      }
+    },
+    async updateSectionVisibility(visibility: Record<string, boolean>) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      const value = JSON.stringify(visibility)
+      const { error } = await client
+        .from("site_settings")
+        .upsert({ key: "section_visibility", value }, { onConflict: "key" })
+      if (error) throw error
     },
   },
 }

@@ -1,0 +1,88 @@
+// Prisma schema for Neon (or any PostgreSQL)
+// Use DATABASE_URL with Neon connection string to use Neon as DB
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id           String   @id @default(uuid())
+  full_name    String
+  email        String
+  phone        String
+  business_type String?
+  business_size String?
+  urgency      String?
+  message      String?
+  status       String   @default("new")
+  notes        String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("leads")
+}
+
+model Subscriber {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?
+  phone          String?
+  business_type  String?
+  business_size  String?
+  source         String?
+  status         String    @default("active")
+  subscribed_at  DateTime  @default(now())
+  unsubscribed_at DateTime?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  @@map("subscribers")
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  name         String
+  role         String?
+  company      String?
+  content      String
+  rating       Int      @default(5)
+  image_url    String?
+  result       String?
+  result_label String?
+  featured     Boolean  @default(false)
+  verified     Boolean  @default(true)
+  active       Boolean  @default(true)
+  display_order Int     @default(0)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+model EmailCampaign {
+  id              String   @id @default(uuid())
+  subject         String
+  content         String
+  recipient_count Int
+  status          String   @default("sent")
+  sent_at         DateTime @default(now())
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("email_campaigns")
+}
+
+model SiteSetting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("site_settings")
+}

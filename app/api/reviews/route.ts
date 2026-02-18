@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db, isSupabaseConfigured } from "@/lib/supabase"
+import { db, isDbConfigured } from "@/lib/db"
 
 // GET - Fetch all active reviews
 export async function GET() {
   try {
     // Return empty array if database not configured (frontend will use fallback)
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json([])
     }
 
@@ -43,7 +43,7 @@ export async function GET() {
 // POST - Create a new review (admin only)
 export async function POST(request: NextRequest) {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json(
         { error: "Database not configured" },
         { status: 503 }

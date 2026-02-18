@@ -1,7 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
+import { LayoutDashboard, Star, Users, Mail, LayoutGrid, ExternalLink, LogOut } from "lucide-react"
+import { SECTION_IDS, SECTION_LABELS } from "@/lib/sections"
+import { siteConfig } from "@/lib/config"
 
 interface Review {
   id: string
@@ -38,9 +41,10 @@ interface EmailStats {
     recipientCount: number
     sentAt: string
   }>
+  emailConfigured?: boolean
 }
 
-type Tab = "dashboard" | "reviews" | "leads" | "email"
+type Tab = "dashboard" | "reviews" | "leads" | "email" | "layout"
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -48,6 +52,7 @@ export default function AdminDashboard() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [leads, setLeads] = useState<Lead[]>([])
   const [emailStats, setEmailStats] = useState<EmailStats | null>(null)
+  const [sectionVisibility, setSectionVisibility] = useState<Record<string, boolean> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Reviews filter
@@ -66,15 +71,17 @@ export default function AdminDashboard() {
   const loadData = async () => {
     setIsLoading(true)
     try {
-      const [reviewsRes, leadsRes, emailRes] = await Promise.all([
+      const [reviewsRes, leadsRes, emailRes, sectionsRes] = await Promise.all([
         fetch("/api/reviews?all=true"), // Get all reviews including inactive
         fetch("/api/leads"),
         fetch("/api/admin/email"),
+        fetch("/api/admin/settings/sections"),
       ])
 
       if (reviewsRes.ok) setReviews(await reviewsRes.json())
       if (leadsRes.ok) setLeads(await leadsRes.json())
       if (emailRes.ok) setEmailStats(await emailRes.json())
+      if (sectionsRes.ok) setSectionVisibility(await sectionsRes.json())
     } catch (error) {
       console.error("Error loading data:", error)
     }
@@ -124,6 +131,24 @@ export default function AdminDashboard() {
     }
   }
 
+  const toggleSectionVisibility = async (sectionId: string, current: boolean) => {
+    if (!sectionVisibility) return
+    const next = { ...sectionVisibility, [sectionId]: !current }
+    setSectionVisibility(next)
+    try {
+      const res = await fetch("/api/admin/settings/sections", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [sectionId]: !current }),
+      })
+      if (!res.ok) {
+        setSectionVisibility(sectionVisibility)
+      }
+    } catch {
+      setSectionVisibility(sectionVisibility)
+    }
+  }
+
   const sendEmailCampaign = async () => {
     if (!emailSubject || !emailTitle || !emailContent) {
       alert("נא למלא את כל השדות")
@@ -161,62 +186,68 @@ export default function AdminDashboard() {
     setSendingEmail(false)
   }
 
-  const tabs = [
-    { id: "dashboard" as Tab, label: "סקירה כללית", icon: "📊" },
-    { id: "reviews" as Tab, label: "ביקורות", icon: "⭐" },
-    { id: "leads" as Tab, label: "לידים", icon: "👥" },
-    { id: "email" as Tab, label: "אימייל", icon: "📧" },
+  const navItems: { id: Tab; label: string; icon: ReactNode }[] = [
+    { id: "dashboard", label: "סקירה כללית", icon: <LayoutDashboard className="w-5 h-5" /> },
+    { id: "reviews", label: "ביקורות", icon: <Star className="w-5 h-5" /> },
+    { id: "leads", label: "לידים", icon: <Users className="w-5 h-5" /> },
+    { id: "email", label: "אימייל", icon: <Mail className="w-5 h-5" /> },
+    { id: "layout", label: "מבנה האתר", icon: <LayoutGrid className="w-5 h-5" /> },
   ]
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-slate-100 flex">
+      {/* Sidebar - fixed on the right for RTL */}
+      <aside className="w-64 flex-shrink-0 bg-white border-l border-slate-200 flex flex-col">
+        <div className="p-5 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
-              <span className="text-white font-bold">ש</span>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-lg">{siteConfig.name.charAt(0)}</span>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900">פאנל ניהול</h1>
-              <p className="text-xs text-slate-500">שם העסק</p>
+            <div className="min-w-0">
+              <h1 className="text-sm font-bold text-slate-900 truncate">{siteConfig.name}</h1>
+              <p className="text-xs text-slate-500">פאנל ניהול</p>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <a
-              href="/"
-              className="text-sm text-slate-600 hover:text-teal-600 transition-colors"
-            >
-              צפייה באתר ←
-            </a>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-red-600 hover:text-red-700 font-medium"
-            >
-              התנתקות
-            </button>
           </div>
         </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-          {tabs.map((tab) => (
+        <nav className="flex-1 p-3 space-y-1">
+          {navItems.map((item) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
-                activeTab === tab.id
-                  ? "bg-teal-600 text-white shadow-lg shadow-teal-500/20"
-                  : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === item.id
+                  ? "bg-teal-50 text-teal-700 border border-teal-100"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
               }`}
             >
-              <span>{tab.icon}</span>
-              <span>{tab.label}</span>
+              {item.icon}
+              <span>{item.label}</span>
             </button>
           ))}
+        </nav>
+        <div className="p-3 border-t border-slate-100 space-y-1">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          >
+            <ExternalLink className="w-5 h-5" />
+            צפייה באתר
+          </a>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 font-medium transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            התנתקות
+          </button>
         </div>
+      </aside>
+
+      {/* Main content */}
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-5xl mx-auto px-6 py-8">
 
         {isLoading ? (
           <div className="text-center py-12">
@@ -551,6 +582,11 @@ export default function AdminDashboard() {
                 {/* Send Campaign Form */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
                   <h3 className="font-bold text-slate-900 mb-6">שליחת קמפיין</h3>
+                  {emailStats?.emailConfigured === false && (
+                    <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                      <strong>חיבור אימייל לא מוגדר.</strong> כדי לשלוח קמפיינים הגדר Amazon SES: הוסף ל-.env את המשתנים AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY ו-SES_FROM_EMAIL. ראה SETUP.md להנחיות.
+                    </div>
+                  )}
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -590,22 +626,73 @@ export default function AdminDashboard() {
                     </div>
                     <button
                       onClick={sendEmailCampaign}
-                      disabled={sendingEmail || !emailStats?.activeSubscribers}
+                      disabled={sendingEmail || !emailStats?.activeSubscribers || emailStats?.emailConfigured === false}
                       className="w-full bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white py-3.5 rounded-xl font-bold shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {sendingEmail
                         ? "שולח..."
                         : `שלח ל-${emailStats?.activeSubscribers || 0} נרשמים`}
                     </button>
-                    <p className="text-xs text-slate-500 text-center">
-                      האימייל יישלח דרך Amazon SES לכל הנרשמים הפעילים
-                    </p>
+                    {emailStats?.emailConfigured === false && (
+                      <p className="text-xs text-slate-500 text-center">
+                        הגדר SES כדי לאפשר שליחת קמפיינים
+                      </p>
+                    )}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Layout Tab */}
+            {activeTab === "layout" && (
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <h3 className="font-bold text-slate-900 mb-2">מבנה האתר</h3>
+                <p className="text-sm text-slate-500 mb-6">
+                  הפעל או השבת אזורים בדף הנחיתה. השינויים יופיעו מיד באתר.
+                </p>
+                <a
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-teal-600 hover:text-teal-700 font-medium mb-6"
+                >
+                  צפייה באתר →
+                </a>
+                <div className="space-y-3">
+                  {SECTION_IDS.map((id) => {
+                    const visible = sectionVisibility?.[id] !== false
+                    const label = SECTION_LABELS[id as keyof typeof SECTION_LABELS] || id
+                    return (
+                      <div
+                        key={id}
+                        className="flex items-center justify-between py-3 px-4 rounded-xl border border-slate-100 hover:bg-slate-50"
+                      >
+                        <span className="font-medium text-slate-900">{label}</span>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={visible}
+                          onClick={() => toggleSectionVisibility(id, visible)}
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
+                            visible ? "bg-teal-500" : "bg-slate-200"
+                          }`}
+                          dir="ltr"
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
+                              visible ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
           </>
         )}
+        </div>
       </div>
     </div>
   )

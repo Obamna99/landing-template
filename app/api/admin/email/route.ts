@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
-import { sendBulkEmail, createCampaignEmailTemplate } from "@/lib/email"
-import { db, isSupabaseConfigured } from "@/lib/supabase"
+import { sendBulkEmail, createCampaignEmailTemplate, isEmailConfigured } from "@/lib/email"
+import { db, isDbConfigured } from "@/lib/db"
 
 // GET - Get subscribers count and stats
 export async function GET(request: NextRequest) {
   const authError = await requireAuth(request)
   if (authError) return authError
-  
+
   try {
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json(
         { error: "Database not configured" },
         { status: 503 }
@@ -21,11 +21,12 @@ export async function GET(request: NextRequest) {
       db.subscribers.count("active"),
       db.emailCampaigns.getRecent(5),
     ])
-    
+
     return NextResponse.json({
       totalSubscribers,
       activeSubscribers,
       recentCampaigns,
+      emailConfigured: isEmailConfigured,
     })
   } catch (error) {
     console.error("Error fetching email stats:", error)
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError
   
   try {
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json(
         { error: "Database not configured" },
         { status: 503 }
@@ -68,7 +69,17 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    
+
+    if (!isEmailConfigured) {
+      return NextResponse.json(
+        {
+          error:
+            "Email (SES) not configured. Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and SES_FROM_EMAIL in your environment. See SETUP.md for Amazon SES setup.",
+        },
+        { status: 503 }
+      )
+    }
+
     // Create email HTML
     const htmlContent = createCampaignEmailTemplate(title, content, ctaText, ctaUrl)
     

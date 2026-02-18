@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db, isSupabaseConfigured } from "@/lib/supabase"
+import { db, isDbConfigured } from "@/lib/db"
 
 // GET - Fetch single review
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json(
         { error: "Database not configured" },
         { status: 503 }
@@ -41,7 +41,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json(
         { error: "Database not configured" },
         { status: 503 }
@@ -69,7 +69,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isDbConfigured) {
       return NextResponse.json(
         { error: "Database not configured" },
         { status: 503 }
