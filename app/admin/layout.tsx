@@ -16,7 +16,7 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div dir="rtl" lang="he">
+    <div dir="rtl" lang="he" className="min-h-screen pb-[env(safe-area-inset-bottom)]">
       {children}
     </div>
   )

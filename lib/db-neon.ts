@@ -48,6 +48,13 @@ export const dbNeon = {
       })
       return toRecord(row)
     },
+    async updateStatusByEmail(email: string, status: Lead["status"]) {
+      const normalized = email.trim().toLowerCase()
+      await prisma.lead.updateMany({
+        where: { email: { equals: normalized, mode: "insensitive" } },
+        data: { status: status ?? undefined },
+      })
+    },
   },
   subscribers: {
     async upsert(subscriber: Subscriber) {
@@ -87,6 +94,12 @@ export const dbNeon = {
     async count(status?: string) {
       const where = status ? { status } : {}
       return prisma.subscriber.count({ where })
+    },
+    async unsubscribeByEmail(email: string) {
+      await prisma.subscriber.updateMany({
+        where: { email: email.trim().toLowerCase() },
+        data: { status: "unsubscribed", unsubscribed_at: new Date() },
+      })
     },
   },
   reviews: {

@@ -1,5 +1,6 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
 import { siteConfig, emailConfig } from "@/lib/config"
+import { createUnsubscribeToken } from "@/lib/unsubscribe"
 
 const hasSesCredentials =
   !!process.env.AWS_ACCESS_KEY_ID?.trim() &&
@@ -25,11 +26,13 @@ export interface EmailOptions {
   textContent?: string
 }
 
+export type SendEmailResult = { success: true } | { success: false; error: string }
+
 // Send a single email
-export async function sendEmail(options: EmailOptions): Promise<boolean> {
+export async function sendEmail(options: EmailOptions): Promise<SendEmailResult> {
   if (!isEmailConfigured) {
     console.warn("Email send skipped: SES not configured (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, SES_FROM_EMAIL)")
-    return false
+    return { success: false, error: "SES not configured" }
   }
   const { to, subject, htmlContent, textContent } = options
 
@@ -62,13 +65,28 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       },
     },
   })
-  
+
   try {
     await sesClient.send(command)
-    return true
-  } catch (error) {
+    return { success: true }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    const code = error && typeof error === "object" && "Code" in error ? String((error as { Code: string }).Code) : ""
     console.error("Error sending email:", error)
-    return false
+    // Surface common AWS/SES errors for debugging
+    const friendly =
+      code === "InvalidClientTokenId"
+        ? "Invalid AWS credentials. Check AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in .env.local."
+        : code === "MailFromDomainNotVerified"
+        ? "Sender not verified. Verify SES_FROM_EMAIL (and domain) in SES Console."
+        : code === "MessageRejected" && /not verified|failed the check/i.test(message)
+        ? `${message} In sandbox mode, the recipient must be a verified identity in SES (Verified identities → Create identity → Email address).`
+        : code === "MessageRejected"
+        ? "Sender not verified. Verify SES_FROM_EMAIL (and domain) in SES Console."
+        : code === "AccountSendingPausedException"
+        ? "SES account is paused. Check AWS SES Console."
+        : message
+    return { success: false, error: friendly }
   }
 }
 
@@ -88,16 +106,19 @@ export async function sendBulkEmail(
     const batch = recipients.slice(i, i + batchSize)
     
     // Send individual emails in batch (for personalization)
+    const siteUrl = siteConfig.url
     const promises = batch.map(async (recipient) => {
-      const personalizedHtml = htmlContent.replace(/{{name}}/g, recipient.name || "")
-      
-      const sent = await sendEmail({
+      const token = await createUnsubscribeToken(recipient.email)
+      const unsubscribeUrl = `${siteUrl}/unsubscribe?token=${encodeURIComponent(token)}`
+      const personalizedHtml = htmlContent
+        .replace(/\{\{unsubscribe_url\}\}/g, unsubscribeUrl)
+        .replace(/\{\{name\}\}/g, recipient.name || "")
+      const result = await sendEmail({
         to: recipient.email,
         subject,
         htmlContent: personalizedHtml,
       })
-      
-      if (sent) {
+      if (result.success) {
         success++
       } else {
         failed++
@@ -207,7 +228,7 @@ export function createCampaignEmailTemplate(
     <div class="footer">
       <p>${footerText}</p>
       <p>
-        <a href="${siteUrl}/unsubscribe">${unsubscribeText}</a>
+        <a href="{{unsubscribe_url}}">${unsubscribeText}</a>
       </p>
     </div>
   </div>
@@ -216,14 +237,39 @@ export function createCampaignEmailTemplate(
   `.trim()
 }
 
-// Lead notification email template
+// Lead notification email template – all form fields for admin
 export function createLeadNotificationEmail(lead: {
   fullName: string
   email: string
   phone: string
   businessType?: string
+  businessSize?: string
+  urgency?: string
+  urgencyLabel?: string
   message?: string
 }): string {
+  const row = (label: string, value: string, isLink?: "email" | "phone") => {
+    const cell =
+      isLink === "email"
+        ? `<a href="mailto:${value}">${value}</a>`
+        : isLink === "phone"
+        ? `<a href="tel:${value}">${value}</a>`
+        : value
+    return `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0d9488;">${label}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${cell}</td>
+        </tr>`
+  }
+  const rows = [
+    row("שם:", lead.fullName),
+    row("אימייל:", lead.email, "email"),
+    row("טלפון:", lead.phone, "phone"),
+    lead.businessType && row("סוג עסק:", lead.businessType),
+    lead.businessSize && row("גודל עסק:", lead.businessSize),
+    (lead.urgencyLabel || lead.urgency) && row("מתי להתחיל:", lead.urgencyLabel || lead.urgency || ""),
+    lead.message && row("הודעה:", lead.message),
+  ].filter(Boolean)
   return `
 <!DOCTYPE html>
 <html dir="${siteConfig.direction}" lang="${siteConfig.locale}">
@@ -238,30 +284,7 @@ export function createLeadNotificationEmail(lead: {
     </div>
     <div style="padding: 30px;">
       <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0d9488;">שם:</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${lead.fullName}</td>
-        </tr>
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0d9488;">אימייל:</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><a href="mailto:${lead.email}">${lead.email}</a></td>
-        </tr>
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0d9488;">טלפון:</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><a href="tel:${lead.phone}">${lead.phone}</a></td>
-        </tr>
-        ${lead.businessType ? `
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0d9488;">סוג עסק:</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${lead.businessType}</td>
-        </tr>
-        ` : ""}
-        ${lead.message ? `
-        <tr>
-          <td style="padding: 10px; font-weight: bold; color: #0d9488; vertical-align: top;">הודעה:</td>
-          <td style="padding: 10px;">${lead.message}</td>
-        </tr>
-        ` : ""}
+        ${rows.join("")}
       </table>
     </div>
   </div>

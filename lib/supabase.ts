@@ -34,7 +34,7 @@ export interface Lead {
   business_size?: string
   urgency?: string
   message?: string
-  status?: "new" | "contacted" | "qualified" | "converted" | "closed"
+  status?: "new" | "contacted" | "qualified" | "converted" | "closed" | "unsubscribed"
   notes?: string
   created_at?: string
   updated_at?: string
@@ -137,6 +137,24 @@ export const db = {
       if (error) throw error
       return data
     },
+
+    async updateStatusByEmail(email: string, status: Lead["status"]) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      const normalized = email.trim().toLowerCase()
+      const { data: rows, error: selectError } = await client
+        .from("leads")
+        .select("id")
+        .ilike("email", normalized)
+      if (selectError) throw selectError
+      if (rows?.length) {
+        const { error: updateError } = await client
+          .from("leads")
+          .update({ status, updated_at: new Date().toISOString() })
+          .in("id", rows.map((r) => r.id))
+        if (updateError) throw updateError
+      }
+    },
   },
 
   // Subscribers
@@ -201,6 +219,17 @@ export const db = {
       const { count, error } = await query
       if (error) throw error
       return count || 0
+    },
+
+    async unsubscribeByEmail(email: string) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      const normalized = email.trim().toLowerCase()
+      const { error } = await client
+        .from("subscribers")
+        .update({ status: "unsubscribed", unsubscribed_at: new Date().toISOString() })
+        .eq("email", normalized)
+      if (error) throw error
     },
   },
 

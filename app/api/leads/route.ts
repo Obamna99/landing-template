@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db, isDbConfigured } from "@/lib/db"
 import { sendEmail, createLeadNotificationEmail, isEmailConfigured } from "@/lib/email"
-import { siteConfig, emailConfig } from "@/lib/config"
+import { siteConfig, emailConfig, contactConfig } from "@/lib/config"
+
+/** Map DB lead (snake_case) to admin UI shape (camelCase). */
+function toAdminLead(lead: Record<string, unknown>) {
+  return {
+    id: lead.id,
+    fullName: lead.full_name ?? "",
+    email: lead.email ?? "",
+    phone: lead.phone ?? "",
+    businessType: lead.business_type ?? null,
+    status: lead.status ?? "new",
+    createdAt: lead.created_at ?? "",
+  }
+}
 
 // GET - Fetch all leads (admin only)
 export async function GET() {
@@ -14,7 +27,7 @@ export async function GET() {
     }
 
     const leads = await db.leads.getAll()
-    return NextResponse.json(leads)
+    return NextResponse.json(leads.map((l) => toAdminLead(l as Record<string, unknown>)))
   } catch (error) {
     console.error("Error fetching leads:", error)
     return NextResponse.json(
@@ -69,22 +82,37 @@ export async function POST(request: NextRequest) {
       // Subscriber creation is optional
     }
 
-    // Notify site contact email when SES is configured
+    // Notify site contact email when SES is configured (include all form data)
     if (isEmailConfigured) {
       try {
         const notifyTo = siteConfig.contact.email
+        const urgencyLabel =
+          body.urgency &&
+          contactConfig.step2?.urgencyOptions?.find((o: { value: string }) => o.value === body.urgency)?.label
+        const businessSizeLabel =
+          body.businessSize &&
+          contactConfig.step2?.businessSizes?.find((o: { value: string }) => o.value === body.businessSize)?.label
+        const businessTypeLabel =
+          body.businessType &&
+          contactConfig.step2?.businessTypes?.find((o: { value: string }) => o.value === body.businessType)?.label
         const html = createLeadNotificationEmail({
           fullName: body.fullName,
           email: body.email,
           phone: body.phone,
-          businessType: body.businessType,
+          businessType: businessTypeLabel || body.businessType,
+          businessSize: businessSizeLabel || body.businessSize,
+          urgency: body.urgency,
+          urgencyLabel: urgencyLabel || undefined,
           message: body.message,
         })
-        await sendEmail({
+        const sendResult = await sendEmail({
           to: notifyTo,
           subject: emailConfig.templates.leadNotification.subject,
           htmlContent: html,
         })
+        if (!sendResult.success) {
+          console.error("Lead notification email failed:", sendResult.error)
+        }
       } catch {
         // Don't fail the request if notification email fails
       }

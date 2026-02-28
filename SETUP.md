@@ -267,6 +267,20 @@ To send to any email address:
 | "Access Denied" | Check IAM permissions for your access key |
 | Emails going to spam | Set up SPF, DKIM, and DMARC records for your domain |
 
+### Testing SES from local
+
+1. **Set `.env`** (restart dev server after changes):
+   ```env
+   AWS_REGION="eu-west-1"
+   AWS_ACCESS_KEY_ID="your-access-key"
+   AWS_SECRET_ACCESS_KEY="your-secret-key"
+   SES_FROM_EMAIL="noreply@yourdomain.com"   # Must be verified in SES
+   ```
+2. **SES Sandbox:** In sandbox mode you can only send **to** verified addresses. In SES Console → Verified identities, add the **recipient** email (e.g. your personal Gmail) as a verified identity so you can receive test emails.
+3. **Admin → Email tab:** Use **"שלח מייל בדיקה"** (Send test email): enter an email address and click the button. Check that inbox (and spam). No database or subscribers needed.
+4. **Contact form:** With DB and SES configured, submit the contact form on the landing page. A lead is created and a notification email is sent to `siteConfig.contact.email`. That recipient must be verified in SES if in sandbox.
+5. **Campaigns:** Need at least one active subscriber (e.g. submit the contact form once so the email is added as a subscriber). Then Admin → Email → fill campaign fields and send. Again, in sandbox all recipients must be verified.
+
 ---
 
 ## 🔧 Configuration Reference

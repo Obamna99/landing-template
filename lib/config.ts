@@ -17,6 +17,7 @@ export const siteConfig = {
   name: "MailFlow",
   tagline: "דפי נחיתה מעוצבים + שיווק במייל בזול ובאיכות גבוהה",
   description: "אנחנו בונים דפי נחיתה מרהיבים ומותאמים אישית לעסק שלך, עם מערכת שיווק במייל במחירים שמנצחים את המתחרים. האתר שאתה רואה עכשיו? זה בדיוק מה שתקבל.",
+  // Used in email unsubscribe links and canonical URLs. Must be a reachable public URL.
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://mailflow.co.il",
   locale: "he",
   direction: "rtl" as const,
