@@ -83,12 +83,37 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
 
   // Section content (for build page / preview)
   const [sections, setSections] = useState({
-    hero: { headlineLine1: "", highlight: "", subheadline: "" },
+    site: { tagline: "" },
+    hero: {
+      headlineLine1: "",
+      highlight: "",
+      subheadline: "",
+      ctaPrimaryText: "",
+      ctaSecondaryText: "",
+      trustText: "",
+      valueCardTitle: "",
+      valueCardHighlight: "",
+    },
     about: {
       headline: "",
       headlineHighlight: "",
       subheadline: "",
       founder: { quote: "", imageUrl: "", name: "", role: "", linkedin: "" },
+      badge: "",
+      journeyTitle: "המסע שלנו",
+      timeline: [
+        { year: "עיצוב", text: "דפי נחיתה מודרניים, רספונסיביים, עם אנימציות וחוויית משתמש מושלמת" },
+        { year: "התאמה", text: "כל אתר מותאם לעסק שלך – תמונות, צבעים, טקסטים ותוכן" },
+        { year: "מיילים", text: "מערכת מיילים מקצועית שעובדת בצורה אמינה ומגיעה לתיבת הדואר" },
+        { year: "מחיר", text: "עלות נמוכה משמעותית מכל מה שאתם משלמים היום. נדבר על זה בשיחה." },
+      ],
+      trustItems: [
+        { title: "עיצוב ברמה עולמית", description: "האתר שאתה רואה עכשיו? זה בדיוק מה שתקבל. ללא הפתעות.", stat: "150+", statLabel: "אתרים", icon: "badge" },
+        { title: "מחיר הוגן", description: "מערכת מיילים במחיר הוגן. נדבר על זה בשיחה.", stat: null, statLabel: null, icon: "chart" },
+        { title: "הכל מותאם לך", description: "התמונות שלך, הלוגו שלך, הטקסטים שלך, הצבעים שלך. אנחנו רק עושים את זה יפה.", stat: "100%", statLabel: "התאמה", icon: "user" },
+      ],
+      ctaText: "רוצים אתר כזה לעסק שלכם?",
+      ctaButton: "בואו נדבר",
     },
     features: [
       { title: "עיצוב מותאם אישית", description: "התמונות שלך, הצבעים שלך, הסגנון שלך" },
@@ -292,6 +317,7 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
 
         const sectionsJson = buildPage
           ? {
+              site: { tagline: sections.site?.tagline ?? "" },
               hero: { ...sections.hero, features: sections.features },
               about: aboutPayload,
               video: videoPayload,
@@ -299,8 +325,8 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
               features: sections.features,
               footer: sections.footer,
               journeyNotes: sections.journeyNotes || undefined,
-                    theme: { ...sections.theme, themeMode: sections.theme.themeMode || "light" },
-                  }
+              theme: { ...sections.theme, themeMode: sections.theme.themeMode || "light" },
+            }
           : undefined
 
         const response = await fetch("/api/leads", {
@@ -875,6 +901,19 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                           className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 placeholder:text-slate-400"
                         />
                       </div>
+                      <div>
+                        <label htmlFor="siteTagline" className="block text-sm font-semibold text-slate-700 mb-2">
+                          סיסמה / תגית (אופציונלי) – יופיע בכותרת ובפוטר
+                        </label>
+                        <input
+                          type="text"
+                          id="siteTagline"
+                          placeholder="למשל: מועדון ספורט ואימונים"
+                          value={sections.site?.tagline ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, site: { ...s.site, tagline: e.target.value } }))}
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
 
                       <div>
                         <label htmlFor="siteDescription" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -1145,6 +1184,56 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                           className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
                         />
                       </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">כפתור ראשי (טקסט)</label>
+                        <input
+                          type="text"
+                          value={sections.hero.ctaPrimaryText ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, hero: { ...s.hero, ctaPrimaryText: e.target.value } }))}
+                          placeholder="רוצים דף נחיתה? דברו איתנו"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">כפתור משני (טקסט)</label>
+                        <input
+                          type="text"
+                          value={sections.hero.ctaSecondaryText ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, hero: { ...s.hero, ctaSecondaryText: e.target.value } }))}
+                          placeholder="איך זה עובד?"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">טקסט אמון (תג סוציאלי)</label>
+                        <input
+                          type="text"
+                          value={sections.hero.trustText ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, hero: { ...s.hero, trustText: e.target.value } }))}
+                          placeholder="מצטרפים ל-150+ עסקים עם דפי נחיתה"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">כותרת כרטיס ערך (מה תקבלו?)</label>
+                        <input
+                          type="text"
+                          value={sections.hero.valueCardTitle ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, hero: { ...s.hero, valueCardTitle: e.target.value } }))}
+                          placeholder="מה תקבלו?"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">המשך כותרת כרטיס (מודגש)</label>
+                        <input
+                          type="text"
+                          value={sections.hero.valueCardHighlight ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, hero: { ...s.hero, valueCardHighlight: e.target.value } }))}
+                          placeholder="הכל בחבילה אחת."
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
                     </motion.div>
                   )}
 
@@ -1249,6 +1338,138 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                           placeholder="https://linkedin.com/..."
                           className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
                         />
+                      </div>
+                      <h4 className="text-base font-bold text-slate-800 mt-6 mb-2">המסע שלנו – טיימליין (4 כרטיסים)</h4>
+                      <div className="space-y-3">
+                        {[0, 1, 2, 3].map((i) => (
+                          <div key={i} className="bg-slate-50 rounded-xl p-4 space-y-2">
+                            <input
+                              type="text"
+                              value={sections.about.timeline?.[i]?.year ?? ""}
+                              onChange={(e) => {
+                                const next = [...(sections.about.timeline ?? [])]
+                                while (next.length <= i) next.push({ year: "", text: "" })
+                                next[i] = { ...next[i], year: e.target.value }
+                                setSections((s) => ({ ...s, about: { ...s.about, timeline: next } }))
+                              }}
+                              placeholder={`כותרת ${i + 1} (למשל: מחיר)`}
+                              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-teal-500 text-slate-900 placeholder:text-slate-400"
+                            />
+                            <input
+                              type="text"
+                              value={sections.about.timeline?.[i]?.text ?? ""}
+                              onChange={(e) => {
+                                const next = [...(sections.about.timeline ?? [])]
+                                while (next.length <= i) next.push({ year: "", text: "" })
+                                next[i] = { ...next[i], text: e.target.value }
+                                setSections((s) => ({ ...s, about: { ...s.about, timeline: next } }))
+                              }}
+                              placeholder="תיאור קצר"
+                              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-teal-500 text-slate-900 placeholder:text-slate-400"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <h4 className="text-base font-bold text-slate-800 mt-6 mb-2">שלוש כרטיסי אמון (הכל מותאם, מחיר הוגן, עיצוב)</h4>
+                      <div className="space-y-3">
+                        {[0, 1, 2].map((i) => (
+                          <div key={i} className="bg-slate-50 rounded-xl p-4 space-y-2">
+                            <input
+                              type="text"
+                              value={sections.about.trustItems?.[i]?.title ?? ""}
+                              onChange={(e) => {
+                                const next = [...(sections.about.trustItems ?? [])]
+                                while (next.length <= i) next.push({ title: "", description: "", stat: null, statLabel: null, icon: "badge" })
+                                next[i] = { ...next[i], title: e.target.value }
+                                setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                              }}
+                              placeholder="כותרת כרטיס"
+                              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-teal-500 text-slate-900 placeholder:text-slate-400"
+                            />
+                            <input
+                              type="text"
+                              value={sections.about.trustItems?.[i]?.description ?? ""}
+                              onChange={(e) => {
+                                const next = [...(sections.about.trustItems ?? [])]
+                                while (next.length <= i) next.push({ title: "", description: "", stat: null, statLabel: null, icon: "badge" })
+                                next[i] = { ...next[i], description: e.target.value }
+                                setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                              }}
+                              placeholder="תיאור"
+                              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-teal-500 text-slate-900 placeholder:text-slate-400"
+                            />
+                            <div className="grid grid-cols-2 gap-2">
+                              <input
+                                type="text"
+                                value={sections.about.trustItems?.[i]?.stat ?? ""}
+                                onChange={(e) => {
+                                  const next = [...(sections.about.trustItems ?? [])]
+                                  while (next.length <= i) next.push({ title: "", description: "", stat: null, statLabel: null, icon: "badge" })
+                                  next[i] = { ...next[i], stat: e.target.value || null }
+                                  setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                                }}
+                                placeholder="תג (למשל: 150+)"
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-teal-500 text-slate-900 placeholder:text-slate-400"
+                              />
+                              <input
+                                type="text"
+                                value={sections.about.trustItems?.[i]?.statLabel ?? ""}
+                                onChange={(e) => {
+                                  const next = [...(sections.about.trustItems ?? [])]
+                                  while (next.length <= i) next.push({ title: "", description: "", stat: null, statLabel: null, icon: "badge" })
+                                  next[i] = { ...next[i], statLabel: e.target.value || null }
+                                  setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                                }}
+                                placeholder="תג (למשל: אתרים)"
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-teal-500 text-slate-900 placeholder:text-slate-400"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">כותרת אזור המסע</label>
+                          <input
+                            type="text"
+                            value={sections.about.journeyTitle ?? ""}
+                            onChange={(e) => setSections((s) => ({ ...s, about: { ...s.about, journeyTitle: e.target.value } }))}
+                            placeholder="המסע שלנו"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">תג כותרת אודות</label>
+                          <input
+                            type="text"
+                            value={sections.about.badge ?? ""}
+                            onChange={(e) => setSections((s) => ({ ...s, about: { ...s.about, badge: e.target.value } }))}
+                            placeholder="למה אנחנו"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">טקסט CTA אודות</label>
+                          <input
+                            type="text"
+                            value={sections.about.ctaText ?? ""}
+                            onChange={(e) => setSections((s) => ({ ...s, about: { ...s.about, ctaText: e.target.value } }))}
+                            placeholder="רוצים אתר כזה לעסק שלכם?"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">כפתור CTA אודות</label>
+                          <input
+                            type="text"
+                            value={sections.about.ctaButton ?? ""}
+                            onChange={(e) => setSections((s) => ({ ...s, about: { ...s.about, ctaButton: e.target.value } }))}
+                            placeholder="בואו נדבר"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                          />
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">הערות לעיצוב והתאמה (אופציונלי)</label>
@@ -1384,9 +1605,10 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                       className="space-y-5"
                     >
                       <h3 className="text-lg font-bold text-slate-900 mb-4">פוטר ויצירת קשר באתר (אופציונלי)</h3>
+                      <p className="text-sm text-slate-600 mb-3">הטלפון ומספר ה-WhatsApp שלכם ישמשו לכל קישורי הוואטסאפ באתר הבנוי (כותרת, שאלות נפוצות, פוטר).</p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">טלפון</label>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">טלפון (בעלים / ליצירת קשר)</label>
                           <input
                             type="text"
                             value={sections.footer.phone}
@@ -1541,12 +1763,12 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">WhatsApp (מספר: 972501234567)</label>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">WhatsApp (מספר בעלים – 0501234567 או 972501234567)</label>
                           <input
                             type="text"
                             value={sections.footer.social.whatsapp}
                             onChange={(e) => setSections((s) => ({ ...s, footer: { ...s.footer, social: { ...s.footer.social, whatsapp: e.target.value } } }))}
-                            placeholder="972501234567"
+                            placeholder="0501234567"
                             className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
                           />
                         </div>
@@ -1693,12 +1915,37 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                     videoUrls: [],
                   })
                   setSections({
-                    hero: { headlineLine1: "", highlight: "", subheadline: "" },
+                    site: { tagline: "" },
+                    hero: {
+                      headlineLine1: "",
+                      highlight: "",
+                      subheadline: "",
+                      ctaPrimaryText: "",
+                      ctaSecondaryText: "",
+                      trustText: "",
+                      valueCardTitle: "",
+                      valueCardHighlight: "",
+                    },
                     about: {
                       headline: "",
                       headlineHighlight: "",
                       subheadline: "",
                       founder: { quote: "", imageUrl: "", name: "", role: "", linkedin: "" },
+                      badge: "",
+                      journeyTitle: "המסע שלנו",
+                      timeline: [
+                        { year: "עיצוב", text: "דפי נחיתה מודרניים, רספונסיביים, עם אנימציות וחוויית משתמש מושלמת" },
+                        { year: "התאמה", text: "כל אתר מותאם לעסק שלך – תמונות, צבעים, טקסטים ותוכן" },
+                        { year: "מיילים", text: "מערכת מיילים מקצועית שעובדת בצורה אמינה ומגיעה לתיבת הדואר" },
+                        { year: "מחיר", text: "עלות נמוכה משמעותית מכל מה שאתם משלמים היום. נדבר על זה בשיחה." },
+                      ],
+                      trustItems: [
+                        { title: "עיצוב ברמה עולמית", description: "האתר שאתה רואה עכשיו? זה בדיוק מה שתקבל. ללא הפתעות.", stat: "150+", statLabel: "אתרים", icon: "badge" },
+                        { title: "מחיר הוגן", description: "מערכת מיילים במחיר הוגן. נדבר על זה בשיחה.", stat: null, statLabel: null, icon: "chart" },
+                        { title: "הכל מותאם לך", description: "התמונות שלך, הלוגו שלך, הטקסטים שלך, הצבעים שלך. אנחנו רק עושים את זה יפה.", stat: "100%", statLabel: "התאמה", icon: "user" },
+                      ],
+                      ctaText: "רוצים אתר כזה לעסק שלכם?",
+                      ctaButton: "בואו נדבר",
                     },
                     features: [
                       { title: "עיצוב מותאם אישית", description: "התמונות שלך, הצבעים שלך, הסגנון שלך" },

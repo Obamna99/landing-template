@@ -1,21 +1,23 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
 import { Header } from "@/components/landing/header"
 import { Hero } from "@/components/landing/hero"
-import { TrustBadges } from "@/components/landing/trust-badges"
-import { VideoSection } from "@/components/landing/video-section"
-import { HowItWorks } from "@/components/landing/how-it-works"
-import { About } from "@/components/landing/about"
-import { Transformation } from "@/components/landing/transformation"
-import { Reviews } from "@/components/landing/reviews"
-import { FAQ } from "@/components/landing/faq"
-import { Footer } from "@/components/landing/footer"
-import { FloatingCTA } from "@/components/landing/floating-cta"
-import { LeadForm } from "@/components/landing/lead-form"
 import { SectionWrapper } from "@/components/ui/section-wrapper"
 import { RevealButton } from "@/components/landing/reveal-button"
+
+const TrustBadges = dynamic(() => import("@/components/landing/trust-badges").then((m) => m.TrustBadges), { ssr: true })
+const VideoSection = dynamic(() => import("@/components/landing/video-section").then((m) => m.VideoSection), { ssr: true })
+const HowItWorks = dynamic(() => import("@/components/landing/how-it-works").then((m) => m.HowItWorks), { ssr: true })
+const About = dynamic(() => import("@/components/landing/about").then((m) => m.About), { ssr: true })
+const Transformation = dynamic(() => import("@/components/landing/transformation").then((m) => m.Transformation), { ssr: true })
+const Reviews = dynamic(() => import("@/components/landing/reviews").then((m) => m.Reviews), { ssr: true })
+const FAQ = dynamic(() => import("@/components/landing/faq").then((m) => m.FAQ), { ssr: true })
+const Footer = dynamic(() => import("@/components/landing/footer").then((m) => m.Footer), { ssr: true })
+const FloatingCTA = dynamic(() => import("@/components/landing/floating-cta").then((m) => m.FloatingCTA), { ssr: true })
+const LeadForm = dynamic(() => import("@/components/landing/lead-form").then((m) => m.LeadForm), { ssr: true })
 
 const PHASE_LABELS: Record<number, string> = {
   1: "גלו עוד",
@@ -41,7 +43,7 @@ const phaseSlideVariants = {
     filter: "blur(0px)",
     transition: {
       duration: 0.6,
-      ease: [0.22, 0.61, 0.36, 1],
+      ease: [0.22, 0.61, 0.36, 1] as const,
       staggerChildren: 0.1,
       delayChildren: 0.15,
     },
@@ -57,7 +59,7 @@ const phaseChildVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.22, 0.61, 0.36, 1] },
+    transition: { duration: 0.5, ease: [0.22, 0.61, 0.36, 1] as const },
   },
 }
 
@@ -227,7 +229,7 @@ export function LandingWithReveal({ visibility }: LandingWithRevealProps) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const }}
           >
             <Footer />
           </motion.div>

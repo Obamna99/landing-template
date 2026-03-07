@@ -1,7 +1,5 @@
-import { ChatbotWidget } from "@/components/chatbot/ChatbotWidget"
-import { SocialProofNotification } from "@/components/social-proof/SocialProofNotification"
-import { HesitationHelper } from "@/components/hesitation/HesitationHelper"
 import { LandingWithReveal } from "@/components/landing/landing-with-reveal"
+import { LandingWidgets } from "@/components/landing/landing-widgets"
 import { db, isDbConfigured } from "@/lib/db"
 import { defaultSectionVisibility } from "@/lib/sections"
 
@@ -21,9 +19,7 @@ export default async function LandingPage() {
   return (
     <>
       <LandingWithReveal visibility={visibility} />
-      <ChatbotWidget />
-      <SocialProofNotification />
-      <HesitationHelper />
+      <LandingWidgets />
     </>
   )
 }

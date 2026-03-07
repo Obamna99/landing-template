@@ -5,7 +5,17 @@ import { useInView } from "framer-motion"
 import { useState, useRef } from "react"
 import { siteConfig, faqConfig } from "@/lib/config"
 
-export type FAQOverride = { questions?: { question: string; answer: string }[] }
+export type FAQOverride = {
+  questions?: { question: string; answer: string }[]
+  badge?: string
+  headline?: string
+  headlineHighlight?: string
+  subheadline?: string
+  ctaText?: string
+  ctaButton?: string
+  ctaHeading?: string
+  whatsappNumber?: string
+}
 
 export function FAQ({ override }: { override?: FAQOverride }) {
   const ref = useRef(null)
@@ -14,11 +24,19 @@ export function FAQ({ override }: { override?: FAQOverride }) {
   const customQuestions = (override?.questions ?? []).filter((q) => q.question?.trim() || q.answer?.trim())
   const displayQuestions = customQuestions.length > 0 ? customQuestions : faqConfig.questions
 
+  const badge = override?.badge ?? faqConfig.badge
+  const headline = override?.headline ?? faqConfig.headline
+  const headlineHighlight = override?.headlineHighlight ?? faqConfig.headlineHighlight
+  const subheadline = override?.subheadline ?? faqConfig.subheadline
+  const ctaText = override?.ctaText ?? faqConfig.ctaText
+  const ctaButton = override?.ctaButton ?? faqConfig.ctaButton
+  const ctaHeading = override?.ctaHeading ?? "עדיין יש שאלות?"
+  const whatsappNum = override?.whatsappNumber ?? siteConfig.contact.whatsapp
+  const whatsappUrl = `https://wa.me/${whatsappNum}`
+
   const toggleQuestion = (index: number) => {
     setOpenId(openId === index ? null : index)
   }
-
-  const whatsappUrl = `https://wa.me/${siteConfig.contact.whatsapp}`
 
   return (
     <section
@@ -46,14 +64,14 @@ export function FAQ({ override }: { override?: FAQOverride }) {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3"
             >
-              {faqConfig.badge}
+              {badge}
             </motion.span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-              {faqConfig.headline}
-              <span className="gradient-text">{faqConfig.headlineHighlight}</span>
+              {headline}
+              <span className="gradient-text">{headlineHighlight}</span>
             </h2>
             <p className="text-lg text-slate-600">
-              {faqConfig.subheadline}
+              {subheadline}
             </p>
           </div>
 
@@ -125,10 +143,10 @@ export function FAQ({ override }: { override?: FAQOverride }) {
           >
             <div className="bg-gradient-to-br from-teal-50 to-teal-100/50 rounded-2xl p-6 sm:p-8 border border-teal-100 text-right">
               <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">
-                עדיין יש שאלות?
+                {ctaHeading}
               </h3>
               <p className="text-slate-600 mb-5 max-w-xl mx-auto">
-                {faqConfig.ctaText}
+                {ctaText}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <a
@@ -154,7 +172,7 @@ export function FAQ({ override }: { override?: FAQOverride }) {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
-                  <span>{faqConfig.ctaButton}</span>
+                  <span>{ctaButton}</span>
                 </motion.button>
               </div>
             </div>

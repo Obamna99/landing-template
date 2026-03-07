@@ -29,11 +29,18 @@ export type AboutOverride = {
   headlineHighlight?: string
   subheadline?: string
   founder?: { quote?: string; imageUrl?: string; name?: string; role?: string; linkedin?: string }
+  badge?: string
+  journeyTitle?: string
+  timeline?: Array<{ year: string; text: string }>
+  trustItems?: Array<{ title: string; description: string; icon?: string; stat?: string | null; statLabel?: string | null }>
+  ctaText?: string
+  ctaButton?: string
 }
 
 export function About({ override }: { override?: AboutOverride }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const badge = override?.badge ?? aboutConfig.badge
   const headline = override?.headline ?? aboutConfig.headline
   const headlineHighlight = override?.headlineHighlight ?? aboutConfig.headlineHighlight
   const subheadline = override?.subheadline ?? aboutConfig.subheadline
@@ -42,6 +49,11 @@ export function About({ override }: { override?: AboutOverride }) {
     : aboutConfig.founder
   const founderImage = founder.image ?? (founder as { imageUrl?: string }).imageUrl ?? aboutConfig.founder.image
   const founderName = founder.name ?? aboutConfig.founder.name
+  const journeyTitle = override?.journeyTitle ?? "המסע שלנו"
+  const timeline = override?.timeline && override.timeline.length > 0 ? override.timeline : aboutConfig.timeline
+  const trustItems = override?.trustItems && override.trustItems.length > 0 ? override.trustItems : aboutConfig.trustItems
+  const ctaText = override?.ctaText ?? aboutConfig.ctaText
+  const ctaButton = override?.ctaButton ?? aboutConfig.ctaButton
 
   return (
     <section
@@ -67,7 +79,7 @@ export function About({ override }: { override?: AboutOverride }) {
               className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3 whitespace-nowrap min-w-0"
               style={{ overflow: "visible" }}
             >
-              {aboutConfig.badge}
+              {badge}
             </motion.span>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-900 mb-3 sm:mb-4 leading-tight break-words">
               {headline}
@@ -151,7 +163,7 @@ export function About({ override }: { override?: AboutOverride }) {
               transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
               className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 text-center mb-6 sm:mb-8"
             >
-              המסע שלנו
+              {journeyTitle}
             </motion.h3>
             
             {/* Desktop Timeline */}
@@ -160,7 +172,7 @@ export function About({ override }: { override?: AboutOverride }) {
                 <div className="absolute top-6 left-4 right-4 lg:left-8 lg:right-8 h-0.5 bg-gradient-to-l from-teal-500 via-teal-300 to-amber-400" />
                 
                 <div className="grid grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-                  {aboutConfig.timeline.map((milestone, index) => (
+                  {timeline.map((milestone, index) => (
                     <motion.div
                       key={milestone.year}
                       initial={{ opacity: 0, y: 24, scale: 0.96 }}
@@ -182,7 +194,7 @@ export function About({ override }: { override?: AboutOverride }) {
             
             {/* Mobile Timeline */}
             <div className="sm:hidden space-y-4">
-              {aboutConfig.timeline.map((milestone, index) => (
+              {timeline.map((milestone, index) => (
                 <motion.div
                   key={milestone.year}
                   initial={{ opacity: 0, x: index % 2 === 0 ? -24 : 24, scale: 0.96 }}
@@ -202,7 +214,7 @@ export function About({ override }: { override?: AboutOverride }) {
 
           {/* Trust Items */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            {aboutConfig.trustItems.map((item, index) => (
+            {trustItems.map((item, index) => (
               <motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 28, scale: 0.96 }}
@@ -242,7 +254,7 @@ export function About({ override }: { override?: AboutOverride }) {
             className="mt-12 sm:mt-16 text-center"
           >
             <p className="text-lg text-slate-600 mb-4">
-              {aboutConfig.ctaText}
+              {ctaText}
             </p>
             <motion.button
               onClick={() => { window.location.href = "/client" }}
@@ -250,7 +262,7 @@ export function About({ override }: { override?: AboutOverride }) {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
             >
-              <span>{aboutConfig.ctaButton}</span>
+              <span>{ctaButton}</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>

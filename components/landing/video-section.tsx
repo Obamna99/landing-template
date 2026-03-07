@@ -4,7 +4,15 @@ import { useState, useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { videoConfig } from "@/lib/config"
 
-export type VideoOverride = { videoId?: string; customVideoUrl?: string }
+export type VideoOverride = {
+  videoId?: string
+  customVideoUrl?: string
+  badge?: string
+  headline?: string
+  headlineHighlight?: string
+  subheadline?: string
+  highlights?: Array<{ icon?: string; text: string }>
+}
 
 export function VideoSection({ override }: { override?: VideoOverride }) {
   const ref = useRef(null)
@@ -12,6 +20,11 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
   const [isPlaying, setIsPlaying] = useState(false)
   const videoId = override?.videoId?.trim() || videoConfig.videoId
   const customVideoUrl = override?.customVideoUrl?.trim() || videoConfig.customVideoUrl
+  const badge = override?.badge ?? videoConfig.badge
+  const headline = override?.headline ?? videoConfig.headline
+  const headlineHighlight = override?.headlineHighlight ?? videoConfig.headlineHighlight
+  const subheadline = override?.subheadline ?? videoConfig.subheadline
+  const highlights = override?.highlights && override.highlights.length > 0 ? override.highlights : videoConfig.highlights
   const effectiveConfig = { ...videoConfig, videoId, customVideoUrl }
 
   // Generate the correct embed URL based on provider
@@ -71,7 +84,7 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
               transition={{ duration: 0.45, delay: 0.08 }}
               className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3"
             >
-              {videoConfig.badge}
+              {badge}
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, filter: "blur(8px)", y: 12 }}
@@ -79,8 +92,8 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
               transition={{ duration: 0.5, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
               className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4"
             >
-              {videoConfig.headline}
-              <span className="gradient-text">{videoConfig.headlineHighlight}</span>
+              {headline}
+              <span className="gradient-text">{headlineHighlight}</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 8 }}
@@ -88,7 +101,7 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
               transition={{ duration: 0.4, delay: 0.2 }}
               className="text-lg text-slate-600 max-w-2xl mx-auto"
             >
-              {videoConfig.subheadline}
+              {subheadline}
             </motion.p>
           </div>
 
@@ -175,7 +188,7 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
             initial={false}
             className="mt-8 grid grid-cols-3 gap-4 max-w-2xl mx-auto"
           >
-            {videoConfig.highlights.map((item, i) => (
+            {highlights.map((item, i) => (
               <motion.div
                 key={item.text}
                 initial={{ opacity: 0, y: 28, scale: 0.94 }}
