@@ -144,7 +144,7 @@ export const howItWorksConfig = {
 export const aboutConfig = {
   badge: "למה אנחנו",
   headline: "לא סוכנות שיווק.",
-  headlineHighlight: " בונים לך אתר שמוכר.",
+  headlineHighlight: " בונים דף נחיתה שמוכר.",
   subheadline: "אנחנו מתמחים בדבר אחד: דפי נחיתה מרהיבים עם מערכת מיילים במחיר הוגן",
   
   founder: {
@@ -171,10 +171,10 @@ export const aboutConfig = {
       icon: "badge",
     },
     {
-      title: "מחיר שלא תמצא",
-      description: "מערכת מיילים במחיר שלא תמצאו אצל אף מתחרה. תבדקו ותשוו—נדבר על זה בשיחה.",
-      stat: "98%",
-      statLabel: "לקוחות מרוצים",
+      title: "מחיר הוגן",
+      description: "מערכת מיילים במחיר הוגן. נדבר על זה בשיחה.",
+      stat: null,
+      statLabel: null,
       icon: "chart",
     },
     {

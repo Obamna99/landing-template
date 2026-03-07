@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db, isDbConfigured } from "@/lib/db"
-import { defaultSectionVisibility, SECTION_IDS } from "@/lib/sections"
+import { defaultSectionVisibility, SECTION_IDS, LANDING_OPTION_KEYS } from "@/lib/sections"
 
 /** In-memory section visibility when DB is not configured (session-only). */
 let memorySectionVisibility: Record<string, boolean> | null = null
@@ -40,6 +40,11 @@ export async function PATCH(request: NextRequest) {
           visibility[id] = body[id]
         }
       }
+      for (const key of LANDING_OPTION_KEYS) {
+        if (typeof body[key] === "boolean") {
+          visibility[key] = body[key]
+        }
+      }
       memorySectionVisibility = visibility
       return NextResponse.json(visibility)
     } catch (error) {
@@ -54,6 +59,11 @@ export async function PATCH(request: NextRequest) {
     for (const id of SECTION_IDS) {
       if (typeof body[id] === "boolean") {
         visibility[id] = body[id]
+      }
+    }
+    for (const key of LANDING_OPTION_KEYS) {
+      if (typeof body[key] === "boolean") {
+        visibility[key] = body[key]
       }
     }
     await db.settings.updateSectionVisibility(visibility)

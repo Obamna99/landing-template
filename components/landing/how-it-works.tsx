@@ -86,7 +86,8 @@ export function HowItWorks() {
                   initial={{ opacity: 0, y: -30 }}
                   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -30 }}
                   transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-                  className="bg-white rounded-2xl p-5 shadow-lg border border-slate-100 hover:shadow-xl transition-all duration-300 group"
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  className="bg-white rounded-2xl p-5 shadow-lg border border-slate-100 hover:shadow-xl transition-shadow duration-300 group"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
@@ -295,10 +296,7 @@ export function HowItWorks() {
             <span className="font-semibold text-teal-600">{howItWorksConfig.ctaHighlight}</span>
           </p>
           <motion.button
-            onClick={() => {
-              const element = document.getElementById("contact")
-              if (element) element.scrollIntoView({ behavior: "smooth", block: "start" })
-            }}
+            onClick={() => { window.location.href = "/client" }}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg shadow-lg shadow-teal-500/20 hover:shadow-xl transition-all duration-300 active:scale-95"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}

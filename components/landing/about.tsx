@@ -24,9 +24,24 @@ const iconMap: Record<string, ReactNode> = {
   ),
 }
 
-export function About() {
+export type AboutOverride = {
+  headline?: string
+  headlineHighlight?: string
+  subheadline?: string
+  founder?: { quote?: string; imageUrl?: string; name?: string; role?: string; linkedin?: string }
+}
+
+export function About({ override }: { override?: AboutOverride }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const headline = override?.headline ?? aboutConfig.headline
+  const headlineHighlight = override?.headlineHighlight ?? aboutConfig.headlineHighlight
+  const subheadline = override?.subheadline ?? aboutConfig.subheadline
+  const founder = override?.founder
+    ? { ...aboutConfig.founder, ...override.founder }
+    : aboutConfig.founder
+  const founderImage = founder.image ?? (founder as { imageUrl?: string }).imageUrl ?? aboutConfig.founder.image
+  const founderName = founder.name ?? aboutConfig.founder.name
 
   return (
     <section
@@ -39,46 +54,49 @@ export function About() {
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          initial={{ opacity: 0, y: 14 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+          transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
         >
           {/* Section Header */}
           <div className="text-center mb-8 sm:mb-12 lg:mb-16">
             <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3"
+              initial={{ opacity: 0, y: 6 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+              transition={{ duration: 0.28, delay: 0.05 }}
+              className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3 whitespace-nowrap min-w-0"
+              style={{ overflow: "visible" }}
             >
               {aboutConfig.badge}
             </motion.span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-900 mb-3 sm:mb-4">
-              {aboutConfig.headline}
-              <span className="gradient-text">{aboutConfig.headlineHighlight}</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-900 mb-3 sm:mb-4 leading-tight break-words">
+              {headline}
+              <span className="gradient-text">{headlineHighlight}</span>
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto px-4">
-              {aboutConfig.subheadline}
+              {subheadline}
             </p>
           </div>
 
           {/* Founder Story Card */}
           <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 25 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+            transition={{ duration: 0.35, delay: 0.08 }}
             className="relative bg-gradient-to-br from-slate-50 via-white to-teal-50/30 rounded-3xl p-6 sm:p-8 md:p-10 shadow-lg border border-slate-100 mb-12 sm:mb-16"
           >
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
               {/* Founder Image */}
               <div className="lg:col-span-2 flex justify-center">
                 <div className="relative">
-                  <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl overflow-hidden shadow-xl border-4 border-white">
+                  <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl overflow-hidden shadow-xl border-4 border-white aspect-square">
                     <img
-                      src={aboutConfig.founder.image}
-                      alt={aboutConfig.founder.name}
+                      src={founderImage}
+                      alt={founderName}
                       className="w-full h-full object-cover"
                       loading="lazy"
+                      width={224}
+                      height={224}
                     />
                   </div>
                   {/* Decorative elements */}
@@ -88,22 +106,22 @@ export function About() {
               </div>
               
               {/* Story Content */}
-              <div className="lg:col-span-3">
-                <blockquote className="text-lg sm:text-xl text-slate-700 leading-relaxed mb-6">
+              <div className="lg:col-span-3 min-w-0">
+                <blockquote className="text-lg sm:text-xl text-slate-700 leading-relaxed mb-6 break-words">
                   <span className="text-4xl text-teal-300 font-serif leading-none">"</span>
-                  {aboutConfig.founder.quote}
+                  {founder.quote}
                 </blockquote>
                 
-                <div className="flex items-center gap-4">
-                  <div>
-                    <div className="font-bold text-slate-900 text-lg">{aboutConfig.founder.name}</div>
-                    <div className="text-slate-500 text-sm">{aboutConfig.founder.role}</div>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="min-w-0">
+                    <div className="font-bold text-slate-900 text-lg truncate">{founderName}</div>
+                    <div className="text-slate-500 text-sm truncate">{founder.role}</div>
                   </div>
-                  {aboutConfig.founder.linkedin && (
+                  {founder.linkedin && (
                     <>
                       <div className="h-8 w-px bg-slate-200" />
                       <a 
-                        href={aboutConfig.founder.linkedin}
+                        href={founder.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors"
@@ -122,12 +140,19 @@ export function About() {
 
           {/* Timeline */}
           <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 25 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+            transition={{ duration: 0.35, delay: 0.1 }}
             className="mb-10 sm:mb-14 lg:mb-16"
           >
-            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 text-center mb-6 sm:mb-8">המסע שלנו</h3>
+            <motion.h3
+              initial={{ opacity: 0, y: 12 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+              transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
+              className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 text-center mb-6 sm:mb-8"
+            >
+              המסע שלנו
+            </motion.h3>
             
             {/* Desktop Timeline */}
             <div className="hidden sm:block relative">
@@ -138,9 +163,9 @@ export function About() {
                   {aboutConfig.timeline.map((milestone, index) => (
                     <motion.div
                       key={milestone.year}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-                      transition={{ duration: 0.4, delay: 0.25 + index * 0.05 }}
+                      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 24, scale: 0.96 }}
+                      transition={{ duration: 0.45, delay: 0.08 + index * 0.08, ease: [0.22, 0.61, 0.36, 1] }}
                       className="relative flex flex-col items-center"
                     >
                       <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white border-3 sm:border-4 border-teal-500 z-10 shadow-sm" />
@@ -160,9 +185,9 @@ export function About() {
               {aboutConfig.timeline.map((milestone, index) => (
                 <motion.div
                   key={milestone.year}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -15 : 15 }}
-                  animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -15 : 15 }}
-                  transition={{ duration: 0.4, delay: 0.25 + index * 0.05 }}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -24 : 24, scale: 0.96 }}
+                  animate={isInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: index % 2 === 0 ? -24 : 24, scale: 0.96 }}
+                  transition={{ duration: 0.45, delay: 0.08 + index * 0.08, ease: [0.22, 0.61, 0.36, 1] }}
                   className="relative"
                 >
                   <div className="bg-white rounded-xl p-4 shadow-md border border-slate-100 flex items-center gap-4">
@@ -180,19 +205,22 @@ export function About() {
             {aboutConfig.trustItems.map((item, index) => (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.4, delay: 0.3 + index * 0.05, ease: "easeOut" }}
-                className="group relative bg-white rounded-2xl p-6 shadow-lg border border-slate-100 text-center hover:shadow-xl transition-all duration-200 overflow-hidden"
+                initial={{ opacity: 0, y: 28, scale: 0.96 }}
+                animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 28, scale: 0.96 }}
+                transition={{ duration: 0.5, delay: 0.12 + index * 0.1, ease: [0.22, 0.61, 0.36, 1] }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="group relative bg-white rounded-2xl p-6 shadow-lg border border-slate-100 text-center hover:shadow-xl transition-shadow duration-200 overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
                 
                 <div className="relative">
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-br from-teal-500 to-teal-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
-                    {item.stat} {item.statLabel}
-                  </div>
+                  {item.stat != null && item.statLabel != null && (
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-br from-teal-500 to-teal-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
+                      {item.stat} {item.statLabel}
+                    </div>
+                  )}
                   
-                  <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 text-teal-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-200">
+                  <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 text-teal-600 flex items-center justify-center mb-4 group-hover:scale-[1.03] transition-transform duration-150">
                     {iconMap[item.icon] || iconMap.badge}
                   </div>
                   <h3 className="text-lg font-bold text-slate-900 mb-2">
@@ -208,21 +236,19 @@ export function About() {
 
           {/* CTA */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            transition={{ duration: 0.35, delay: 0.15 }}
             className="mt-12 sm:mt-16 text-center"
           >
             <p className="text-lg text-slate-600 mb-4">
               {aboutConfig.ctaText}
             </p>
             <motion.button
-              onClick={() => {
-                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" })
-              }}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-teal-500/20 hover:shadow-xl transition-all duration-200"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              onClick={() => { window.location.href = "/client" }}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-teal-500/20 hover:shadow-xl transition-all duration-150"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
             >
               <span>{aboutConfig.ctaButton}</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

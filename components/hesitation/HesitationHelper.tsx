@@ -110,14 +110,17 @@ export function HesitationHelper() {
   }
 
   const handleContactFromSummary = () => {
-    const contactElement = document.getElementById("contact")
-    if (contactElement) {
-      contactElement.scrollIntoView({ behavior: "smooth", block: "start" })
-    }
     setIsVisible(false)
     setIsExpanded(false)
     setShowSummary(false)
     updateActivity()
+    window.dispatchEvent(new CustomEvent("scroll-to-contact"))
+    const contactElement = document.getElementById("contact")
+    if (contactElement) {
+      contactElement.scrollIntoView({ behavior: "smooth", block: "start" })
+    } else {
+      setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" }), 400)
+    }
   }
 
   const handleWhatsAppFromSummary = () => {

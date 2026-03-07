@@ -30,7 +30,12 @@ export function FloatingCTA() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  const isBuildCta = floatingCtaConfig.text === headerConfig.ctaButton || /רוצה אתר כזה|רוצים דף נחיתה/i.test(floatingCtaConfig.text || headerConfig.ctaButton || "")
   const handleCTAClick = () => {
+    if (isBuildCta) {
+      window.location.href = "/client"
+      return
+    }
     if (floatingCtaConfig.type === "whatsapp") {
       const message = encodeURIComponent(floatingCtaConfig.message)
       window.open(`https://wa.me/${siteConfig.contact.whatsapp}?text=${message}`, "_blank")

@@ -126,19 +126,18 @@ export function TrustBadges() {
           </div>
         </motion.div>
 
-        {/* Certifications & Trust Seals */}
+        {/* Certifications & Trust Seals – scroll-triggered stagger */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          initial={false}
           className="flex flex-wrap justify-center items-center gap-3 sm:gap-4"
         >
           {certifications.map((cert, index) => (
             <motion.div
               key={cert.name}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
+              initial={{ opacity: 0, y: 24, scale: 0.92 }}
+              animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 24, scale: 0.92 }}
+              transition={{ duration: 0.45, delay: 0.25 + index * 0.08, ease: [0.22, 0.61, 0.36, 1] }}
+              whileHover={{ scale: 1.04, y: -2 }}
               className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-50 border border-slate-100 text-slate-600 hover:border-teal-200 hover:bg-teal-50/50 transition-colors cursor-default"
             >
               <span className="text-teal-600">{cert.icon}</span>

@@ -89,6 +89,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://images.unsplash.com" />
       </head>
       <body className={`${heebo.className} font-sans antialiased`} suppressHydrationWarning>
+        <a href="#main" className="skip-to-main">
+          דלג לתוכן הראשי
+        </a>
         {children}
         <Toaster />
         <Analytics />

@@ -4,20 +4,25 @@ import { useState, useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { videoConfig } from "@/lib/config"
 
-export function VideoSection() {
+export type VideoOverride = { videoId?: string; customVideoUrl?: string }
+
+export function VideoSection({ override }: { override?: VideoOverride }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const [isPlaying, setIsPlaying] = useState(false)
+  const videoId = override?.videoId?.trim() || videoConfig.videoId
+  const customVideoUrl = override?.customVideoUrl?.trim() || videoConfig.customVideoUrl
+  const effectiveConfig = { ...videoConfig, videoId, customVideoUrl }
 
   // Generate the correct embed URL based on provider
   const getEmbedUrl = () => {
-    switch (videoConfig.provider) {
+    switch (effectiveConfig.provider) {
       case "youtube":
-        return `https://www.youtube.com/embed/${videoConfig.videoId}?autoplay=1&rel=0&modestbranding=1`
+        return `https://www.youtube.com/embed/${effectiveConfig.videoId}?autoplay=1&rel=0&modestbranding=1`
       case "vimeo":
-        return `https://player.vimeo.com/video/${videoConfig.videoId}?autoplay=1&title=0&byline=0&portrait=0`
+        return `https://player.vimeo.com/video/${effectiveConfig.videoId}?autoplay=1&title=0&byline=0&portrait=0`
       case "custom":
-        return videoConfig.customVideoUrl || ""
+        return effectiveConfig.customVideoUrl || ""
       default:
         return ""
     }
@@ -25,11 +30,11 @@ export function VideoSection() {
 
   // Generate thumbnail URL
   const getThumbnailUrl = () => {
-    if (videoConfig.thumbnail) return videoConfig.thumbnail
+    if (effectiveConfig.thumbnail) return effectiveConfig.thumbnail
     
-    switch (videoConfig.provider) {
+    switch (effectiveConfig.provider) {
       case "youtube":
-        return `https://img.youtube.com/vi/${videoConfig.videoId}/maxresdefault.jpg`
+        return `https://img.youtube.com/vi/${effectiveConfig.videoId}/maxresdefault.jpg`
       case "vimeo":
         // Vimeo requires API call for thumbnail, using placeholder
         return "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=675&fit=crop"
@@ -38,7 +43,7 @@ export function VideoSection() {
     }
   }
 
-  if (!videoConfig.show) return null
+  if (!effectiveConfig.show) return null
 
   return (
     <section
@@ -58,23 +63,33 @@ export function VideoSection() {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          {/* Header */}
+          {/* Header - blur reveal */}
           <div className="text-center mb-10 sm:mb-12">
             <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
+              initial={{ opacity: 0, filter: "blur(6px)" }}
+              animate={isInView ? { opacity: 1, filter: "blur(0px)" } : { opacity: 0, filter: "blur(6px)" }}
+              transition={{ duration: 0.45, delay: 0.08 }}
               className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3"
             >
               {videoConfig.badge}
             </motion.span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            <motion.h2
+              initial={{ opacity: 0, filter: "blur(8px)", y: 12 }}
+              animate={isInView ? { opacity: 1, filter: "blur(0px)", y: 0 } : { opacity: 0, filter: "blur(8px)", y: 12 }}
+              transition={{ duration: 0.5, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4"
+            >
               {videoConfig.headline}
               <span className="gradient-text">{videoConfig.headlineHighlight}</span>
-            </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="text-lg text-slate-600 max-w-2xl mx-auto"
+            >
               {videoConfig.subheadline}
-            </p>
+            </motion.p>
           </div>
 
           {/* Video Container */}
@@ -133,11 +148,11 @@ export function VideoSection() {
                   </div>
                 </div>
               ) : (
-                // Video Embed
-                videoConfig.provider === "custom" && videoConfig.customVideoUrl ? (
+                // Video Embed (custom upload or provider)
+                effectiveConfig.customVideoUrl ? (
                   <video
                     className="w-full h-full object-cover"
-                    src={videoConfig.customVideoUrl}
+                    src={effectiveConfig.customVideoUrl}
                     autoPlay
                     controls
                     playsInline
@@ -155,21 +170,23 @@ export function VideoSection() {
             </div>
           </motion.div>
 
-          {/* Video highlights */}
+          {/* Video highlights – scroll-triggered stagger */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-            transition={{ duration: 0.4, delay: 0.25 }}
+            initial={false}
             className="mt-8 grid grid-cols-3 gap-4 max-w-2xl mx-auto"
           >
-            {videoConfig.highlights.map((item) => (
-              <div
+            {videoConfig.highlights.map((item, i) => (
+              <motion.div
                 key={item.text}
-                className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors"
+                initial={{ opacity: 0, y: 28, scale: 0.94 }}
+                animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 28, scale: 0.94 }}
+                transition={{ duration: 0.5, delay: 0.2 + i * 0.1, ease: [0.22, 0.61, 0.36, 1] }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="text-center p-4 rounded-xl bg-slate-50 border border-teal-100 hover:border-teal-200 hover:shadow-md transition-shadow"
               >
-                <span className="text-2xl block mb-1">{item.icon}</span>
+                <span className="text-2xl block mb-1.5">{item.icon}</span>
                 <span className="text-sm text-slate-600 font-medium">{item.text}</span>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
 
@@ -184,9 +201,7 @@ export function VideoSection() {
               רוצים אתר כזה לעסק שלכם?
             </p>
             <motion.button
-              onClick={() => {
-                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" })
-              }}
+              onClick={() => { window.location.href = "/client" }}
               className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 font-semibold transition-colors"
               whileHover={{ x: -4 }}
             >

@@ -1,6 +1,8 @@
 /**
  * Unified database layer: uses Supabase if configured, otherwise Neon (Prisma) if DATABASE_URL is set.
  * API routes should import { db, isDbConfigured } from "@/lib/db".
+ * When neither is configured, db is still exported (Supabase client); always check isDbConfigured
+ * before calling db methods, or use file/fallback logic in the route.
  */
 
 import { db as dbSupabase, isSupabaseConfigured } from "@/lib/supabase"

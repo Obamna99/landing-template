@@ -6,23 +6,26 @@ const supabaseAnonKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
 
-// Only create client if credentials are available
+// Placeholder URL (e.g. from .env.example) must not be used – use Neon/Prisma instead
+const isPlaceholderSupabaseUrl = !supabaseUrl || supabaseUrl.includes("your-project.supabase.co")
+
+// Only create client if credentials are available and not placeholder
 let supabase: SupabaseClient | null = null
 
 export function getSupabase(): SupabaseClient | null {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl || !supabaseAnonKey || isPlaceholderSupabaseUrl) {
     return null
   }
-  
+
   if (!supabase) {
     supabase = createClient(supabaseUrl, supabaseAnonKey)
   }
-  
+
   return supabase
 }
 
-// Check if Supabase is configured
-export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
+// Check if Supabase is configured (real project URL, not placeholder)
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey && !isPlaceholderSupabaseUrl)
 
 // Type definitions for our database tables
 export interface Lead {
@@ -34,6 +37,12 @@ export interface Lead {
   business_size?: string
   urgency?: string
   message?: string
+  site_name?: string
+  site_description?: string
+  site_content?: string
+  photo_urls?: string
+  video_urls?: string
+  sections_json?: string
   status?: "new" | "contacted" | "qualified" | "converted" | "closed" | "unsubscribed"
   notes?: string
   created_at?: string
@@ -101,6 +110,12 @@ export const db = {
           business_size: lead.business_size,
           urgency: lead.urgency,
           message: lead.message,
+          site_name: lead.site_name,
+          site_description: lead.site_description,
+          site_content: lead.site_content,
+          photo_urls: lead.photo_urls,
+          video_urls: lead.video_urls,
+          sections_json: lead.sections_json,
           status: "new",
         }])
         .select()
@@ -120,6 +135,14 @@ export const db = {
         .order("created_at", { ascending: false })
       
       if (error) throw error
+      return data
+    },
+
+    async getById(id: string) {
+      const client = getSupabase()
+      if (!client) throw new Error("Supabase not configured")
+      const { data, error } = await client.from("leads").select("*").eq("id", id).single()
+      if (error) return null
       return data
     },
 

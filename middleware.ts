@@ -31,9 +31,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // /build - require client token when BUILD_CLIENT_TOKEN is set
+  if (path === "/build" || path.startsWith("/build/")) {
+    const clientTokenExpected = process.env.BUILD_CLIENT_TOKEN
+    if (clientTokenExpected) {
+      const clientCookie = request.cookies.get("client_build_token")?.value
+      if (!clientCookie) {
+        return NextResponse.redirect(new URL("/client", request.url))
+      }
+    }
+    return NextResponse.next()
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/", "/admin/login"],
+  matcher: ["/admin", "/admin/", "/admin/login", "/build", "/build/:path*"],
 }

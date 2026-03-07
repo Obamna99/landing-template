@@ -32,6 +32,12 @@ export const dbNeon = {
           business_size: lead.business_size,
           urgency: lead.urgency,
           message: lead.message,
+          site_name: lead.site_name,
+          site_description: lead.site_description,
+          site_content: lead.site_content,
+          photo_urls: lead.photo_urls,
+          video_urls: lead.video_urls,
+          sections_json: lead.sections_json,
           status: lead.status || "new",
         },
       })
@@ -40,6 +46,10 @@ export const dbNeon = {
     async getAll() {
       const rows = await prisma.lead.findMany({ orderBy: { created_at: "desc" } })
       return rows.map(toRecord)
+    },
+    async getById(id: string) {
+      const row = await prisma.lead.findUnique({ where: { id } })
+      return row ? toRecord(row) : null
     },
     async updateStatus(id: string, status: Lead["status"]) {
       const row = await prisma.lead.update({

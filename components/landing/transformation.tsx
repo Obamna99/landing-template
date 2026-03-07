@@ -220,12 +220,16 @@ export function Transformation() {
               <motion.button
                 key={story.label}
                 onClick={() => setActiveStory(index)}
+                initial={{ opacity: 0, y: 10 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                transition={{ duration: 0.35, delay: 0.55 + index * 0.06 }}
+                whileHover={{ y: -2, transition: { duration: 0.15 } }}
+                whileTap={{ scale: 0.97 }}
                 className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-medium text-sm transition-all ${
                   activeStory === index
                     ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
-                whileTap={{ scale: 0.97 }}
               >
                 <span className="text-lg">{story.emoji}</span>
                 <span>{story.label}</span>
@@ -295,10 +299,7 @@ export function Transformation() {
             האתר הבא יכול להיות <span className="font-semibold text-slate-800">שלכם</span>
           </p>
           <motion.button
-            onClick={() => {
-              const element = document.getElementById("contact")
-              if (element) element.scrollIntoView({ behavior: "smooth", block: "start" })
-            }}
+            onClick={() => { window.location.href = "/client" }}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-teal-500/20 hover:shadow-xl transition-all duration-300"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}

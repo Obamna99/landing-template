@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
 import { LayoutDashboard, Star, Users, Mail, LayoutGrid, ExternalLink, LogOut, Menu, X } from "lucide-react"
 import { SECTION_IDS, SECTION_LABELS, defaultSectionVisibility } from "@/lib/sections"
 import { siteConfig } from "@/lib/config"
@@ -69,6 +70,7 @@ export default function AdminDashboard() {
   const [testEmailTo, setTestEmailTo] = useState("")
   const [sendingTestEmail, setSendingTestEmail] = useState(false)
   const [testEmailMessage, setTestEmailMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [emailsThisMonth, setEmailsThisMonth] = useState<number | null>(null)
 
   useEffect(() => {
     loadData()
@@ -77,17 +79,22 @@ export default function AdminDashboard() {
   const loadData = async () => {
     setIsLoading(true)
     try {
-      const [reviewsRes, leadsRes, emailRes, sectionsRes] = await Promise.all([
+      const [reviewsRes, leadsRes, emailRes, sectionsRes, countRes] = await Promise.all([
         fetch("/api/reviews?all=true"), // Get all reviews including inactive
         fetch("/api/leads"),
         fetch("/api/admin/email"),
         fetch("/api/admin/settings/sections"),
+        fetch("/api/admin/email-sent-count"),
       ])
 
       if (reviewsRes.ok) setReviews(await reviewsRes.json())
       if (leadsRes.ok) setLeads(await leadsRes.json())
       if (emailRes.ok) setEmailStats(await emailRes.json())
       if (sectionsRes.ok) setSectionVisibility(await sectionsRes.json())
+      if (countRes.ok) {
+        const data = await countRes.json()
+        if (typeof data?.count === "number") setEmailsThisMonth(data.count)
+      }
     } catch (error) {
       console.error("Error loading data:", error)
     }
@@ -184,6 +191,7 @@ export default function AdminDashboard() {
       if (res.ok) {
         setTestEmailMessage({ type: "success", text: `נשלח בהצלחה ל־${to}. בדוק תיבת דואר (וגם ספאם).` })
         setTestEmailTo("")
+        loadData()
       } else {
         setTestEmailMessage({ type: "error", text: data?.error || "שליחה נכשלה" })
       }
@@ -250,9 +258,9 @@ export default function AdminDashboard() {
     "w-full px-4 py-3 min-h-[44px] text-base rounded-lg border border-slate-200 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900"
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">
+    <div className="min-h-screen min-h-[100dvh] bg-slate-100 flex flex-col md:flex-row overflow-x-hidden">
       {/* Mobile header */}
-      <header className="md:hidden flex items-center justify-between gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0 shrink-0">
+      <header className="md:hidden flex items-center justify-between gap-3 px-4 py-3 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] bg-white border-b border-slate-200 flex-shrink-0 shrink-0">
         <button
           type="button"
           onClick={openSidebar}
@@ -322,6 +330,12 @@ export default function AdminDashboard() {
           ))}
         </nav>
         <div className="p-3 border-t border-slate-200 space-y-1 bg-white bg-opacity-80">
+          {emailsThisMonth !== null && (
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50 border border-slate-100 text-sm text-slate-600">
+              <Mail className="w-5 h-5 shrink-0 text-teal-600" />
+              <span>מיילים החודש: <strong className="text-slate-800">{emailsThisMonth}</strong></span>
+            </div>
+          )}
           <a
             href="/"
             target="_blank"
@@ -342,8 +356,13 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 overflow-auto min-w-0 pb-[env(safe-area-inset-bottom)]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8 pb-8 md:pb-10">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto min-w-0 pb-[env(safe-area-inset-bottom)]">
+        <motion.div
+          className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8 pb-8 md:pb-10 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] md:pl-4 md:pr-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
 
         {isLoading ? (
           <div className="space-y-6">
@@ -827,13 +846,64 @@ export default function AdminDashboard() {
                       )
                     })}
                   </div>
+
+                  <h3 className="font-bold text-slate-900 mb-2 mt-8">התנהגות דף הבית</h3>
+                  <p className="text-sm text-slate-500 mb-4">
+                    פס CTA צף וכפתורי גילוי תוכן. כבוי = גלילה חופשית ללא כפתורים.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between py-3 px-4 min-h-[52px] rounded-xl border border-slate-200 hover:bg-slate-50">
+                      <div>
+                        <span className="font-medium text-slate-900 block">פס CTA צף (רוצה אתר כזה?)</span>
+                        <span className="text-xs text-slate-500">בר בתחתית המסך עם כפתור וסימון חברתי (דירוג, תמונות)</span>
+                      </div>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={visibility.floatingCta === true}
+                        onClick={() => toggleSectionVisibility("floatingCta", visibility.floatingCta === true)}
+                        className={`relative inline-flex h-7 w-12 flex-shrink-0 items-center rounded-full transition-colors touch-manipulation ${
+                          visibility.floatingCta === true ? "bg-teal-500" : "bg-slate-200"
+                        }`}
+                        dir="ltr"
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
+                            visibility.floatingCta === true ? "translate-x-7" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between py-3 px-4 min-h-[52px] rounded-xl border border-slate-200 hover:bg-slate-50">
+                      <div>
+                        <span className="font-medium text-slate-900 block">כפתורי גילוי תוכן</span>
+                        <span className="text-xs text-slate-500">כבוי = כל התוכן גלוי מיד, גלילה חופשית. מופעל = לחיצה לחשיפת שלבים</span>
+                      </div>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={visibility.progressiveReveal === true}
+                        onClick={() => toggleSectionVisibility("progressiveReveal", visibility.progressiveReveal === true)}
+                        className={`relative inline-flex h-7 w-12 flex-shrink-0 items-center rounded-full transition-colors touch-manipulation ${
+                          visibility.progressiveReveal === true ? "bg-teal-500" : "bg-slate-200"
+                        }`}
+                        dir="ltr"
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
+                            visibility.progressiveReveal === true ? "translate-x-7" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 </div>
               )
             })()}
           </>
         )}
-        </div>
+        </motion.div>
       </div>
     </div>
   )

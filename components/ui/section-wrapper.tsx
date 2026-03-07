@@ -63,7 +63,7 @@ export function SectionWrapper({
             {/* Right side - toggle */}
             <button
               onClick={handleToggle}
-              className="flex items-center gap-2 text-xs hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors"
+              className="btn-calm flex items-center gap-2 text-xs hover:bg-slate-50 px-2 py-1 rounded-lg"
               title={isVisible ? `הסתר ${sectionName}` : `הצג ${sectionName}`}
             >
               <span className={`${isVisible ? 'text-slate-500' : 'text-teal-600 font-medium'}`}>

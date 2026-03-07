@@ -13,6 +13,9 @@ export const SECTION_IDS = [
 
 export type SectionId = (typeof SECTION_IDS)[number]
 
+/** Extra landing options stored in the same visibility blob (admin toggles). */
+export const LANDING_OPTION_KEYS = ["floatingCta", "progressiveReveal"] as const
+
 export const SECTION_LABELS: Record<SectionId, string> = {
   hero: "היירו",
   trust: "אמון",
@@ -26,11 +29,14 @@ export const SECTION_LABELS: Record<SectionId, string> = {
 }
 
 export function defaultSectionVisibility(): Record<string, boolean> {
-  return SECTION_IDS.reduce(
-    (acc, id) => {
-      acc[id] = true
-      return acc
+  const acc = SECTION_IDS.reduce(
+    (a, id) => {
+      a[id] = true
+      return a
     },
     {} as Record<string, boolean>
   )
+  acc.floatingCta = false
+  acc.progressiveReveal = false
+  return acc
 }

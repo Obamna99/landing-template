@@ -1,7 +1,26 @@
 import { NextRequest, NextResponse } from "next/server"
+import { writeFile, mkdir, readFile } from "fs/promises"
+import path from "path"
 import { db, isDbConfigured } from "@/lib/db"
 import { sendEmail, createLeadNotificationEmail, isEmailConfigured } from "@/lib/email"
 import { siteConfig, emailConfig, contactConfig } from "@/lib/config"
+
+/** When DB is not configured, append lead to a local JSON file (dev fallback). */
+async function saveLeadToFile(lead: Record<string, unknown>): Promise<void> {
+  const dir = path.join(process.cwd(), ".data")
+  await mkdir(dir, { recursive: true })
+  const filePath = path.join(dir, "leads.json")
+  let list: unknown[] = []
+  try {
+    const raw = await readFile(filePath, "utf-8")
+    list = JSON.parse(raw)
+    if (!Array.isArray(list)) list = []
+  } catch {
+    // file missing or invalid
+  }
+  list.push({ ...lead, id: `file-${Date.now()}`, _savedAt: new Date().toISOString() })
+  await writeFile(filePath, JSON.stringify(list, null, 2), "utf-8")
+}
 
 /** Map DB lead (snake_case) to admin UI shape (camelCase). */
 function toAdminLead(lead: Record<string, unknown>) {
@@ -40,15 +59,8 @@ export async function GET() {
 // POST - Create a new lead (from contact form)
 export async function POST(request: NextRequest) {
   try {
-    if (!isDbConfigured) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      )
-    }
-
     const body = await request.json()
-    
+
     // Validate required fields
     if (!body.fullName || !body.email || !body.phone) {
       return NextResponse.json(
@@ -56,9 +68,12 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    
-    // Create lead
-    const lead = await db.leads.create({
+
+    let lead: { id?: string; [key: string]: unknown }
+
+    if (isDbConfigured) {
+      // Create lead in database
+      lead = await db.leads.create({
       full_name: body.fullName,
       email: body.email,
       phone: body.phone,
@@ -66,20 +81,51 @@ export async function POST(request: NextRequest) {
       business_size: body.businessSize,
       urgency: body.urgency,
       message: body.message,
-    })
-    
-    // Also create/update subscriber
-    try {
-      await db.subscribers.upsert({
+      site_name: body.siteName,
+      site_description: body.siteDescription,
+      site_content: body.siteContent,
+      photo_urls: Array.isArray(body.photoUrls) ? JSON.stringify(body.photoUrls) : body.photoUrls,
+      video_urls: Array.isArray(body.videoUrls) ? JSON.stringify(body.videoUrls) : body.videoUrls,
+      sections_json:
+        typeof body.sectionsJson === "string"
+          ? body.sectionsJson
+          : body.sectionsJson != null
+          ? JSON.stringify(body.sectionsJson)
+          : undefined,
+      })
+      // Also create/update subscriber
+      try {
+        await db.subscribers.upsert({
+          email: body.email,
+          name: body.fullName,
+          phone: body.phone,
+          business_type: body.businessType,
+          business_size: body.businessSize,
+          source: "contact-form",
+        })
+      } catch {
+        // Subscriber creation is optional
+      }
+    } else {
+      // Fallback: save to local file when DB is not configured (e.g. DATABASE_URL=file:./dev.db or missing)
+      const fileLead = {
+        id: `file-${Date.now()}`,
+        full_name: body.fullName,
         email: body.email,
-        name: body.fullName,
         phone: body.phone,
         business_type: body.businessType,
         business_size: body.businessSize,
-        source: "contact-form",
-      })
-    } catch {
-      // Subscriber creation is optional
+        urgency: body.urgency,
+        message: body.message,
+        site_name: body.siteName,
+        site_description: body.siteDescription,
+        site_content: body.siteContent,
+        photo_urls: body.photoUrls,
+        video_urls: body.videoUrls,
+        sections_json: body.sectionsJson,
+      }
+      await saveLeadToFile(fileLead)
+      lead = fileLead
     }
 
     // Notify site contact email when SES is configured (include all form data)
@@ -104,6 +150,11 @@ export async function POST(request: NextRequest) {
           urgency: body.urgency,
           urgencyLabel: urgencyLabel || undefined,
           message: body.message,
+          siteName: body.siteName,
+          siteDescription: body.siteDescription,
+          siteContent: body.siteContent,
+          photoUrls: body.photoUrls,
+          videoUrls: body.videoUrls,
         })
         const sendResult = await sendEmail({
           to: notifyTo,

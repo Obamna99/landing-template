@@ -1,11 +1,27 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
 import { siteConfig, emailConfig } from "@/lib/config"
 import { createUnsubscribeToken } from "@/lib/unsubscribe"
+import { incrementEmailSentCount } from "@/lib/email-sent-count"
+
+/** Treat common placeholder/env.example values as "not configured" to avoid invalid credential errors. */
+function isPlaceholderCredential(value: string | undefined): boolean {
+  if (!value?.trim()) return true
+  const v = value.trim().toLowerCase()
+  return (
+    v.startsWith("your-") ||
+    v === "xxx" ||
+    v === "replace-me" ||
+    /^[a-z]{3,20}$/.test(v) /* e.g. your-access-key */ ||
+    v.length < 10
+  )
+}
 
 const hasSesCredentials =
   !!process.env.AWS_ACCESS_KEY_ID?.trim() &&
   !!process.env.AWS_SECRET_ACCESS_KEY?.trim() &&
-  !!process.env.SES_FROM_EMAIL?.trim()
+  !!process.env.SES_FROM_EMAIL?.trim() &&
+  !isPlaceholderCredential(process.env.AWS_ACCESS_KEY_ID) &&
+  !isPlaceholderCredential(process.env.AWS_SECRET_ACCESS_KEY)
 
 /** True when Amazon SES is configured and sending will work. */
 export const isEmailConfigured = hasSesCredentials
@@ -68,6 +84,8 @@ export async function sendEmail(options: EmailOptions): Promise<SendEmailResult>
 
   try {
     await sesClient.send(command)
+    const recipientCount = toAddresses.length
+    incrementEmailSentCount(recipientCount).catch((err) => console.error("Failed to record email count:", err))
     return { success: true }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error)
@@ -247,6 +265,11 @@ export function createLeadNotificationEmail(lead: {
   urgency?: string
   urgencyLabel?: string
   message?: string
+  siteName?: string
+  siteDescription?: string
+  siteContent?: string
+  photoUrls?: string[]
+  videoUrls?: string[]
 }): string {
   const row = (label: string, value: string, isLink?: "email" | "phone") => {
     const cell =
@@ -261,6 +284,10 @@ export function createLeadNotificationEmail(lead: {
           <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${cell}</td>
         </tr>`
   }
+  const linkRow = (label: string, urls: string[]) => {
+    const links = urls.map((u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`).join("<br>")
+    return row(label, links)
+  }
   const rows = [
     row("שם:", lead.fullName),
     row("אימייל:", lead.email, "email"),
@@ -269,6 +296,11 @@ export function createLeadNotificationEmail(lead: {
     lead.businessSize && row("גודל עסק:", lead.businessSize),
     (lead.urgencyLabel || lead.urgency) && row("מתי להתחיל:", lead.urgencyLabel || lead.urgency || ""),
     lead.message && row("הודעה:", lead.message),
+    lead.siteName && row("שם האתר:", lead.siteName),
+    lead.siteDescription && row("תיאור קצר:", lead.siteDescription),
+    lead.siteContent && row("תוכן לאתר:", lead.siteContent),
+    lead.photoUrls?.length && linkRow("תמונות:", lead.photoUrls),
+    lead.videoUrls?.length && linkRow("סרטונים:", lead.videoUrls),
   ].filter(Boolean)
   return `
 <!DOCTYPE html>

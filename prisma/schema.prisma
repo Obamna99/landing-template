@@ -11,18 +11,25 @@ datasource db {
 }
 
 model Lead {
-  id           String   @id @default(uuid())
-  full_name    String
-  email        String
-  phone        String
-  business_type String?
-  business_size String?
-  urgency      String?
-  message      String?
-  status       String   @default("new")
-  notes        String?
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id               String   @id @default(uuid())
+  full_name        String
+  email            String
+  phone            String
+  business_type    String?
+  business_size    String?
+  urgency          String?
+  message          String?
+  // Site-building content from client
+  site_name        String?  // Name/title for the site
+  site_description String?  // Short description or tagline
+  site_content     String?  // Extra text/copy (e.g. about, services)
+  photo_urls       String?  // JSON array of uploaded photo URLs
+  video_urls       String?  // JSON array of uploaded video URLs
+  sections_json    String?  // JSON: per-section content for preview (hero, about, video, faq, etc.)
+  status           String   @default("new")
+  notes            String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 
   @@map("leads")
 }
