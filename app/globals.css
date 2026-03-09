@@ -161,6 +161,23 @@
   outline-offset: 2px;
 }
 
+/* Preview page: ensure content is always visible (no white-on-white) */
+.preview-page.preview-page {
+  min-height: 100vh;
+}
+.preview-page .preview-theme,
+.preview-page main#main {
+  min-height: 100vh;
+}
+.preview-page:not(.dark) main#main {
+  background-color: #fff;
+  color: #0f172a;
+}
+.preview-page.dark main#main {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -699,4 +716,14 @@ button:not([style*="transform"]):not(.no-btn-animation) {
 /* ====== Border Width Utility ====== */
 .border-3 {
   border-width: 3px;
+}
+
+/* Hero LCP: paint headline without waiting for JS */
+@keyframes hero-headline-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.hero-headline-lcp,
+.build-form-lcp {
+  animation: hero-headline-in 0.2s ease-out forwards;
 }

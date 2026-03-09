@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect, type ReactNode } from "react"
+import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { LayoutDashboard, Star, Users, Mail, LayoutGrid, ExternalLink, LogOut, Menu, X } from "lucide-react"
 import { SECTION_IDS, SECTION_LABELS, defaultSectionVisibility } from "@/lib/sections"
 import { siteConfig } from "@/lib/config"
-import DashboardTabContent from "./DashboardTabContent"
+
+const DashboardTabContent = dynamic(() => import("./DashboardTabContent"), { ssr: true })
 
 interface Review {
   id: string

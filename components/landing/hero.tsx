@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useRef } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useInView } from "framer-motion"
 import { siteConfig, heroConfig } from "@/lib/config"
 import { getFeatureIcon } from "@/lib/icon-options"
@@ -52,6 +53,8 @@ export type HeroOverride = {
   ctaSecondaryText?: string
   ctaNote?: string
   trustText?: string
+  valueCardTitle?: string
+  valueCardHighlight?: string
 }
 
 export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { override?: HeroOverride; hideStats?: boolean; onPrimaryCTAClick?: () => void }) {
@@ -97,6 +100,12 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
   const scrollToHowItWorks = () => {
     document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
+
+  const ctaPrimaryText = override?.ctaPrimaryText ?? heroConfig.cta.primary.text
+  const ctaSecondaryText = override?.ctaSecondaryText ?? heroConfig.cta.secondary.text
+  const trustText = override?.trustText ?? heroConfig.trustText
+  const valueCardTitle = override?.valueCardTitle ?? "מה תקבלו?"
+  const valueCardHighlight = override?.valueCardHighlight ?? " הכל בחבילה אחת."
 
   const stats = useMemo(() => [
     { 
@@ -175,7 +184,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
       <div className="hero-noise absolute inset-0 pointer-events-none opacity-[0.035] mix-blend-soft-light" aria-hidden />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-24 lg:py-28 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
-        {/* Main Headline - blur reveal */}
+        {/* Main Headline */}
         <motion.div
           initial={{ opacity: 0, filter: "blur(12px)" }}
           animate={{ opacity: 1, filter: "blur(0px)" }}
@@ -231,12 +240,15 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
                     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
                     "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
                   ].map((src, i) => (
-                    <img
+                    <Image
                       key={i}
                       src={src}
                       alt=""
+                      width={24}
+                      height={24}
                       className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-white object-cover"
                       loading="lazy"
+                      sizes="24px"
                     />
                   ))}
                 </div>
@@ -249,7 +261,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
                     ))}
                   </div>
                   <span className="hero-trust text-[10px] sm:text-xs font-medium text-slate-700">
-                    {override?.trustText ?? heroConfig.trustText}
+                    {trustText}
                   </span>
                 </div>
               </div>
@@ -298,8 +310,8 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
               transition={{ duration: 0.45, delay: 0.08, ease: [0.22, 0.61, 0.36, 1] }}
               className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 text-center"
             >
-              מה תקבלו? 
-              <span className="text-teal-600"> הכל בחבילה אחת.</span>
+              {valueCardTitle}
+              <span className="text-teal-600">{valueCardHighlight}</span>
             </motion.h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
@@ -358,7 +370,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
             >
               <span className="absolute inset-0 bg-gradient-to-r from-teal-600 via-teal-500 to-amber-500/90 opacity-95 group-hover:opacity-100 transition-opacity" />
               <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 ease-out" />
-              <span className="relative z-10 drop-shadow-sm">{override?.ctaPrimaryText ?? heroConfig.cta.primary.text}</span>
+              <span className="relative z-10 drop-shadow-sm">{ctaPrimaryText}</span>
             </motion.button>
             
             <motion.button
@@ -367,7 +379,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span>{override?.ctaSecondaryText ?? heroConfig.cta.secondary.text}</span>
+              <span>{ctaSecondaryText}</span>
               <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>

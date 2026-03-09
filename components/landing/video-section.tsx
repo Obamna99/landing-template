@@ -12,7 +12,7 @@ export type VideoOverride = {
   headline?: string
   headlineHighlight?: string
   subheadline?: string
-  highlights?: Array<{ icon: string; text: string }>
+  highlights?: Array<{ icon?: string; text: string }>
   ctaText?: string
   ctaButton?: string
 }

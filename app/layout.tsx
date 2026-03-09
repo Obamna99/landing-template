@@ -83,9 +83,7 @@ export default function RootLayout({
   return (
     <html lang={siteConfig.locale} dir={siteConfig.direction} className="scroll-smooth">
       <head>
-        {/* Preconnect for performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Preconnect for external images (next/font self-hosts fonts) */}
         <link rel="preconnect" href="https://images.unsplash.com" />
       </head>
       <body className={`${heebo.className} font-sans antialiased`} suppressHydrationWarning>
