@@ -7,7 +7,8 @@ import { useRef } from "react"
 import confetti from "canvas-confetti"
 import { useToast } from "@/hooks/use-toast"
 import { SectionLiveEditPanel } from "@/components/landing/section-live-edit-panel"
-import { footerConfig } from "@/lib/config"
+import { footerConfig, aboutConfig, headerConfig, siteConfig, reviewsConfig, howItWorksConfig } from "@/lib/config"
+import { FEATURE_ICON_OPTIONS } from "@/lib/icon-options"
 
 // Contact form (main page): leave your data so the site owner can contact you — 3 steps only
 const formStepsContact = [
@@ -17,13 +18,13 @@ const formStepsContact = [
 ]
 // Build form (/build): minimal contact + site content + section content — 7 steps
 const formStepsBuild = [
-  { id: 1, label: "פרטי התקשרות" },
+  { id: 1, label: "היירו" },
   { id: 2, label: "תוכן לאתר" },
-  { id: 3, label: "היירו" },
-  { id: 4, label: "אודות" },
-  { id: 5, label: "וידאו" },
-  { id: 6, label: "שאלות נפוצות" },
-  { id: 7, label: "פוטר ויצירת קשר" },
+  { id: 3, label: "אודות" },
+  { id: 4, label: "וידאו" },
+  { id: 5, label: "שאלות נפוצות" },
+  { id: 6, label: "פוטר ויצירת קשר" },
+  { id: 7, label: "פרטי התקשרות" },
 ]
 const MAX_PHOTO_FILES = 20
 const MAX_VIDEO_FILES = 20
@@ -40,15 +41,15 @@ const staggerContainer = { hidden: {}, show: { transition: { staggerChildren: 0.
 const staggerItem = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }
 const progressSpring = { type: "spring", stiffness: 260, damping: 26 }
 
-// Build form: which section of the site this step edits (for popup)
+// Build form: which section of the site this step edits (for popup) — Hero first, contact last
 const buildStepSectionInfo: Record<number, { label: string; icon: string; desc: string }> = {
-  1: { label: "פרטי התקשרות", icon: "📞", desc: "שם, אימייל וטלפון" },
+  1: { label: "היירו", icon: "🎯", desc: "כותרת ראשית ותת-כותרת" },
   2: { label: "תוכן לאתר", icon: "📦", desc: "תמונות, טקסט, צבעים ומה תקבלו" },
-  3: { label: "היירו", icon: "🎯", desc: "כותרת ראשית ותת-כותרת" },
-  4: { label: "אודות", icon: "👤", desc: "כרטיס אודות וציטוט" },
-  5: { label: "וידאו", icon: "🎬", desc: "סרטון באזור הוידאו" },
-  6: { label: "שאלות נפוצות", icon: "❓", desc: "שאלות ותשובות" },
-  7: { label: "פוטר ויצירת קשר", icon: "📞", desc: "פרטי קשר וזכויות יוצרים" },
+  3: { label: "אודות", icon: "👤", desc: "כרטיס אודות וציטוט" },
+  4: { label: "וידאו", icon: "🎬", desc: "סרטון באזור הוידאו" },
+  5: { label: "שאלות נפוצות", icon: "❓", desc: "שאלות ותשובות" },
+  6: { label: "פוטר ויצירת קשר", icon: "📞", desc: "פרטי קשר וזכויות יוצרים" },
+  7: { label: "פרטי התקשרות", icon: "📞", desc: "שם, אימייל וטלפון" },
 }
 
 export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
@@ -83,19 +84,47 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
 
   // Section content (for build page / preview)
   const [sections, setSections] = useState({
+    header: {
+      name: "",
+      logoText: "",
+      logoUrl: "",
+      tagline: "",
+      navLinks: (headerConfig.navLinks || []).map((l) => ({ id: l.id, label: l.label })),
+      ctaButton: "",
+      phone: "",
+    },
     hero: { headlineLine1: "", highlight: "", subheadline: "" },
     about: {
       headline: "",
       headlineHighlight: "",
       subheadline: "",
       founder: { quote: "", imageUrl: "", name: "", role: "", linkedin: "" },
+      journeyTitle: "המסע שלנו",
+      timeline: [...(aboutConfig.timeline || [])],
+      trustItems: (aboutConfig.trustItems || []).map((t) => ({ title: t.title, description: t.description, stat: t.stat ?? null, statLabel: t.statLabel ?? null, icon: t.icon })),
+      journeyCtaText: aboutConfig.ctaText ?? "רוצים אתר כזה לעסק שלכם?",
+      journeyCtaButton: aboutConfig.ctaButton ?? "בואו נדבר",
     },
     features: [
-      { title: "עיצוב מותאם אישית", description: "התמונות שלך, הצבעים שלך, הסגנון שלך" },
-      { title: "מערכת מיילים מקצועית", description: "שלחו אלפי מיילים בקלות ובמחיר נמוך" },
-      { title: "מחיר שמנצח", description: "זול משמעותית מהמתחרים" },
+      { title: "עיצוב מותאם אישית", description: "התמונות שלך, הצבעים שלך, הסגנון שלך", icon: "check" },
+      { title: "מערכת מיילים מקצועית", description: "שלחו אלפי מיילים בקלות ובמחיר נמוך", icon: "mail" },
+      { title: "מחיר שמנצח", description: "זול משמעותית מהמתחרים", icon: "currency" },
     ],
-    video: { videoId: "", customVideoUrl: "" },
+    video: {
+      videoId: "",
+      customVideoUrl: "",
+      badge: "צפו בסרטון",
+      headline: "כך נראה התהליך",
+      headlineHighlight: " מהתחלה ועד הסוף",
+      subheadline: "מהרגע שאתם פונים אלינו ועד שהאתר עולה לאוויר—תהליך מקצועי, מהיר ושקוף",
+      highlights: [
+        { icon: "✨", text: "עיצוב מקצועי" },
+        { icon: "⚡", text: "תהליך מהיר" },
+        { icon: "🎯", text: "תוצאות מוכחות" },
+      ],
+      ctaText: "רוצים אתר כזה לעסק שלכם?",
+      ctaButton: "דברו איתנו",
+    },
     faq: [
       { question: "", answer: "" },
       { question: "", answer: "" },
@@ -115,6 +144,58 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
       copyright: "",
     },
     journeyNotes: "",
+    reviewsSection: {
+      badge: reviewsConfig.badge,
+      headline: reviewsConfig.headline,
+      headlineHighlight: reviewsConfig.headlineHighlight ?? "",
+      subheadline: reviewsConfig.subheadline,
+      stats: [
+        { value: "150+", label: "לקוחות מרוצים" },
+        { value: "5.0", label: "דירוג ממוצע" },
+        { value: "98%", label: "ממליצים עלינו" },
+      ],
+      reviews: [],
+    },
+    caseStudy: reviewsConfig.caseStudy
+      ? {
+          title: reviewsConfig.caseStudy.title,
+          company: reviewsConfig.caseStudy.company,
+          industry: reviewsConfig.caseStudy.industry,
+          challenge: reviewsConfig.caseStudy.challenge,
+          solution: reviewsConfig.caseStudy.solution,
+          quote: reviewsConfig.caseStudy.quote,
+          author: reviewsConfig.caseStudy.author,
+          image: reviewsConfig.caseStudy.image ?? "",
+          results: [...(reviewsConfig.caseStudy.results || [])],
+          ctaText: reviewsConfig.caseStudy.ctaText ?? "",
+        }
+      : {
+          title: "לקוח לדוגמה",
+          company: "",
+          industry: "",
+          challenge: "",
+          solution: "",
+          quote: "",
+          author: "",
+          image: "",
+          results: [
+            { metric: "300%", label: "יותר פניות" },
+            { metric: "40%", label: "חיסכון בעלויות" },
+            { metric: "1.2 שנ'", label: "טעינת עמוד" },
+          ],
+          ctaText: "רוצים תוצאות דומות?",
+        },
+    howItWorks: {
+      badge: howItWorksConfig.badge,
+      headline: howItWorksConfig.headline,
+      headlineHighlight: howItWorksConfig.headlineHighlight ?? "",
+      subheadline: howItWorksConfig.subheadline,
+      steps: (howItWorksConfig.steps || []).map((s) => ({ id: s.id, title: s.title, description: s.description, duration: s.duration, highlight: s.highlight ?? "", icon: s.icon })),
+      ctaText: howItWorksConfig.ctaText ?? "",
+      ctaHighlight: howItWorksConfig.ctaHighlight ?? "",
+      ctaButton: howItWorksConfig.ctaButton ?? "",
+      ctaButtonUrl: (howItWorksConfig as { ctaButtonUrl?: string }).ctaButtonUrl ?? "/client",
+    },
     theme: {
       primaryColor: "#0d9488",
       secondaryColor: "#f59e0b",
@@ -122,7 +203,28 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
     },
   })
   const [sectionAboutImageFile, setSectionAboutImageFile] = useState<File | null>(null)
+  const [sectionHeaderLogoFile, setSectionHeaderLogoFile] = useState<File | null>(null)
+  const headerLogoObjectUrlRef = useRef<string | null>(null)
   const aboutImageObjectUrlRef = useRef<string | null>(null)
+  const [uploadPreviewPhotoUrls, setUploadPreviewPhotoUrls] = useState<string[]>([])
+  const [uploadPreviewVideoUrl, setUploadPreviewVideoUrl] = useState<string | null>(null)
+  const uploadPreviewUrlsRef = useRef<{ photos: string[]; video: string | null }>({ photos: [], video: null })
+
+  // Object URLs for step-2 preview: photos and video (revoke on change/unmount)
+  useEffect(() => {
+    const prev = uploadPreviewUrlsRef.current
+    prev.photos.forEach((u) => URL.revokeObjectURL(u))
+    if (prev.video) URL.revokeObjectURL(prev.video)
+    const photos = photoFiles.map((f) => URL.createObjectURL(f))
+    const video = videoFiles.length > 0 ? URL.createObjectURL(videoFiles[0]) : null
+    uploadPreviewUrlsRef.current = { photos, video }
+    setUploadPreviewPhotoUrls(photos)
+    setUploadPreviewVideoUrl(video)
+    return () => {
+      photos.forEach((u) => URL.revokeObjectURL(u))
+      if (video) URL.revokeObjectURL(video)
+    }
+  }, [photoFiles, videoFiles])
 
   // Preview selected founder image in live demo (object URL); revoke on change/unmount
   useEffect(() => {
@@ -142,6 +244,25 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
       if (aboutImageObjectUrlRef.current === url) aboutImageObjectUrlRef.current = null
     }
   }, [sectionAboutImageFile])
+
+  // Preview selected header logo in live demo (object URL); revoke on change/unmount
+  useEffect(() => {
+    if (!sectionHeaderLogoFile) {
+      if (headerLogoObjectUrlRef.current) {
+        URL.revokeObjectURL(headerLogoObjectUrlRef.current)
+        headerLogoObjectUrlRef.current = null
+      }
+      setSections((s) => (s.header.logoUrl?.startsWith("blob:") ? { ...s, header: { ...s.header, logoUrl: "" } } : s))
+      return
+    }
+    const url = URL.createObjectURL(sectionHeaderLogoFile)
+    headerLogoObjectUrlRef.current = url
+    setSections((s) => ({ ...s, header: { ...s.header, logoUrl: url } }))
+    return () => {
+      URL.revokeObjectURL(url)
+      if (headerLogoObjectUrlRef.current === url) headerLogoObjectUrlRef.current = null
+    }
+  }, [sectionHeaderLogoFile])
 
   const colorPresets = {
     primary: [
@@ -176,7 +297,9 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
   const validateStep = (step: number) => {
     const newErrors: Record<string, string> = {}
 
-    if (step === 1) {
+    // Contact details: step 1 on contact form, step 7 on build form
+    const isContactStep = (step === 1 && !buildPage) || (buildPage && step === 7)
+    if (isContactStep) {
       if (!formData.fullName.trim()) {
         newErrors.fullName = "איך קוראים לך?"
       }
@@ -290,17 +413,30 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
           }
         }
 
+        let headerPayload = sections.header
+        if (buildPage && sectionHeaderLogoFile) {
+          setUploadProgress("מעלה לוגו...")
+          const logoUrls = await uploadFiles([sectionHeaderLogoFile], "photo")
+          if (logoUrls[0]) {
+            headerPayload = { ...sections.header, logoUrl: logoUrls[0] }
+          }
+        }
+
         const sectionsJson = buildPage
           ? {
+              header: headerPayload,
               hero: { ...sections.hero, features: sections.features },
               about: aboutPayload,
               video: videoPayload,
               faq: sections.faq.filter((f) => f.question.trim() || f.answer.trim()),
               features: sections.features,
               footer: sections.footer,
+              reviewsSection: sections.reviewsSection ? { ...sections.reviewsSection, reviews: (sections.reviewsSection.reviews || []).filter((r) => (r.name || "").trim() || (r.content || "").trim()) } : undefined,
+              caseStudy: sections.caseStudy,
+              howItWorks: sections.howItWorks ? { ...sections.howItWorks, steps: (sections.howItWorks.steps || []).slice(0, 4).map((s, i) => ({ ...s, id: i + 1 })) } : undefined,
               journeyNotes: sections.journeyNotes || undefined,
-                    theme: { ...sections.theme, themeMode: sections.theme.themeMode || "light" },
-                  }
+              theme: { ...sections.theme, themeMode: sections.theme.themeMode || "light" },
+            }
           : undefined
 
         const response = await fetch("/api/leads", {
@@ -314,8 +450,8 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
             businessSize: formData.businessSize,
             urgency: formData.urgency,
             message: formData.message,
-            siteName: formData.siteName || undefined,
-            siteDescription: formData.siteDescription || undefined,
+            siteName: (buildPage ? sections.hero?.headlineLine1 : formData.siteName) || undefined,
+            siteDescription: (buildPage ? sections.hero?.subheadline : formData.siteDescription) || undefined,
             siteContent: formData.siteContent || undefined,
             photoUrls: photoUrls.length ? photoUrls : undefined,
             videoUrls: videoUrls.length ? videoUrls : undefined,
@@ -365,6 +501,16 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }))
     }
+    // Sync content fields to preview so they show in the live preview without switching steps
+    if (buildPage && typeof value === "string") {
+      if (field === "siteName") {
+        setSections((s) => ({ ...s, hero: { ...s.hero, headlineLine1: value } }))
+      } else if (field === "siteDescription") {
+        setSections((s) => ({ ...s, hero: { ...s.hero, subheadline: value } }))
+      } else if (field === "siteContent") {
+        setSections((s) => ({ ...s, about: { ...s.about, subheadline: value } }))
+      }
+    }
   }
 
   const progress = (currentStep / totalSteps) * 100
@@ -388,7 +534,7 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
       <div
         className={
           buildPage
-            ? "max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative flex flex-col md:flex-row md:flex-row-reverse gap-6 md:gap-8 lg:gap-10 items-stretch build-form-theme"
+            ? "w-full px-4 md:px-4 lg:px-6 relative flex flex-col md:flex-row md:gap-4 lg:gap-6 items-stretch build-form-theme md:min-h-[80vh] md:max-h-[calc(100vh-5rem)]"
             : "max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 relative"
         }
         style={
@@ -400,15 +546,17 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
             : undefined
         }
       >
-        {/* Desktop: side panel (right in RTL); Mobile: hidden (preview shown below form) */}
+        {/* Desktop: preview fills left (yellow area), form narrow column on right (red area) */}
         {buildPage && currentStep >= 1 && (
           <SectionLiveEditPanel
             currentStep={currentStep}
             sections={sections}
-            className="hidden md:block w-full min-w-[320px] max-w-[420px] lg:min-w-[360px] xl:min-w-[380px] shrink-0 order-1"
+            previewPhotoUrls={uploadPreviewPhotoUrls}
+            previewVideoUrl={uploadPreviewVideoUrl}
+            className="hidden md:flex flex-1 min-w-0 min-h-0 order-2"
           />
         )}
-        <div className={buildPage ? "flex-1 min-w-0 max-w-2xl order-2 w-full" : ""}>
+        <div className={buildPage ? "w-full md:w-[380px] md:max-w-[28%] md:shrink-0 md:sticky md:top-24 md:self-start md:max-h-[calc(100vh-6rem)] md:overflow-y-auto order-1" : ""}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -550,10 +698,10 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
 
               <form onSubmit={handleSubmit} className="p-6 sm:p-8">
                 <AnimatePresence mode="wait">
-                  {/* Step 1: Personal Details */}
-                  {currentStep === 1 && (
+                  {/* Step 1 (contact form) or Step 7 (build form): Personal Details / Contact */}
+                  {((currentStep === 1 && !buildPage) || (buildPage && currentStep === 7)) && (
                     <motion.div
-                      key="step1"
+                      key="step1contact"
                       initial={{ opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -12 }}
@@ -757,139 +905,6 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                         העלו מה שיש לכם (אופציונלי). נשתמש בזה כדי לבנות את האתר בדיוק כמו שאתם רוצים.
                       </p>
 
-                      <div className="rounded-2xl border-2 border-slate-200 bg-slate-50/50 p-4 sm:p-5">
-                        <h4 className="text-base font-bold text-slate-800 mb-3">צבעים עיקריים לאתר</h4>
-                        <p className="text-sm text-slate-600 mb-4">בחרו צבע ראשי (כפתורים, כותרות) וצבע משני (הדגשות, אקסנט).</p>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">מצב האתר – בהיר או כהה</label>
-                            <p className="text-sm text-slate-600 mb-2">בחרו אם האתר יוצג במצב בהיר (רקע לבן) או כהה (רקע כהה).</p>
-                            <div className="flex gap-3">
-                              <button
-                                type="button"
-                                onClick={() => setSections((s) => ({ ...s, theme: { ...s.theme, themeMode: "light" } }))}
-                                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 font-medium transition-all ${
-                                  sections.theme.themeMode !== "dark"
-                                    ? "border-teal-500 bg-teal-50 text-teal-800 ring-2 ring-teal-200"
-                                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                                }`}
-                              >
-                                <span className="w-5 h-5 rounded-full bg-white border-2 border-slate-300 shadow-inner" />
-                                בהיר
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setSections((s) => ({ ...s, theme: { ...s.theme, themeMode: "dark" } }))}
-                                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 font-medium transition-all ${
-                                  sections.theme.themeMode === "dark"
-                                    ? "border-teal-500 bg-slate-800 text-white ring-2 ring-teal-200"
-                                    : "border-slate-200 bg-slate-100 text-slate-600 hover:border-slate-300"
-                                }`}
-                              >
-                                <span className="w-5 h-5 rounded-full bg-slate-700 border-2 border-slate-500 shadow-inner" />
-                                כהה
-                              </button>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">צבע ראשי (Primary)</label>
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              {colorPresets.primary.map((preset) => (
-                                <button
-                                  key={preset.value}
-                                  type="button"
-                                  onClick={() => setSections((s) => ({ ...s, theme: { ...s.theme, primaryColor: preset.value } }))}
-                                  className={`w-8 h-8 rounded-full border-2 transition-all ${
-                                    sections.theme.primaryColor === preset.value ? "border-slate-800 scale-110 ring-2 ring-offset-2 ring-slate-400" : "border-slate-300 hover:scale-105"
-                                  }`}
-                                  style={{ backgroundColor: preset.value }}
-                                  title={preset.name}
-                                  aria-label={preset.name}
-                                />
-                              ))}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                id="primaryColorPicker"
-                                value={sections.theme.primaryColor}
-                                onChange={(e) => setSections((s) => ({ ...s, theme: { ...s.theme, primaryColor: e.target.value } }))}
-                                className="w-10 h-10 rounded-lg cursor-pointer border border-slate-300"
-                              />
-                              <input
-                                type="text"
-                                value={sections.theme.primaryColor}
-                                onChange={(e) => setSections((s) => ({ ...s, theme: { ...s.theme, primaryColor: e.target.value } }))}
-                                placeholder="#0d9488"
-                                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono text-slate-800"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">צבע משני (Secondary)</label>
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              {colorPresets.secondary.map((preset) => (
-                                <button
-                                  key={preset.value}
-                                  type="button"
-                                  onClick={() => setSections((s) => ({ ...s, theme: { ...s.theme, secondaryColor: preset.value } }))}
-                                  className={`w-8 h-8 rounded-full border-2 transition-all ${
-                                    sections.theme.secondaryColor === preset.value ? "border-slate-800 scale-110 ring-2 ring-offset-2 ring-slate-400" : "border-slate-300 hover:scale-105"
-                                  }`}
-                                  style={{ backgroundColor: preset.value }}
-                                  title={preset.name}
-                                  aria-label={preset.name}
-                                />
-                              ))}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                id="secondaryColorPicker"
-                                value={sections.theme.secondaryColor}
-                                onChange={(e) => setSections((s) => ({ ...s, theme: { ...s.theme, secondaryColor: e.target.value } }))}
-                                className="w-10 h-10 rounded-lg cursor-pointer border border-slate-300"
-                              />
-                              <input
-                                type="text"
-                                value={sections.theme.secondaryColor}
-                                onChange={(e) => setSections((s) => ({ ...s, theme: { ...s.theme, secondaryColor: e.target.value } }))}
-                                placeholder="#f59e0b"
-                                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono text-slate-800"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label htmlFor="siteName" className="block text-sm font-semibold text-slate-700 mb-2">
-                          שם האתר / העסק (אופציונלי)
-                        </label>
-                        <input
-                          type="text"
-                          id="siteName"
-                          placeholder="למשל: פיצריה דלישס"
-                          value={formData.siteName}
-                          onChange={(e) => handleChange("siteName", e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 placeholder:text-slate-400"
-                        />
-                      </div>
-
-                      <div>
-                        <label htmlFor="siteDescription" className="block text-sm font-semibold text-slate-700 mb-2">
-                          משפט או שניים על העסק (אופציונלי)
-                        </label>
-                        <input
-                          type="text"
-                          id="siteDescription"
-                          placeholder="למשל: פיצה טרייה ומשלוחים מהירים"
-                          value={formData.siteDescription}
-                          onChange={(e) => handleChange("siteDescription", e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 transition-all text-slate-900 placeholder:text-slate-400"
-                        />
-                      </div>
-
                       <div>
                         <label htmlFor="siteContent" className="block text-sm font-semibold text-slate-700 mb-2">
                           טקסט נוסף – אודות, שירותים, מבצעים (אופציונלי)
@@ -907,12 +922,28 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                       <h4 className="text-base font-bold text-slate-800 mt-6 mb-2">מה תקבלו? – שלוש כרטיסיות (אופציונלי)</h4>
                       {[0, 1, 2].map((i) => (
                         <div key={i} className="bg-slate-50 rounded-xl p-4 space-y-2">
+                          <div className="flex gap-2 items-center flex-wrap">
+                            <label className="text-sm font-medium text-slate-700 shrink-0">אייקון:</label>
+                            <select
+                              value={sections.features[i]?.icon ?? (i === 0 ? "check" : i === 1 ? "mail" : "currency")}
+                              onChange={(e) => {
+                                const next = [...sections.features]
+                                next[i] = { ...(next[i] ?? { title: "", description: "", icon: "" }), icon: e.target.value }
+                                setSections((s) => ({ ...s, features: next }))
+                              }}
+                              className="px-3 py-2 rounded-lg border border-slate-200 focus:border-teal-500 text-slate-900 bg-white min-w-[140px]"
+                            >
+                              {FEATURE_ICON_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              ))}
+                            </select>
+                          </div>
                           <input
                             type="text"
                             value={sections.features[i]?.title ?? ""}
                             onChange={(e) => {
                               const next = [...sections.features]
-                              next[i] = { ...(next[i] ?? { title: "", description: "" }), title: e.target.value }
+                              next[i] = { ...(next[i] ?? { title: "", description: "", icon: "" }), title: e.target.value }
                               setSections((s) => ({ ...s, features: next }))
                             }}
                             placeholder={`כותרת כרטיס ${i + 1}`}
@@ -923,7 +954,7 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                             value={sections.features[i]?.description ?? ""}
                             onChange={(e) => {
                               const next = [...sections.features]
-                              next[i] = { ...(next[i] ?? { title: "", description: "" }), description: e.target.value }
+                              next[i] = { ...(next[i] ?? { title: "", description: "", icon: "" }), description: e.target.value }
                               setSections((s) => ({ ...s, features: next }))
                             }}
                             placeholder="תיאור קצר"
@@ -931,6 +962,181 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                           />
                         </div>
                       ))}
+
+                      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-4 mt-6">
+                        <h4 className="text-base font-bold text-slate-800">תוצאות וביקורות – כותרת, שלושה מדדים וביקורות</h4>
+                        <p className="text-xs text-slate-600">כותרת הבלוק (תוצאות שמדברות...), שלושת המספרים למעלה וביקורות (אופציונלי).</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">תגית (באדג׳)</label>
+                            <input type="text" value={sections.reviewsSection?.badge ?? ""} onChange={(e) => setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, badge: e.target.value } }))} placeholder="הלקוחות שלנו מספרים" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">כותרת (חלק ראשון)</label>
+                            <input type="text" value={sections.reviewsSection?.headline ?? ""} onChange={(e) => setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, headline: e.target.value } }))} placeholder="תוצאות שמדברות" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">כותרת (חלק מודגש)</label>
+                            <input type="text" value={sections.reviewsSection?.headlineHighlight ?? ""} onChange={(e) => setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, headlineHighlight: e.target.value } }))} placeholder=" בעד עצמן" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">תת־כותרת</label>
+                            <input type="text" value={sections.reviewsSection?.subheadline ?? ""} onChange={(e) => setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, subheadline: e.target.value } }))} placeholder="עסקים שעבדנו איתם משתפים..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">שלושה מדדים (ערך + תווית)</label>
+                            <div className="space-y-2">
+                              {[0, 1, 2].map((i) => {
+                                const st = sections.reviewsSection?.stats?.[i] ?? { value: "", label: "" }
+                                return (
+                                <div key={i} className="flex gap-2 items-center">
+                                  <input type="text" value={st.value} onChange={(e) => { const next = [...(sections.reviewsSection?.stats ?? [])]; while (next.length <= i) next.push({ value: "", label: "" }); next[i] = { ...next[i], value: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, stats: next } })) }} placeholder="150+" className="w-20 px-2 py-2 rounded-lg border border-slate-200 text-slate-900 text-center" />
+                                  <input type="text" value={st.label} onChange={(e) => { const next = [...(sections.reviewsSection?.stats ?? [])]; while (next.length <= i) next.push({ value: "", label: "" }); next[i] = { ...next[i], label: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, stats: next } })) }} placeholder="לקוחות מרוצים" className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-3 pt-2">
+                          <label className="block text-sm font-bold text-slate-700">ביקורות (אופציונלי) – אם ריק, יוצגו ביקורות ברירת מחדל</label>
+                          {[0, 1, 2, 3, 4, 5].map((i) => {
+                            const r = sections.reviewsSection?.reviews?.[i] ?? { name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }
+                            return (
+                              <div key={i} className="bg-white rounded-lg p-3 border border-slate-200 space-y-2">
+                                <div className="text-xs font-bold text-slate-500 mb-1">ביקורת {i + 1}</div>
+                                <div className="flex flex-wrap gap-2">
+                                  <input type="text" value={r.name} onChange={(e) => { const next = [...(sections.reviewsSection?.reviews ?? [])]; while (next.length <= i) next.push({ name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }); next[i] = { ...next[i], name: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, reviews: next } })) }} placeholder="שם" className="w-28 px-2 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                  <input type="text" value={r.role ?? ""} onChange={(e) => { const next = [...(sections.reviewsSection?.reviews ?? [])]; while (next.length <= i) next.push({ name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }); next[i] = { ...next[i], role: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, reviews: next } })) }} placeholder="תפקיד" className="w-24 px-2 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                  <input type="text" value={r.company ?? ""} onChange={(e) => { const next = [...(sections.reviewsSection?.reviews ?? [])]; while (next.length <= i) next.push({ name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }); next[i] = { ...next[i], company: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, reviews: next } })) }} placeholder="חברה" className="w-28 px-2 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                  <input type="number" min={1} max={5} value={r.rating} onChange={(e) => { const next = [...(sections.reviewsSection?.reviews ?? [])]; while (next.length <= i) next.push({ name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }); next[i] = { ...next[i], rating: parseInt(e.target.value, 10) || 5 }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, reviews: next } })) }} className="w-14 px-2 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                  <input type="text" value={r.result ?? ""} onChange={(e) => { const next = [...(sections.reviewsSection?.reviews ?? [])]; while (next.length <= i) next.push({ name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }); next[i] = { ...next[i], result: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, reviews: next } })) }} placeholder="תוצאה (150%)" className="w-20 px-2 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                  <input type="text" value={r.resultLabel ?? ""} onChange={(e) => { const next = [...(sections.reviewsSection?.reviews ?? [])]; while (next.length <= i) next.push({ name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }); next[i] = { ...next[i], resultLabel: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, reviews: next } })) }} placeholder="תווית" className="w-24 px-2 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                </div>
+                                <input type="url" value={r.imageUrl ?? ""} onChange={(e) => { const next = [...(sections.reviewsSection?.reviews ?? [])]; while (next.length <= i) next.push({ name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }); next[i] = { ...next[i], imageUrl: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, reviews: next } })) }} placeholder="קישור לתמונת פרופיל" className="w-full px-2 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm" />
+                                <textarea rows={2} value={r.content} onChange={(e) => { const next = [...(sections.reviewsSection?.reviews ?? [])]; while (next.length <= i) next.push({ name: "", role: "", company: "", content: "", rating: 5, result: "", resultLabel: "", imageUrl: "" }); next[i] = { ...next[i], content: e.target.value }; setSections((s) => ({ ...s, reviewsSection: { ...s.reviewsSection, reviews: next } })) }} placeholder="תוכן הביקורת" className="w-full px-2 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm resize-none" />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200 bg-amber-50/50 p-4 space-y-3 mt-6">
+                        <h4 className="text-base font-bold text-slate-800">לקוח לדוגמה (Case Study) – התאמה לתוכן האתר</h4>
+                        <p className="text-xs text-slate-600">כדי שהבלוק הזה יתאים לוויקיפדיה או לכל נושא אחר – ערכו את השדות למטה.</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">כותרת הבלוק</label>
+                            <input type="text" value={sections.caseStudy?.title ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, title: e.target.value } }))} placeholder="לקוח לדוגמה" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">שם המיזם / החברה</label>
+                            <input type="text" value={sections.caseStudy?.company ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, company: e.target.value } }))} placeholder="סטודיו לעיצוב פנים" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">תחום / קטגוריה</label>
+                            <input type="text" value={sections.caseStudy?.industry ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, industry: e.target.value } }))} placeholder="עיצוב ואדריכלות" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">האתגר</label>
+                            <input type="text" value={sections.caseStudy?.challenge ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, challenge: e.target.value } }))} placeholder="אתר ישן ואיטי, לא מותאם למובייל..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">הפתרון</label>
+                            <input type="text" value={sections.caseStudy?.solution ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, solution: e.target.value } }))} placeholder="דף נחיתה מודרני + מערכת מיילים..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">ציטוט</label>
+                            <textarea rows={2} value={sections.caseStudy?.quote ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, quote: e.target.value } }))} placeholder="האתר החדש נראה פי 10 יותר טוב..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400 resize-none" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">מחבר הציטוט</label>
+                            <input type="text" value={sections.caseStudy?.author ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, author: e.target.value } }))} placeholder="מיכל, בעלת הסטודיו" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">טקסט כפתור CTA</label>
+                            <input type="text" value={sections.caseStudy?.ctaText ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, ctaText: e.target.value } }))} placeholder="רוצים תוצאות דומות?" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">קישור לתמונת רקע (אופציונלי)</label>
+                            <input type="url" value={sections.caseStudy?.image ?? ""} onChange={(e) => setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, image: e.target.value } }))} placeholder="https://..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">שלוש מדדים (ערך + תווית)</label>
+                            <div className="space-y-2">
+                              {(sections.caseStudy?.results ?? []).slice(0, 3).map((r, i) => (
+                                <div key={i} className="flex gap-2 items-center">
+                                  <input type="text" value={r.metric} onChange={(e) => { const next = [...(sections.caseStudy?.results ?? [])]; next[i] = { ...next[i], metric: e.target.value }; setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, results: next } })) } } placeholder="300%" className="w-20 px-2 py-2 rounded-lg border border-slate-200 text-slate-900 text-center" />
+                                  <input type="text" value={r.label} onChange={(e) => { const next = [...(sections.caseStudy?.results ?? [])]; next[i] = { ...next[i], label: e.target.value }; setSections((s) => ({ ...s, caseStudy: { ...s.caseStudy, results: next } })) } } placeholder="יותר פניות" className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-4 mt-6">
+                        <h4 className="text-base font-bold text-slate-800">איך זה עובד – כותרת וארבעה שלבים</h4>
+                        <p className="text-xs text-slate-600">התאימו את הבלוק לנושא האתר (למשל נבחרת כדורעף: שלבי אימון, משחק וכו׳).</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">תגית (באדג׳)</label>
+                            <input type="text" value={sections.howItWorks?.badge ?? ""} onChange={(e) => setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, badge: e.target.value } }))} placeholder="התהליך שלנו" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">כותרת (חלק ראשון)</label>
+                            <input type="text" value={sections.howItWorks?.headline ?? ""} onChange={(e) => setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, headline: e.target.value } }))} placeholder="מאתר ישן" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">כותרת (חלק מודגש)</label>
+                            <input type="text" value={sections.howItWorks?.headlineHighlight ?? ""} onChange={(e) => setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, headlineHighlight: e.target.value } }))} placeholder=" לדף נחיתה שמוכר" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">תת־כותרת</label>
+                            <input type="text" value={sections.howItWorks?.subheadline ?? ""} onChange={(e) => setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, subheadline: e.target.value } }))} placeholder="ארבעה שלבים פשוטים..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">טקסט CTA</label>
+                            <input type="text" value={sections.howItWorks?.ctaText ?? ""} onChange={(e) => setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, ctaText: e.target.value } }))} placeholder="שיחת היכרות" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">הדגשת CTA</label>
+                            <input type="text" value={sections.howItWorks?.ctaHighlight ?? ""} onChange={(e) => setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, ctaHighlight: e.target.value } }))} placeholder=" ללא עלות" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">כפתור CTA</label>
+                            <input type="text" value={sections.howItWorks?.ctaButton ?? ""} onChange={(e) => setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, ctaButton: e.target.value } }))} placeholder="בואו נדבר" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">קישור כפתור CTA (לאן הכפתור מוביל)</label>
+                            <input type="text" value={sections.howItWorks?.ctaButtonUrl ?? ""} onChange={(e) => setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, ctaButtonUrl: e.target.value } }))} placeholder="/client או https://example.com/link" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 placeholder:text-slate-400" />
+                          </div>
+                        </div>
+                        <div className="space-y-4 pt-2">
+                          <label className="block text-sm font-bold text-slate-700">ארבעה שלבים – כותרת, תיאור, משך, הדגשה, אייקון</label>
+                          {[0, 1, 2, 3].map((i) => {
+                            const step = sections.howItWorks?.steps?.[i] ?? { id: i + 1, title: "", description: "", duration: "", highlight: "", icon: "chat" }
+                            return (
+                              <div key={i} className="bg-white rounded-lg p-4 border border-slate-200 space-y-2">
+                                <div className="text-xs font-bold text-slate-500 mb-1">שלב {i + 1}/4</div>
+                                <div className="flex flex-wrap gap-2">
+                                  <input type="text" value={step.title} onChange={(e) => { const next = [...(sections.howItWorks?.steps ?? [])]; while (next.length <= i) next.push({ id: next.length + 1, title: "", description: "", duration: "", highlight: "", icon: "chat" }); next[i] = { ...next[i], title: e.target.value }; setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, steps: next } })) }} placeholder="כותרת שלב" className="flex-1 min-w-[140px] px-3 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                  <select value={step.icon} onChange={(e) => { const next = [...(sections.howItWorks?.steps ?? [])]; while (next.length <= i) next.push({ id: next.length + 1, title: "", description: "", duration: "", highlight: "", icon: "chat" }); next[i] = { ...next[i], icon: e.target.value }; setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, steps: next } })) }} className="px-3 py-2 rounded-lg border border-slate-200 text-slate-900 bg-white">
+                                    <option value="chat">צ׳אט</option>
+                                    <option value="clipboard">לוח</option>
+                                    <option value="lightning">ברק</option>
+                                    <option value="chart">גרף</option>
+                                    <option value="rocket">רקטה</option>
+                                  </select>
+                                  <input type="text" value={step.duration} onChange={(e) => { const next = [...(sections.howItWorks?.steps ?? [])]; while (next.length <= i) next.push({ id: next.length + 1, title: "", description: "", duration: "", highlight: "", icon: "chat" }); next[i] = { ...next[i], duration: e.target.value }; setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, steps: next } })) }} placeholder="20 דק'" className="w-24 px-2 py-2 rounded-lg border border-slate-200 text-slate-900 text-center" />
+                                  <input type="text" value={step.highlight ?? ""} onChange={(e) => { const next = [...(sections.howItWorks?.steps ?? [])]; while (next.length <= i) next.push({ id: next.length + 1, title: "", description: "", duration: "", highlight: "", icon: "chat" }); next[i] = { ...next[i], highlight: e.target.value }; setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, steps: next } })) }} placeholder="הדגשה (חינם)" className="w-28 px-2 py-2 rounded-lg border border-slate-200 text-slate-900" />
+                                </div>
+                                <textarea rows={2} value={step.description} onChange={(e) => { const next = [...(sections.howItWorks?.steps ?? [])]; while (next.length <= i) next.push({ id: next.length + 1, title: "", description: "", duration: "", highlight: "", icon: "chat" }); next[i] = { ...next[i], description: e.target.value }; setSections((s) => ({ ...s, howItWorks: { ...s.howItWorks, steps: next } })) }} placeholder="תיאור שלב" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 resize-none text-sm" />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -1103,17 +1309,235 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                     </motion.div>
                   )}
 
-                  {/* Step 3 (build): Hero */}
-                  {buildPage && currentStep === 3 && (
+                  {/* Step 1 (build): Colors first, then Header + Hero */}
+                  {buildPage && currentStep === 1 && (
                     <motion.div
-                      key="step3build"
+                      key="step1build"
                       initial={{ opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -12 }}
                       transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                      className="space-y-5"
+                      className="space-y-6"
                     >
-                      <h3 className="text-lg font-bold text-slate-900 mb-4">טקסט אזור ההיירו (אופציונלי)</h3>
+                      <div className="rounded-2xl border-2 border-slate-200 bg-slate-50/50 p-4 sm:p-5">
+                        <h4 className="text-base font-bold text-slate-800 mb-3">צבעים עיקריים לאתר</h4>
+                        <p className="text-sm text-slate-600 mb-4">בחרו צבע ראשי וצבע משני — הם שולטים בכל האקסנטים: לוגו בכותרת, כפתור CTA, כותרת מודגשת (גרדיאנט), אייקוני כרטיסים, כפתור הראשי בהיירו ורקע עדין.</p>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">מצב האתר – בהיר או כהה</label>
+                            <p className="text-sm text-slate-600 mb-2">בחרו אם האתר יוצג במצב בהיר (רקע לבן) או כהה (רקע כהה).</p>
+                            <div className="flex gap-3">
+                              <button
+                                type="button"
+                                onClick={() => setSections((s) => ({ ...s, theme: { ...s.theme, themeMode: "light" } }))}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 font-medium transition-all ${
+                                  sections.theme.themeMode !== "dark"
+                                    ? "border-teal-500 bg-teal-50 text-teal-800 ring-2 ring-teal-200"
+                                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                                }`}
+                              >
+                                <span className="w-5 h-5 rounded-full bg-white border-2 border-slate-300 shadow-inner" />
+                                בהיר
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setSections((s) => ({ ...s, theme: { ...s.theme, themeMode: "dark" } }))}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 font-medium transition-all ${
+                                  sections.theme.themeMode === "dark"
+                                    ? "border-teal-500 bg-slate-800 text-white ring-2 ring-teal-200"
+                                    : "border-slate-200 bg-slate-100 text-slate-600 hover:border-slate-300"
+                                }`}
+                              >
+                                <span className="w-5 h-5 rounded-full bg-slate-700 border-2 border-slate-500 shadow-inner" />
+                                כהה
+                              </button>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">צבע ראשי (Primary)</label>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {colorPresets.primary.map((preset) => (
+                                <button
+                                  key={preset.value}
+                                  type="button"
+                                  onClick={() => setSections((s) => ({ ...s, theme: { ...s.theme, primaryColor: preset.value } }))}
+                                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                                    sections.theme.primaryColor === preset.value ? "border-slate-800 scale-110 ring-2 ring-offset-2 ring-slate-400" : "border-slate-300 hover:scale-105"
+                                  }`}
+                                  style={{ backgroundColor: preset.value }}
+                                  title={preset.name}
+                                  aria-label={preset.name}
+                                />
+                              ))}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                id="primaryColorPickerStep1"
+                                value={sections.theme.primaryColor}
+                                onChange={(e) => setSections((s) => ({ ...s, theme: { ...s.theme, primaryColor: e.target.value } }))}
+                                className="w-10 h-10 rounded-lg cursor-pointer border border-slate-300"
+                              />
+                              <input
+                                type="text"
+                                value={sections.theme.primaryColor}
+                                onChange={(e) => setSections((s) => ({ ...s, theme: { ...s.theme, primaryColor: e.target.value } }))}
+                                placeholder="#0d9488"
+                                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono text-slate-800"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">צבע משני (Secondary)</label>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {colorPresets.secondary.map((preset) => (
+                                <button
+                                  key={preset.value}
+                                  type="button"
+                                  onClick={() => setSections((s) => ({ ...s, theme: { ...s.theme, secondaryColor: preset.value } }))}
+                                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                                    sections.theme.secondaryColor === preset.value ? "border-slate-800 scale-110 ring-2 ring-offset-2 ring-slate-400" : "border-slate-300 hover:scale-105"
+                                  }`}
+                                  style={{ backgroundColor: preset.value }}
+                                  title={preset.name}
+                                  aria-label={preset.name}
+                                />
+                              ))}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                id="secondaryColorPickerStep1"
+                                value={sections.theme.secondaryColor}
+                                onChange={(e) => setSections((s) => ({ ...s, theme: { ...s.theme, secondaryColor: e.target.value } }))}
+                                className="w-10 h-10 rounded-lg cursor-pointer border border-slate-300"
+                              />
+                              <input
+                                type="text"
+                                value={sections.theme.secondaryColor}
+                                onChange={(e) => setSections((s) => ({ ...s, theme: { ...s.theme, secondaryColor: e.target.value } }))}
+                                placeholder="#f59e0b"
+                                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono text-slate-800"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h3 className="text-lg font-bold text-slate-900 mb-2">ניווט וכותרת (הראש של האתר)</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">שם העסק בכותרת</label>
+                          <input
+                            type="text"
+                            value={sections.header.name}
+                            onChange={(e) => setSections((s) => ({ ...s, header: { ...s.header, name: e.target.value } }))}
+                            placeholder={siteConfig.name}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">אות לוגו (במעגל, אם אין תמונה)</label>
+                          <input
+                            type="text"
+                            maxLength={2}
+                            value={sections.header.logoText}
+                            onChange={(e) => setSections((s) => ({ ...s, header: { ...s.header, logoText: e.target.value } }))}
+                            placeholder={siteConfig.branding.logoText}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">לוגו (תמונה)</label>
+                        <p className="text-xs text-slate-500 mb-2">קישור לתמונה או העלאת קובץ. אם מוגדר – יוצג במקום האות במעגל.</p>
+                        <div className="space-y-2">
+                          <input
+                            type="url"
+                            value={sections.header.logoUrl?.startsWith("blob:") ? "" : (sections.header.logoUrl || "")}
+                            onChange={(e) => {
+                              const v = e.target.value.trim()
+                              if (!v || !v.startsWith("blob:")) {
+                                setSectionHeaderLogoFile(null)
+                                setSections((s) => ({ ...s, header: { ...s.header, logoUrl: v } }))
+                              }
+                            }}
+                            placeholder="https://example.com/logo.png"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              setSectionHeaderLogoFile(file ?? null)
+                              e.target.value = ""
+                            }}
+                            className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-teal-50 file:text-teal-700 file:font-medium hover:file:bg-teal-100"
+                          />
+                          {sectionHeaderLogoFile && (
+                            <p className="text-sm text-teal-600">
+                              נבחר: {sectionHeaderLogoFile.name}
+                              <button type="button" onClick={() => setSectionHeaderLogoFile(null)} className="mr-2 text-red-600 hover:text-red-700">הסר</button>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">תגית / סיסמה (מתחת לשם)</label>
+                        <input
+                          type="text"
+                          value={sections.header.tagline}
+                          onChange={(e) => setSections((s) => ({ ...s, header: { ...s.header, tagline: e.target.value } }))}
+                          placeholder={siteConfig.tagline}
+                          className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">קישורי ניווט (טקסט בלבד)</label>
+                        <div className="space-y-2">
+                          {(sections.header.navLinks || []).map((link, i) => (
+                            <div key={link.id} className="flex items-center gap-2">
+                              <span className="text-xs text-slate-500 w-20 shrink-0">{link.id}</span>
+                              <input
+                                type="text"
+                                value={link.label}
+                                onChange={(e) => {
+                                  const next = [...(sections.header.navLinks || [])]
+                                  next[i] = { ...next[i], label: e.target.value }
+                                  setSections((s) => ({ ...s, header: { ...s.header, navLinks: next } }))
+                                }}
+                                placeholder={headerConfig.navLinks[i]?.label}
+                                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400 text-sm"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">טלפון בכותרת</label>
+                          <input
+                            type="tel"
+                            value={sections.header.phone}
+                            onChange={(e) => setSections((s) => ({ ...s, header: { ...s.header, phone: e.target.value } }))}
+                            placeholder={siteConfig.contact.phone}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">טקסט כפתור CTA (רוצה אתר כזה?)</label>
+                          <input
+                            type="text"
+                            value={sections.header.ctaButton}
+                            onChange={(e) => setSections((s) => ({ ...s, header: { ...s.header, ctaButton: e.target.value } }))}
+                            placeholder={headerConfig.ctaButton}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                          />
+                        </div>
+                      </div>
+
+                      <h3 className="text-lg font-bold text-slate-900 mb-4 pt-2 border-t border-slate-200">טקסט אזור ההיירו (אופציונלי)</h3>
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">שורת כותרת ראשית</label>
                         <input
@@ -1148,10 +1572,10 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                     </motion.div>
                   )}
 
-                  {/* Step 4 (build): About */}
-                  {buildPage && currentStep === 4 && (
+                  {/* Step 3 (build): About */}
+                  {buildPage && currentStep === 3 && (
                     <motion.div
-                      key="step4build"
+                      key="step3build"
                       initial={{ opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -12 }}
@@ -1260,22 +1684,185 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                           className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400 resize-none"
                         />
                       </div>
+                      <h4 className="text-base font-bold text-slate-800 mt-8 mb-3">המסע שלנו – כותרת ו־4 כרטיסים</h4>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">כותרת אזור המסע</label>
+                        <input
+                          type="text"
+                          value={sections.about.journeyTitle ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, about: { ...s.about, journeyTitle: e.target.value } }))}
+                          placeholder="המסע שלנו"
+                          className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-sm font-medium text-slate-700">ארבעת הכרטיסים (שנה/כותרת + תיאור)</p>
+                        {(sections.about.timeline || []).map((m, i) => (
+                          <div key={i} className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                            <input
+                              type="text"
+                              value={m.year}
+                              onChange={(e) => {
+                                const next = [...(sections.about.timeline || [])]
+                                next[i] = { ...next[i], year: e.target.value }
+                                setSections((s) => ({ ...s, about: { ...s.about, timeline: next } }))
+                              }}
+                              placeholder="כותרת (למשל: עיצוב)"
+                              className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                            />
+                            <input
+                              type="text"
+                              value={m.text}
+                              onChange={(e) => {
+                                const next = [...(sections.about.timeline || [])]
+                                next[i] = { ...next[i], text: e.target.value }
+                                setSections((s) => ({ ...s, about: { ...s.about, timeline: next } }))
+                              }}
+                              placeholder="תיאור"
+                              className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <h4 className="text-base font-bold text-slate-800 mt-6 mb-3">שלוש כרטיסי אמון (עם אייקון ותגית)</h4>
+                      {(sections.about.trustItems || []).map((item, i) => (
+                        <div key={i} className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                          <input
+                            type="text"
+                            value={item.title}
+                            onChange={(e) => {
+                              const next = [...(sections.about.trustItems || [])]
+                              next[i] = { ...next[i], title: e.target.value }
+                              setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                            }}
+                            placeholder="כותרת"
+                            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                          />
+                          <input
+                            type="text"
+                            value={item.description}
+                            onChange={(e) => {
+                              const next = [...(sections.about.trustItems || [])]
+                              next[i] = { ...next[i], description: e.target.value }
+                              setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                            }}
+                            placeholder="תיאור"
+                            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={item.stat ?? ""}
+                              onChange={(e) => {
+                                const next = [...(sections.about.trustItems || [])]
+                                next[i] = { ...next[i], stat: e.target.value || null }
+                                setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                              }}
+                              placeholder="תגית (למשל: 150+)"
+                              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                            />
+                            <input
+                              type="text"
+                              value={item.statLabel ?? ""}
+                              onChange={(e) => {
+                                const next = [...(sections.about.trustItems || [])]
+                                next[i] = { ...next[i], statLabel: e.target.value || null }
+                                setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                              }}
+                              placeholder="תווית (למשל: אתרים)"
+                              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                            />
+                            <input
+                              type="text"
+                              value={item.icon}
+                              onChange={(e) => {
+                                const next = [...(sections.about.trustItems || [])]
+                                next[i] = { ...next[i], icon: e.target.value }
+                                setSections((s) => ({ ...s, about: { ...s.about, trustItems: next } }))
+                              }}
+                              placeholder="badge/chart/user"
+                              className="w-24 px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                              title="badge, chart או user"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">משפט מעל כפתור הקריאה (המסע)</label>
+                        <input
+                          type="text"
+                          value={sections.about.journeyCtaText ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, about: { ...s.about, journeyCtaText: e.target.value } }))}
+                          placeholder="רוצים אתר כזה לעסק שלכם?"
+                          className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">טקסט כפתור הקריאה</label>
+                        <input
+                          type="text"
+                          value={sections.about.journeyCtaButton ?? ""}
+                          onChange={(e) => setSections((s) => ({ ...s, about: { ...s.about, journeyCtaButton: e.target.value } }))}
+                          placeholder="בואו נדבר"
+                          className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
                     </motion.div>
                   )}
 
-                  {/* Step 5 (build): Video */}
-                  {buildPage && currentStep === 5 && (
+                  {/* Step 4 (build): Video */}
+                  {buildPage && currentStep === 4 && (
                     <motion.div
-                      key="step5build"
+                      key="step4build"
                       initial={{ opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -12 }}
                       transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                       className="space-y-5"
                     >
-                      <h3 className="text-lg font-bold text-slate-900 mb-4">וידאו (אופציונלי)</h3>
+                      <h3 className="text-lg font-bold text-slate-900 mb-4">אזור הוידאו</h3>
                       <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2">מזהה סרטון YouTube</label>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">תגית קטנה מעל הכותרת</label>
+                        <input
+                          type="text"
+                          value={sections.video.badge}
+                          onChange={(e) => setSections((s) => ({ ...s, video: { ...s.video, badge: e.target.value } }))}
+                          placeholder="צפו בסרטון"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">כותרת ראשית</label>
+                        <input
+                          type="text"
+                          value={sections.video.headline}
+                          onChange={(e) => setSections((s) => ({ ...s, video: { ...s.video, headline: e.target.value } }))}
+                          placeholder="כך נראה התהליך"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">המשך הכותרת (מודגש בצבע)</label>
+                        <input
+                          type="text"
+                          value={sections.video.headlineHighlight}
+                          onChange={(e) => setSections((s) => ({ ...s, video: { ...s.video, headlineHighlight: e.target.value } }))}
+                          placeholder=" מהתחלה ועד הסוף"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">תיאור / תת-כותרת</label>
+                        <textarea
+                          rows={2}
+                          value={sections.video.subheadline}
+                          onChange={(e) => setSections((s) => ({ ...s, video: { ...s.video, subheadline: e.target.value } }))}
+                          placeholder="מהרגע שאתם פונים אלינו..."
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400 resize-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">מזהה סרטון YouTube (אופציונלי)</label>
                         <input
                           type="text"
                           value={sections.video.videoId}
@@ -1309,13 +1896,79 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                           </p>
                         )}
                       </div>
+                      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                        <h4 className="text-sm font-bold text-slate-800">שלוש הכפתורים מתחת לסרטון – בחרו אייקון וטקסט</h4>
+                        {(sections.video.highlights || []).map((h, i) => (
+                          <div key={i} className="flex flex-wrap gap-2 items-center">
+                            <select
+                              value={FEATURE_ICON_OPTIONS.some((o) => o.value === h.icon) ? h.icon : "__emoji__"}
+                              onChange={(e) => {
+                                const v = e.target.value
+                                const next = [...(sections.video.highlights || [])]
+                                next[i] = { ...next[i], icon: v === "__emoji__" ? (FEATURE_ICON_OPTIONS.some((o) => o.value === next[i]?.icon) ? "✨" : (next[i]?.icon || "✨")) : v }
+                                setSections((s) => ({ ...s, video: { ...s.video, highlights: next } }))
+                              }}
+                              className="px-3 py-2 rounded-lg border border-slate-200 text-slate-900 bg-white min-w-[140px]"
+                            >
+                              {FEATURE_ICON_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              ))}
+                              <option value="__emoji__">אחר (אימוג׳י)</option>
+                            </select>
+                            {(!h.icon || FEATURE_ICON_OPTIONS.some((o) => o.value === h.icon)) ? null : (
+                              <input
+                                type="text"
+                                value={h.icon}
+                                onChange={(e) => {
+                                  const next = [...(sections.video.highlights || [])]
+                                  next[i] = { ...next[i], icon: e.target.value }
+                                  setSections((s) => ({ ...s, video: { ...s.video, highlights: next } }))
+                                }}
+                                placeholder="אימוג׳י"
+                                className="w-12 px-2 py-2 rounded-lg border border-slate-200 text-center text-lg"
+                              />
+                            )}
+                            <input
+                              type="text"
+                              value={h.text}
+                              onChange={(e) => {
+                                const next = [...(sections.video.highlights || [])]
+                                next[i] = { ...next[i], text: e.target.value }
+                                setSections((s) => ({ ...s, video: { ...s.video, highlights: next } }))
+                              }}
+                              placeholder="טקסט"
+                              className="flex-1 min-w-[120px] px-3 py-2 rounded-lg border border-slate-200 text-slate-900"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">משפט מעל כפתור הקריאה (אופציונלי)</label>
+                        <input
+                          type="text"
+                          value={sections.video.ctaText}
+                          onChange={(e) => setSections((s) => ({ ...s, video: { ...s.video, ctaText: e.target.value } }))}
+                          placeholder="רוצים אתר כזה לעסק שלכם?"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">טקסט כפתור הקריאה</label>
+                        <input
+                          type="text"
+                          value={sections.video.ctaButton}
+                          onChange={(e) => setSections((s) => ({ ...s, video: { ...s.video, ctaButton: e.target.value } }))}
+                          placeholder="דברו איתנו"
+                          className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-200 text-slate-900 placeholder:text-slate-400"
+                        />
+                      </div>
                     </motion.div>
                   )}
 
                   {/* Step 6 (build): FAQ — 1–8 questions to match site */}
-                  {buildPage && currentStep === 6 && (
+                  {buildPage && currentStep === 5 && (
                     <motion.div
-                      key="step6build"
+                      key="step5build"
                       initial={{ opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -12 }}
@@ -1374,9 +2027,9 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                   )}
 
                   {/* Step 7 (build): Footer */}
-                  {buildPage && currentStep === 7 && (
+                  {buildPage && currentStep === 6 && (
                     <motion.div
-                      key="step7build"
+                      key="step6build"
                       initial={{ opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -12 }}
@@ -1699,18 +2352,42 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
                       headlineHighlight: "",
                       subheadline: "",
                       founder: { quote: "", imageUrl: "", name: "", role: "", linkedin: "" },
+                      journeyTitle: "המסע שלנו",
+                      timeline: [...(aboutConfig.timeline || [])],
+                      trustItems: (aboutConfig.trustItems || []).map((t) => ({ title: t.title, description: t.description, stat: t.stat ?? null, statLabel: t.statLabel ?? null, icon: t.icon })),
+                      journeyCtaText: aboutConfig.ctaText ?? "רוצים אתר כזה לעסק שלכם?",
+                      journeyCtaButton: aboutConfig.ctaButton ?? "בואו נדבר",
                     },
                     features: [
-                      { title: "עיצוב מותאם אישית", description: "התמונות שלך, הצבעים שלך, הסגנון שלך" },
-                      { title: "מערכת מיילים מקצועית", description: "שלחו אלפי מיילים בקלות ובמחיר נמוך" },
-                      { title: "מחיר שמנצח", description: "זול משמעותית מהמתחרים" },
+                      { title: "עיצוב מותאם אישית", description: "התמונות שלך, הצבעים שלך, הסגנון שלך", icon: "check" },
+                      { title: "מערכת מיילים מקצועית", description: "שלחו אלפי מיילים בקלות ובמחיר נמוך", icon: "mail" },
+                      { title: "מחיר שמנצח", description: "זול משמעותית מהמתחרים", icon: "currency" },
                     ],
-                    video: { videoId: "", customVideoUrl: "" },
+                    video: {
+                      videoId: "",
+                      customVideoUrl: "",
+                      badge: "צפו בסרטון",
+                      headline: "כך נראה התהליך",
+                      headlineHighlight: " מהתחלה ועד הסוף",
+                      subheadline: "מהרגע שאתם פונים אלינו ועד שהאתר עולה לאוויר—תהליך מקצועי, מהיר ושקוף",
+                      highlights: [
+                        { icon: "✨", text: "עיצוב מקצועי" },
+                        { icon: "⚡", text: "תהליך מהיר" },
+                        { icon: "🎯", text: "תוצאות מוכחות" },
+                      ],
+                      ctaText: "רוצים אתר כזה לעסק שלכם?",
+                      ctaButton: "דברו איתנו",
+                    },
                     faq: [
                       { question: "", answer: "" },
                       { question: "", answer: "" },
                       { question: "", answer: "" },
                     ],
+                    reviewsSection: { badge: reviewsConfig.badge, headline: reviewsConfig.headline, headlineHighlight: reviewsConfig.headlineHighlight ?? "", subheadline: reviewsConfig.subheadline, stats: [{ value: "150+", label: "לקוחות מרוצים" }, { value: "5.0", label: "דירוג ממוצע" }, { value: "98%", label: "ממליצים עלינו" }], reviews: [] },
+                    caseStudy: reviewsConfig.caseStudy
+                      ? { title: reviewsConfig.caseStudy.title, company: reviewsConfig.caseStudy.company, industry: reviewsConfig.caseStudy.industry, challenge: reviewsConfig.caseStudy.challenge, solution: reviewsConfig.caseStudy.solution, quote: reviewsConfig.caseStudy.quote, author: reviewsConfig.caseStudy.author, image: reviewsConfig.caseStudy.image ?? "", results: [...(reviewsConfig.caseStudy.results || [])], ctaText: reviewsConfig.caseStudy.ctaText ?? "" }
+                      : { title: "לקוח לדוגמה", company: "", industry: "", challenge: "", solution: "", quote: "", author: "", image: "", results: [{ metric: "300%", label: "יותר פניות" }, { metric: "40%", label: "חיסכון בעלויות" }, { metric: "1.2 שנ'", label: "טעינת עמוד" }], ctaText: "רוצים תוצאות דומות?" },
+                    howItWorks: { badge: howItWorksConfig.badge, headline: howItWorksConfig.headline, headlineHighlight: howItWorksConfig.headlineHighlight ?? "", subheadline: howItWorksConfig.subheadline, steps: (howItWorksConfig.steps || []).map((s) => ({ id: s.id, title: s.title, description: s.description, duration: s.duration, highlight: s.highlight ?? "", icon: s.icon })), ctaText: howItWorksConfig.ctaText ?? "", ctaHighlight: howItWorksConfig.ctaHighlight ?? "", ctaButton: howItWorksConfig.ctaButton ?? "", ctaButtonUrl: (howItWorksConfig as { ctaButtonUrl?: string }).ctaButtonUrl ?? "/client" },
                     footer: {
                       phone: "",
                       email: "",
@@ -1759,6 +2436,8 @@ export function LeadForm({ buildPage = false }: { buildPage?: boolean }) {
           <SectionLiveEditPanel
             currentStep={currentStep}
             sections={sections}
+            previewPhotoUrls={uploadPreviewPhotoUrls}
+            previewVideoUrl={uploadPreviewVideoUrl}
             className="md:hidden w-full order-3 mt-6"
             mobile
           />

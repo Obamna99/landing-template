@@ -349,21 +349,81 @@
 .site-theme-dark.dark [class*="bg-slate-50"] {
   background-color: var(--background);
 }
+/* Cards that use light gradients (from-slate-50 to-white) – solid dark card in dark mode for readable text */
+.site-theme-dark.dark [class*="from-slate-50"][class*="to-white"] {
+  background-color: var(--card) !important;
+  background-image: none !important;
+}
 .site-theme-dark.dark .text-slate-900,
 .site-theme-dark.dark .text-slate-800,
 .site-theme-dark.dark .text-slate-700,
 .site-theme-dark.dark .text-slate-600 {
   color: var(--foreground);
 }
+/* Muted text: brighter in dark mode so it stays readable on dark cards */
 .site-theme-dark.dark .text-slate-500 {
-  color: var(--muted-foreground);
+  color: oklch(0.78 0.01 250);
 }
 .site-theme-dark.dark .border-slate-200,
 .site-theme-dark.dark .border-slate-100 {
   border-color: var(--border);
 }
+/* Teal accent text on dark (e.g. "הכל בחבילה אחת") */
+.site-theme-dark.dark .text-teal-600 {
+  color: oklch(0.65 0.14 195);
+}
 .site-theme-dark.dark .hero-interactive-bg {
   background: linear-gradient(135deg, oklch(0.15 0.02 250) 0%, oklch(0.14 0.02 195) 50%, oklch(0.16 0.015 250) 100%);
+}
+
+/* Softer text in dark mode – less glare, better readability */
+.site-theme-dark.dark .hero-headline {
+  color: #f1f5f9 !important;
+}
+.site-theme-dark.dark .hero-subheadline {
+  color: #cbd5e1 !important;
+}
+.site-theme-dark.dark .hero-trust,
+.site-theme-dark.dark .hero .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+.site-theme-dark.dark .hero-cta-note,
+.site-theme-dark.dark .hero .text-slate-500 {
+  color: #94a3b8 !important;
+}
+.site-theme-dark.dark .hero-value-card .text-slate-900,
+.site-theme-dark.dark .hero-value-card h2 {
+  color: #e2e8f0 !important;
+}
+.site-theme-dark.dark .hero-value-card .text-slate-600,
+.site-theme-dark.dark .hero-value-card .text-teal-600 {
+  color: #94a3b8 !important;
+}
+.site-theme-dark.dark .how-it-works-card .text-slate-900,
+.site-theme-dark.dark .how-it-works-card h3 {
+  color: #e2e8f0 !important;
+}
+.site-theme-dark.dark .how-it-works-card .text-slate-600,
+.site-theme-dark.dark .how-it-works-card p {
+  color: #94a3b8 !important;
+}
+.site-theme-dark.dark .how-it-works-card .text-slate-500 {
+  color: #64748b !important;
+}
+.site-theme-dark.dark .how-it-works-title {
+  color: #f1f5f9 !important;
+}
+.site-theme-dark.dark .how-it-works-subtitle {
+  color: #cbd5e1 !important;
+}
+
+/* Footer: always light text on dark background for readability */
+.site-theme-dark.dark footer .footer-brand-name {
+  color: #fff !important;
+}
+.site-theme-dark.dark footer .footer-brand-tagline,
+.site-theme-dark.dark footer .footer-description {
+  color: #cbd5e1 !important;
 }
 
 /* Calm, easy animations for simple buttons – add .btn-calm where desired */

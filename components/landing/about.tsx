@@ -29,6 +29,11 @@ export type AboutOverride = {
   headlineHighlight?: string
   subheadline?: string
   founder?: { quote?: string; imageUrl?: string; name?: string; role?: string; linkedin?: string }
+  journeyTitle?: string
+  timeline?: Array<{ year: string; text: string }>
+  trustItems?: Array<{ title: string; description: string; stat?: string | null; statLabel?: string | null; icon: string }>
+  journeyCtaText?: string
+  journeyCtaButton?: string
 }
 
 export function About({ override }: { override?: AboutOverride }) {
@@ -40,8 +45,14 @@ export function About({ override }: { override?: AboutOverride }) {
   const founder = override?.founder
     ? { ...aboutConfig.founder, ...override.founder }
     : aboutConfig.founder
-  const founderImage = founder.image ?? (founder as { imageUrl?: string }).imageUrl ?? aboutConfig.founder.image
+  // Prefer user-provided imageUrl (e.g. upload preview) over config default image
+  const founderImage = (founder as { imageUrl?: string }).imageUrl ?? founder.image ?? aboutConfig.founder.image
   const founderName = founder.name ?? aboutConfig.founder.name
+  const journeyTitle = override?.journeyTitle?.trim() || "המסע שלנו"
+  const timeline = override?.timeline?.length ? override.timeline : aboutConfig.timeline
+  const trustItems = override?.trustItems?.length ? override.trustItems : aboutConfig.trustItems
+  const journeyCtaText = override?.journeyCtaText?.trim() || aboutConfig.ctaText
+  const journeyCtaButton = override?.journeyCtaButton?.trim() || aboutConfig.ctaButton
 
   return (
     <section
@@ -151,7 +162,7 @@ export function About({ override }: { override?: AboutOverride }) {
               transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
               className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 text-center mb-6 sm:mb-8"
             >
-              המסע שלנו
+              {journeyTitle}
             </motion.h3>
             
             {/* Desktop Timeline */}
@@ -160,7 +171,7 @@ export function About({ override }: { override?: AboutOverride }) {
                 <div className="absolute top-6 left-4 right-4 lg:left-8 lg:right-8 h-0.5 bg-gradient-to-l from-teal-500 via-teal-300 to-amber-400" />
                 
                 <div className="grid grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-                  {aboutConfig.timeline.map((milestone, index) => (
+                  {timeline.map((milestone, index) => (
                     <motion.div
                       key={milestone.year}
                       initial={{ opacity: 0, y: 24, scale: 0.96 }}
@@ -182,7 +193,7 @@ export function About({ override }: { override?: AboutOverride }) {
             
             {/* Mobile Timeline */}
             <div className="sm:hidden space-y-4">
-              {aboutConfig.timeline.map((milestone, index) => (
+              {timeline.map((milestone, index) => (
                 <motion.div
                   key={milestone.year}
                   initial={{ opacity: 0, x: index % 2 === 0 ? -24 : 24, scale: 0.96 }}
@@ -202,7 +213,7 @@ export function About({ override }: { override?: AboutOverride }) {
 
           {/* Trust Items */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            {aboutConfig.trustItems.map((item, index) => (
+            {trustItems.map((item, index) => (
               <motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 28, scale: 0.96 }}
@@ -242,7 +253,7 @@ export function About({ override }: { override?: AboutOverride }) {
             className="mt-12 sm:mt-16 text-center"
           >
             <p className="text-lg text-slate-600 mb-4">
-              {aboutConfig.ctaText}
+              {journeyCtaText}
             </p>
             <motion.button
               onClick={() => { window.location.href = "/client" }}
@@ -250,7 +261,7 @@ export function About({ override }: { override?: AboutOverride }) {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
             >
-              <span>{aboutConfig.ctaButton}</span>
+              <span>{journeyCtaButton}</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>

@@ -12,7 +12,7 @@ const titleVariants = {
 export function BuildForm() {
   return (
     <motion.div
-      className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
+      className="w-full px-4 md:px-4 lg:px-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35 }}

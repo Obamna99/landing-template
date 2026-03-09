@@ -6,14 +6,45 @@ import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useToast } from "@/hooks/use-toast"
 import { siteConfig, headerConfig } from "@/lib/config"
-import { getDefaultWhatsAppUrl } from "@/lib/utils/whatsapp"
+import { getWhatsAppUrl, getDefaultWhatsAppUrl } from "@/lib/utils/whatsapp"
 
-export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
+export type HeaderOverride = {
+  name?: string
+  logoText?: string
+  logoUrl?: string
+  tagline?: string
+  navLinks?: Array<{ id: string; label: string }>
+  ctaButton?: string
+  phone?: string
+  whatsapp?: string
+}
+
+export function Header({
+  hideBranding = false,
+  override,
+  preview = false,
+}: {
+  hideBranding?: boolean
+  override?: HeaderOverride | null
+  preview?: boolean
+}) {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [activeLink, setActiveLink] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { toast } = useToast()
+
+  const name = (override?.name !== undefined && override?.name !== "") ? override.name : siteConfig.name
+  const logoText = (override?.logoText !== undefined && override?.logoText !== "") ? override.logoText : siteConfig.branding.logoText
+  const logoUrl = override?.logoUrl
+  const tagline = override?.tagline !== undefined ? override.tagline : siteConfig.tagline
+  const navLinks = (override?.navLinks?.length ? override.navLinks : headerConfig.navLinks) as Array<{ id: string; label: string }>
+  const ctaButton = (override?.ctaButton !== undefined && override?.ctaButton !== "") ? override.ctaButton : headerConfig.ctaButton
+  const phone = (override?.phone !== undefined ? override.phone : siteConfig.contact.phone) || ""
+  const whatsappNumber = (override?.whatsapp !== undefined && override?.whatsapp !== "")
+    ? override.whatsapp
+    : (phone ? "972" + phone.replace(/^0/, "").replace(/\D/g, "") : siteConfig.contact.whatsapp)
+  const whatsappUrl = whatsappNumber ? getWhatsAppUrl(whatsappNumber) : getDefaultWhatsAppUrl()
 
   const handleLogoClick = (e: React.MouseEvent) => {
     if (pathname === "/") {
@@ -60,15 +91,14 @@ export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
     window.location.href = "/client"
   }
 
-  const phoneHref = `tel:${siteConfig.contact.phone.replace(/[^0-9+]/g, '')}`
-  const whatsappUrl = getDefaultWhatsAppUrl()
+  const phoneHref = `tel:${(phone || "0").replace(/[^0-9+]/g, "") || "0"}`
 
   return (
     <motion.header
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`${preview ? "relative z-0" : "fixed top-0 left-0 right-0 z-50"} transition-all duration-300 ${
         scrolled
           ? "bg-white/90 backdrop-blur-xl shadow-sm border-b border-slate-200/50"
           : "bg-transparent"
@@ -83,16 +113,20 @@ export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              {/* Logo Mark */}
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
-                <span className="text-white font-bold text-lg">{siteConfig.branding.logoText}</span>
+              {/* Logo Mark: image if logoUrl, else letter */}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/20 overflow-hidden">
+                {logoUrl ? (
+                  <img src={logoUrl} alt="" className="w-full h-full object-contain p-0.5" />
+                ) : (
+                  <span className="text-white font-bold text-lg">{logoText || "M"}</span>
+                )}
               </div>
               <div>
                 <span className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight block">
-                  {siteConfig.name}
+                  {name || siteConfig.name}
                 </span>
-                {!hideBranding && (
-                  <span className="text-xs text-slate-500 hidden sm:block">{siteConfig.tagline}</span>
+                {!hideBranding && tagline && (
+                  <span className="text-xs text-slate-500 hidden sm:block">{tagline}</span>
                 )}
               </div>
             </motion.div>
@@ -100,7 +134,7 @@ export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
 
           {/* Desktop Navigation - Center */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2 shrink-0">
-            {headerConfig.navLinks.map((link) => (
+            {navLinks.map((link) => (
               <motion.button
                 key={link.id}
                 onClick={() => handleNavClick(link.id)}
@@ -128,7 +162,7 @@ export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
-              <span>{siteConfig.contact.phone}</span>
+              <span>{phone || siteConfig.contact.phone}</span>
             </a>
 
             {/* WhatsApp */}
@@ -150,7 +184,7 @@ export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
             >
-              {headerConfig.ctaButton}
+              {ctaButton}
             </motion.button>
           </div>
 
@@ -197,7 +231,7 @@ export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
               className="md:hidden overflow-hidden border-t border-slate-200/50 bg-white/95 backdrop-blur-xl"
             >
               <nav className="flex flex-col py-4 space-y-1 px-2">
-                {headerConfig.navLinks.map((link) => (
+                {navLinks.map((link) => (
                   <button
                     key={link.id}
                     onClick={() => handleNavClick(link.id)}
@@ -215,7 +249,7 @@ export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
-                  {siteConfig.contact.phone}
+                  {phone || siteConfig.contact.phone}
                 </a>
 
                 {/* WhatsApp in mobile */}
@@ -236,7 +270,7 @@ export function Header({ hideBranding = false }: { hideBranding?: boolean }) {
                   className="mx-4 mt-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white px-6 py-3.5 rounded-xl font-bold text-sm shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 min-h-[48px]"
                   whileTap={{ scale: 0.98 }}
                 >
-                  {headerConfig.ctaButton}
+                  {ctaButton}
                 </motion.button>
               </nav>
             </motion.div>

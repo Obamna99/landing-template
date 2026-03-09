@@ -102,6 +102,7 @@ export const howItWorksConfig = {
   ctaText: "שיחת היכרות",
   ctaHighlight: " ללא עלות",
   ctaButton: "בואו נדבר",
+  ctaButtonUrl: "/client",
   steps: [
     {
       id: 1,
@@ -217,7 +218,7 @@ export const reviewsConfig = {
     image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&h=400&fit=crop",
     results: [
       { metric: "300%", label: "יותר פניות" },
-      { metric: "משמעותי", label: "חיסכון" },
+      { metric: "40%", label: "חיסכון בעלויות" },
       { metric: "1.2 שנ'", label: "טעינת עמוד" },
     ],
     ctaText: "רוצים תוצאות דומות?",

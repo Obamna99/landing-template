@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react"
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useInView } from "framer-motion"
 import { siteConfig, heroConfig } from "@/lib/config"
+import { getFeatureIcon } from "@/lib/icon-options"
 
 // Animated counter component - optimized
 function AnimatedCounter({ target, suffix = "", duration = 1500 }: { target: number; suffix?: string; duration?: number }) {
@@ -46,7 +47,11 @@ export type HeroOverride = {
   headlineLine1?: string
   highlight?: string
   subheadline?: string
-  features?: Array<{ title: string; description: string }>
+  features?: Array<{ title: string; description: string; icon?: string }>
+  ctaPrimaryText?: string
+  ctaSecondaryText?: string
+  ctaNote?: string
+  trustText?: string
 }
 
 export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { override?: HeroOverride; hideStats?: boolean; onPrimaryCTAClick?: () => void }) {
@@ -143,6 +148,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
           <motion.div
             key={blob.id}
             className="absolute rounded-full blur-3xl will-change-transform animate-blob"
+            data-theme-blob={blob.hue === 195 ? "primary" : "secondary"}
             style={{
               width: blob.size,
               height: blob.size,
@@ -176,7 +182,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
           transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1], delay: 0.08 }}
           className="text-center mb-6 sm:mb-8"
         >
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-4 sm:mb-6 leading-[1.1] tracking-tight">
+          <h1 className="hero-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-4 sm:mb-6 leading-[1.1] tracking-tight">
             {headlineLine1}
             <br />
             <span className="relative inline-block">
@@ -203,7 +209,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
             initial={{ opacity: 0, filter: "blur(8px)", y: 10 }}
             animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
-            className="text-lg sm:text-xl md:text-2xl text-slate-600 font-light max-w-3xl mx-auto px-4 leading-relaxed"
+            className="hero-subheadline text-lg sm:text-xl md:text-2xl text-slate-600 font-light max-w-3xl mx-auto px-4 leading-relaxed"
           >
             {subheadline}
           </motion.p>
@@ -242,8 +248,8 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
                       </svg>
                     ))}
                   </div>
-                  <span className="text-[10px] sm:text-xs font-medium text-slate-700">
-                    {heroConfig.trustText}
+                  <span className="hero-trust text-[10px] sm:text-xs font-medium text-slate-700">
+                    {override?.trustText ?? heroConfig.trustText}
                   </span>
                 </div>
               </div>
@@ -280,7 +286,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
           initial={{ opacity: 0, y: 32 }}
           animate={valueCardInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
           transition={{ duration: 0.55, ease: [0.22, 0.61, 0.36, 1] }}
-          className="relative z-0 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/60 p-6 sm:p-8 md:p-10 mb-8 sm:mb-10 overflow-hidden"
+          className="hero-value-card relative z-0 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/60 p-6 sm:p-8 md:p-10 mb-8 sm:mb-10 overflow-hidden"
         >
           <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-teal-500/10 to-transparent rounded-br-full" />
           <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-amber-500/10 to-transparent rounded-tl-full" />
@@ -299,18 +305,14 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               {(() => {
                 const defaultFeatures = [
-                  { title: "עיצוב מותאם אישית", description: "התמונות שלך, הצבעים שלך, הסגנון שלך" },
-                  { title: "מערכת מיילים מקצועית", description: "שלחו אלפי מיילים בקלות ובמחיר נמוך" },
-                  { title: "מחיר שמנצח", description: "זול משמעותית מהמתחרים" },
+                  { title: "עיצוב מותאם אישית", description: "התמונות שלך, הצבעים שלך, הסגנון שלך", icon: "check" },
+                  { title: "מערכת מיילים מקצועית", description: "שלחו אלפי מיילים בקלות ובמחיר נמוך", icon: "mail" },
+                  { title: "מחיר שמנצח", description: "זול משמעותית מהמתחרים", icon: "currency" },
                 ]
                 const features = (override?.features && override.features.length >= 3)
-                  ? override.features.slice(0, 3)
+                  ? override.features.slice(0, 3).map((f, i) => ({ ...defaultFeatures[i], ...f }))
                   : defaultFeatures
-                const icons = [
-                  <svg key="0" className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-                  <svg key="1" className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
-                  <svg key="2" className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-                ]
+                const defaultIconKeys = ["check", "mail", "currency"] as const
                 return features.map((feature, index) => (
                 <motion.div
                   key={feature.title}
@@ -320,8 +322,8 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
                   className="flex flex-col items-center text-center p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 shadow-sm hover:shadow-lg transition-shadow"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center mb-3 shadow-lg shadow-teal-500/20">
-                    {icons[index] ?? icons[0]}
+                  <div className={`w-12 h-12 rounded-xl text-white flex items-center justify-center mb-3 shadow-lg ${index === 1 ? "bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-500/20" : "bg-gradient-to-br from-teal-500 to-teal-600 shadow-teal-500/20"}`}>
+                    {getFeatureIcon(feature.icon, "w-6 h-6") ?? getFeatureIcon(defaultIconKeys[index], "w-6 h-6")}
                   </div>
                   <h3 className="font-bold text-slate-900 mb-1">{feature.title}</h3>
                   <p className="text-sm text-slate-600">{feature.description}</p>
@@ -356,7 +358,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
             >
               <span className="absolute inset-0 bg-gradient-to-r from-teal-600 via-teal-500 to-amber-500/90 opacity-95 group-hover:opacity-100 transition-opacity" />
               <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 ease-out" />
-              <span className="relative z-10 drop-shadow-sm">{heroConfig.cta.primary.text}</span>
+              <span className="relative z-10 drop-shadow-sm">{override?.ctaPrimaryText ?? heroConfig.cta.primary.text}</span>
             </motion.button>
             
             <motion.button
@@ -365,7 +367,7 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span>{heroConfig.cta.secondary.text}</span>
+              <span>{override?.ctaSecondaryText ?? heroConfig.cta.secondary.text}</span>
               <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
@@ -377,12 +379,12 @@ export function Hero({ override, hideStats = false, onPrimaryCTAClick }: { overr
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.25, delay: 0.2 }}
-            className="mt-6 text-sm text-slate-500 flex items-center justify-center gap-2"
+            className="hero-cta-note mt-6 text-sm text-slate-500 flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            שיחה קצרה ללא עלות
+            {override?.ctaNote ?? "שיחה קצרה ללא עלות"}
           </motion.p>
         </motion.div>
       </div>

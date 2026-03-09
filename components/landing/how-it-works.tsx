@@ -28,13 +28,48 @@ const iconMap: Record<string, ReactNode> = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
     </svg>
   ),
+  rocket: (
+    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41" />
+    </svg>
+  ),
 }
 
-export function HowItWorks() {
+export type HowItWorksStep = {
+  id: number
+  title: string
+  description: string
+  duration: string
+  highlight?: string | null
+  icon: string
+}
+
+export type HowItWorksOverride = {
+  badge?: string
+  headline?: string
+  headlineHighlight?: string
+  subheadline?: string
+  steps?: HowItWorksStep[]
+  ctaText?: string
+  ctaHighlight?: string
+  ctaButton?: string
+  ctaButtonUrl?: string
+}
+
+export function HowItWorks({ override }: { override?: HowItWorksOverride } = {}) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
-  const steps = howItWorksConfig.steps
+  const badge = override?.badge ?? howItWorksConfig.badge
+  const headline = override?.headline ?? howItWorksConfig.headline
+  const headlineHighlight = override?.headlineHighlight ?? howItWorksConfig.headlineHighlight
+  const subheadline = override?.subheadline ?? howItWorksConfig.subheadline
+  const steps = (override?.steps?.length ? override.steps : howItWorksConfig.steps) as HowItWorksStep[]
+  const ctaText = override?.ctaText ?? howItWorksConfig.ctaText
+  const ctaHighlight = override?.ctaHighlight ?? howItWorksConfig.ctaHighlight
+  const ctaButton = override?.ctaButton ?? howItWorksConfig.ctaButton
+  const ctaButtonUrl = (override?.ctaButtonUrl?.trim() || (howItWorksConfig as { ctaButtonUrl?: string }).ctaButtonUrl?.trim()) || "/client"
+  const totalSteps = steps.length
 
   return (
     <section
@@ -61,14 +96,14 @@ export function HowItWorks() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="inline-block text-teal-600 font-semibold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3"
           >
-            {howItWorksConfig.badge}
+            {badge}
           </motion.span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-900 mb-3 sm:mb-4">
-            {howItWorksConfig.headline}
-            <span className="gradient-text">{howItWorksConfig.headlineHighlight}</span>
+          <h2 className="how-it-works-title text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-900 mb-3 sm:mb-4">
+            {headline}
+            <span className="gradient-text">{headlineHighlight}</span>
           </h2>
-          <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto px-4">
-            {howItWorksConfig.subheadline}
+          <p className="how-it-works-subtitle text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto px-4">
+            {subheadline}
           </p>
         </motion.div>
 
@@ -87,17 +122,17 @@ export function HowItWorks() {
                   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -30 }}
                   transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                  className="bg-white rounded-2xl p-5 shadow-lg border border-slate-100 hover:shadow-xl transition-shadow duration-300 group"
+                  className="how-it-works-card relative z-10 overflow-hidden bg-white rounded-2xl p-5 shadow-lg border border-slate-100 hover:shadow-xl transition-shadow duration-300 group"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                    <div className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
                       {iconMap[step.icon] || iconMap.chat}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-bold text-teal-600 uppercase tracking-wider">שלב {step.id}</span>
+                        <span className="inline-block bg-slate-200/90 text-slate-800 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">שלב {step.id}/{totalSteps}</span>
                         {step.highlight && (
-                          <span className="inline-block bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{step.highlight}</span>
+                          <span className="inline-block bg-amber-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full">{step.highlight}</span>
                         )}
                       </div>
                     </div>
@@ -116,7 +151,7 @@ export function HowItWorks() {
           </div>
 
           {/* Row 2: Timeline with connectors and dots */}
-          <div className="relative h-16 my-2">
+          <div className="relative z-0 h-16 my-2">
             {/* Horizontal line */}
             <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-l from-teal-500 via-teal-300 to-amber-400 rounded-full -translate-y-1/2" />
             
@@ -150,17 +185,17 @@ export function HowItWorks() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                   transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-                  className="bg-white rounded-2xl p-5 shadow-lg border border-slate-100 hover:shadow-xl transition-all duration-300 group"
+                  className="how-it-works-card relative z-10 overflow-hidden bg-white rounded-2xl p-5 shadow-lg border border-slate-100 hover:shadow-xl transition-all duration-300 group"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                    <div className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
                       {iconMap[step.icon] || iconMap.chat}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-bold text-teal-600 uppercase tracking-wider">שלב {step.id}</span>
+                        <span className="inline-block bg-slate-200/90 text-slate-800 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">שלב {step.id}/{totalSteps}</span>
                         {step.highlight && (
-                          <span className="inline-block bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{step.highlight}</span>
+                          <span className="inline-block bg-amber-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full">{step.highlight}</span>
                         )}
                       </div>
                     </div>
@@ -191,18 +226,18 @@ export function HowItWorks() {
                 transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
                 className="flex-shrink-0 w-[280px] snap-center"
               >
-                <div className="bg-white rounded-xl p-5 shadow-lg border border-slate-100 h-full">
+                <div className="how-it-works-card bg-white rounded-xl p-5 shadow-lg border border-slate-100 h-full">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center shadow-md flex-shrink-0">
                       {iconMap[step.icon] || iconMap.chat}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-bold text-teal-600 uppercase tracking-wider">
-                          שלב {step.id}
+                        <span className="inline-block bg-slate-200/90 text-slate-800 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">
+                          שלב {step.id}/{totalSteps}
                         </span>
                         {step.highlight && (
-                          <span className="inline-block bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          <span className="inline-block bg-amber-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
                             {step.highlight}
                           </span>
                         )}
@@ -243,7 +278,7 @@ export function HowItWorks() {
                   <div className="absolute top-14 right-5.5 w-0.5 h-[calc(100%+0.75rem)] bg-gradient-to-b from-teal-300 to-teal-100" />
                 )}
                 
-                <div className="bg-white rounded-xl p-4 shadow-md border border-slate-100 relative">
+                <div className="how-it-works-card bg-white rounded-xl p-4 shadow-md border border-slate-100 relative">
                   <div className="flex gap-3">
                     <div className="flex-shrink-0">
                       <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center shadow-md">
@@ -253,11 +288,11 @@ export function HowItWorks() {
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="text-[10px] font-bold text-teal-600 uppercase tracking-wider">
-                          שלב {step.id}
+                        <span className="inline-block bg-slate-200/90 text-slate-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                          שלב {step.id}/{totalSteps}
                         </span>
                         {step.highlight && (
-                          <span className="inline-block bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                          <span className="inline-block bg-amber-100 text-slate-800 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
                             {step.highlight}
                           </span>
                         )}
@@ -292,20 +327,22 @@ export function HowItWorks() {
           className="mt-8 sm:mt-12 lg:mt-16 text-center"
         >
           <p className="text-sm sm:text-base lg:text-lg text-slate-600 mb-3 sm:mb-4">
-            {howItWorksConfig.ctaText}
-            <span className="font-semibold text-teal-600">{howItWorksConfig.ctaHighlight}</span>
+            {ctaText}
+            <span className="font-semibold text-teal-600">{ctaHighlight}</span>
           </p>
-          <motion.button
-            onClick={() => { window.location.href = "/client" }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg shadow-lg shadow-teal-500/20 hover:shadow-xl transition-all duration-300 active:scale-95"
+          <motion.a
+            href={ctaButtonUrl}
+            target={ctaButtonUrl.startsWith("http") ? "_blank" : undefined}
+            rel={ctaButtonUrl.startsWith("http") ? "noopener noreferrer" : undefined}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg shadow-lg shadow-teal-500/20 hover:shadow-xl transition-all duration-300 active:scale-95 no-underline"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <span>{howItWorksConfig.ctaButton}</span>
+            <span>{ctaButton}</span>
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-          </motion.button>
+          </motion.a>
         </motion.div>
       </div>
     </section>

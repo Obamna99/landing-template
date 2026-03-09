@@ -19,17 +19,18 @@ export type FooterOverride = {
 
 export function Footer({ override }: { override?: FooterOverride }) {
   const currentYear = new Date().getFullYear()
-  const phone = override?.phone ?? siteConfig.contact.phone
-  const email = override?.email ?? siteConfig.contact.email
-  const address = override?.address ?? siteConfig.contact.address
-  const whatsappNum = override?.social?.whatsapp ?? siteConfig.contact.whatsapp
+  // When override is provided (e.g. from build preview), use its values even if empty so the preview updates live
+  const phone = override && "phone" in override ? override.phone ?? "" : siteConfig.contact.phone
+  const email = override && "email" in override ? override.email ?? "" : siteConfig.contact.email
+  const address = override && "address" in override ? override.address ?? "" : siteConfig.contact.address
+  const whatsappNum = override?.social && "whatsapp" in override.social ? (override.social.whatsapp ?? "") : siteConfig.contact.whatsapp
   const whatsappUrl = `https://wa.me/${whatsappNum}`
-  const phoneHref = `tel:${phone.replace(/[^0-9+]/g, '')}`
+  const phoneHref = `tel:${(phone || "0").replace(/[^0-9+]/g, "")}`
   const emailHref = `mailto:${email}`
-  const description = override?.description ?? footerConfig.description
-  const copyrightText = override?.copyright ?? footerConfig.copyright.replace('{{year}}', currentYear.toString()).replace('{{name}}', siteConfig.name)
-  const hoursWeekdays = override?.hoursWeekdays ?? "א'-ה': 09:00-18:00"
-  const hoursFriday = override?.hoursFriday ?? "ו': 09:00-13:00"
+  const description = override && "description" in override ? override.description ?? "" : footerConfig.description
+  const copyrightText = override && "copyright" in override ? (override.copyright ?? "").replace("{{year}}", currentYear.toString()).replace("{{name}}", siteConfig.name) : footerConfig.copyright.replace("{{year}}", currentYear.toString()).replace("{{name}}", siteConfig.name)
+  const hoursWeekdays = override && "hoursWeekdays" in override ? override.hoursWeekdays ?? "" : "א'-ה': 09:00-18:00"
+  const hoursFriday = override && "hoursFriday" in override ? override.hoursFriday ?? "" : "ו': 09:00-13:00"
   const quickLinksList = override?.quickLinks && override.quickLinks.length > 0 ? override.quickLinks : footerConfig.quickLinks
   const legalLinksList = [
     ...(override?.termsUrl ? [{ label: "תנאי שימוש", href: override.termsUrl }] : []),
@@ -91,15 +92,15 @@ export function Footer({ override }: { override?: FooterOverride }) {
           {/* Business Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
+              <div className="footer-logo-badge w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-xl">{siteConfig.branding.logoText}</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">{siteConfig.name}</h3>
-                <p className="text-sm text-slate-400">{siteConfig.tagline}</p>
+                <h3 className="footer-brand-name text-xl font-bold text-white">{siteConfig.name}</h3>
+                <p className="footer-brand-tagline text-sm text-slate-400">{siteConfig.tagline}</p>
               </div>
             </div>
-            <p className="text-slate-400 leading-relaxed max-w-md mb-6">
+            <p className="footer-description text-slate-400 leading-relaxed max-w-md mb-6">
               {description}
             </p>
             
@@ -111,7 +112,7 @@ export function Footer({ override }: { override?: FooterOverride }) {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-teal-600 flex items-center justify-center transition-colors text-slate-400 hover:text-white"
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors text-slate-400 hover:text-white ${social.name === "WhatsApp" ? "footer-whatsapp-icon bg-slate-800 hover:bg-teal-600" : "bg-slate-800 hover:bg-teal-600"}`}
                   aria-label={social.name}
                 >
                   {social.icon}

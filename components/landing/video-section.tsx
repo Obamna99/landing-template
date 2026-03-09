@@ -3,8 +3,19 @@
 import { useState, useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { videoConfig } from "@/lib/config"
+import { getFeatureIcon, isIconKey } from "@/lib/icon-options"
 
-export type VideoOverride = { videoId?: string; customVideoUrl?: string }
+export type VideoOverride = {
+  videoId?: string
+  customVideoUrl?: string
+  badge?: string
+  headline?: string
+  headlineHighlight?: string
+  subheadline?: string
+  highlights?: Array<{ icon: string; text: string }>
+  ctaText?: string
+  ctaButton?: string
+}
 
 export function VideoSection({ override }: { override?: VideoOverride }) {
   const ref = useRef(null)
@@ -12,6 +23,13 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
   const [isPlaying, setIsPlaying] = useState(false)
   const videoId = override?.videoId?.trim() || videoConfig.videoId
   const customVideoUrl = override?.customVideoUrl?.trim() || videoConfig.customVideoUrl
+  const badge = override?.badge?.trim() || videoConfig.badge
+  const headline = override?.headline?.trim() || videoConfig.headline
+  const headlineHighlight = override?.headlineHighlight?.trim() ?? videoConfig.headlineHighlight
+  const subheadline = override?.subheadline?.trim() || videoConfig.subheadline
+  const highlights = override?.highlights?.length ? override.highlights : videoConfig.highlights
+  const ctaText = override?.ctaText?.trim() || "רוצים אתר כזה לעסק שלכם?"
+  const ctaButton = override?.ctaButton?.trim() || "דברו איתנו"
   const effectiveConfig = { ...videoConfig, videoId, customVideoUrl }
 
   // Generate the correct embed URL based on provider
@@ -71,7 +89,7 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
               transition={{ duration: 0.45, delay: 0.08 }}
               className="inline-block text-teal-600 font-semibold text-sm uppercase tracking-wider mb-3"
             >
-              {videoConfig.badge}
+              {badge}
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, filter: "blur(8px)", y: 12 }}
@@ -79,8 +97,9 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
               transition={{ duration: 0.5, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
               className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4"
             >
-              {videoConfig.headline}
-              <span className="gradient-text">{videoConfig.headlineHighlight}</span>
+              {headline}
+              {headlineHighlight && " "}
+              <span className="gradient-text">{headlineHighlight}</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 8 }}
@@ -88,7 +107,7 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
               transition={{ duration: 0.4, delay: 0.2 }}
               className="text-lg text-slate-600 max-w-2xl mx-auto"
             >
-              {videoConfig.subheadline}
+              {subheadline}
             </motion.p>
           </div>
 
@@ -175,16 +194,18 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
             initial={false}
             className="mt-8 grid grid-cols-3 gap-4 max-w-2xl mx-auto"
           >
-            {videoConfig.highlights.map((item, i) => (
+            {highlights.map((item, i) => (
               <motion.div
-                key={item.text}
+                key={`${item.text}-${i}`}
                 initial={{ opacity: 0, y: 28, scale: 0.94 }}
                 animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 28, scale: 0.94 }}
                 transition={{ duration: 0.5, delay: 0.2 + i * 0.1, ease: [0.22, 0.61, 0.36, 1] }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 className="text-center p-4 rounded-xl bg-slate-50 border border-teal-100 hover:border-teal-200 hover:shadow-md transition-shadow"
               >
-                <span className="text-2xl block mb-1.5">{item.icon}</span>
+                <span className="flex justify-center items-center mb-1.5 min-h-[2rem]">
+                  {isIconKey(item.icon) ? getFeatureIcon(item.icon, "w-8 h-8 text-teal-600") : <span className="text-2xl">{item.icon}</span>}
+                </span>
                 <span className="text-sm text-slate-600 font-medium">{item.text}</span>
               </motion.div>
             ))}
@@ -198,14 +219,14 @@ export function VideoSection({ override }: { override?: VideoOverride }) {
             className="text-center mt-8"
           >
             <p className="text-slate-600 mb-4">
-              רוצים אתר כזה לעסק שלכם?
+              {ctaText}
             </p>
             <motion.button
               onClick={() => { window.location.href = "/client" }}
               className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 font-semibold transition-colors"
               whileHover={{ x: -4 }}
             >
-              <span>דברו איתנו</span>
+              <span>{ctaButton}</span>
               <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>

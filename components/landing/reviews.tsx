@@ -20,7 +20,38 @@ interface Review {
 // Featured case study from config
 const featuredCaseStudy = reviewsConfig.caseStudy
 
-// Default sample reviews to display when no database reviews exist
+export type CaseStudyOverride = {
+  title?: string
+  company?: string
+  industry?: string
+  challenge?: string
+  solution?: string
+  quote?: string
+  author?: string
+  image?: string
+  results?: Array<{ metric: string; label: string }>
+  ctaText?: string
+}
+
+export type ReviewsSectionOverride = {
+  badge?: string
+  headline?: string
+  headlineHighlight?: string
+  subheadline?: string
+  stats?: Array<{ value: string; label: string }>
+  reviews?: Array<{
+    name: string
+    role?: string | null
+    company?: string | null
+    content: string
+    rating: number
+    imageUrl?: string | null
+    result?: string | null
+    resultLabel?: string | null
+  }>
+}
+
+// Default sample reviews to display when no database reviews exist (with photos and optional logos)
 const sampleReviews: Review[] = [
   {
     id: "sample-1",
@@ -29,7 +60,7 @@ const sampleReviews: Review[] = [
     company: "סטודיו לעיצוב פנים",
     content: "האתר החדש שינה לנו את העסק. תוך שבועיים קיבלנו יותר פניות מאשר בחודשיים הקודמים. מקצועיות ברמה הגבוהה ביותר.",
     rating: 5,
-    imageUrl: null,
+    imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=face",
     result: "300%",
     resultLabel: "עלייה בפניות",
     featured: true,
@@ -41,7 +72,7 @@ const sampleReviews: Review[] = [
     company: "נדל״ן פלוס",
     content: "עבדתי עם הרבה חברות בניית אתרים, אבל הפעם הראשונה שקיבלתי בדיוק את מה שרציתי. מהירים, מקצועיים, ותוצאות מעולות.",
     rating: 5,
-    imageUrl: null,
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&h=96&fit=crop&crop=face",
     result: "150%",
     resultLabel: "יותר לידים",
     featured: false,
@@ -53,7 +84,7 @@ const sampleReviews: Review[] = [
     company: "קליניקת יופי",
     content: "השירות היה מצוין מההתחלה ועד הסוף. האתר נראה מדהים והלקוחות שלי לא מפסיקים לשבח. ממליצה בחום!",
     rating: 5,
-    imageUrl: null,
+    imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=96&h=96&fit=crop&crop=face",
     result: "200%",
     resultLabel: "עלייה בהזמנות",
     featured: false,
@@ -65,7 +96,7 @@ const sampleReviews: Review[] = [
     company: "מסעדת השף",
     content: "הם הבינו בדיוק מה אני צריך עוד לפני שהספקתי להסביר. האתר מושלם והחיסכון על המיילים משמעותי.",
     rating: 5,
-    imageUrl: null,
+    imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=96&h=96&fit=crop&crop=face",
     result: null,
     resultLabel: null,
     featured: false,
@@ -77,7 +108,7 @@ const sampleReviews: Review[] = [
     company: "חברת הייטק",
     content: "דף הנחיתה שקיבלנו עזר לנו להכפיל את ההמרות. התהליך היה חלק ומהיר, והתוצאה מדברת בעד עצמה.",
     rating: 5,
-    imageUrl: null,
+    imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=96&h=96&fit=crop&crop=face",
     result: "2X",
     resultLabel: "שיפור בהמרות",
     featured: false,
@@ -290,7 +321,7 @@ function MobileCarousel({ reviews }: { reviews: Review[] }) {
                       {review.name.charAt(0)}
                     </div>
                   )}
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-slate-900">{review.name}</h4>
                     <p className="text-sm text-slate-500">
                       {review.role}{review.company ? `, ${review.company}` : ""}
@@ -332,12 +363,45 @@ function MobileCarousel({ reviews }: { reviews: Review[] }) {
   )
 }
 
-export function Reviews() {
+export function Reviews({ override }: { override?: CaseStudyOverride & ReviewsSectionOverride } = {}) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const [reviews, setReviews] = useState<Review[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+
+  const badge = override?.badge ?? reviewsConfig.badge
+  const headline = override?.headline ?? reviewsConfig.headline
+  const headlineHighlight = override?.headlineHighlight ?? reviewsConfig.headlineHighlight
+  const subheadline = override?.subheadline ?? reviewsConfig.subheadline
+  const statsOverride = override?.stats && override.stats.length >= 3 ? override.stats.slice(0, 3) : null
+  const customReviews = override?.reviews?.length ? override.reviews.map((r, i) => ({
+    id: `custom-${i}`,
+    name: r.name,
+    role: r.role ?? null,
+    company: r.company ?? null,
+    content: r.content,
+    rating: Math.min(5, Math.max(1, r.rating)),
+    imageUrl: r.imageUrl ?? null,
+    result: r.result ?? null,
+    resultLabel: r.resultLabel ?? null,
+    featured: false,
+  })) : null
+
+  const caseStudy = override
+    ? {
+        title: override.title ?? featuredCaseStudy.title,
+        company: override.company ?? featuredCaseStudy.company,
+        industry: override.industry ?? featuredCaseStudy.industry,
+        challenge: override.challenge ?? featuredCaseStudy.challenge,
+        solution: override.solution ?? featuredCaseStudy.solution,
+        quote: override.quote ?? featuredCaseStudy.quote,
+        author: override.author ?? featuredCaseStudy.author,
+        image: override.image ?? featuredCaseStudy.image,
+        results: (override.results?.length ? override.results : featuredCaseStudy.results) as Array<{ metric: string; label: string }>,
+        ctaText: override.ctaText ?? featuredCaseStudy.ctaText,
+      }
+    : featuredCaseStudy
 
   // Check if mobile on mount
   useEffect(() => {
@@ -346,6 +410,17 @@ export function Reviews() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Enrich API reviews with sample photos/logos when missing so we always show people photos
+  function withFallbackPhotos(reviewsFromApi: Review[]): Review[] {
+    return reviewsFromApi.map((r, i) => {
+      const sample = sampleReviews[i % sampleReviews.length]
+      return {
+        ...r,
+        imageUrl: r.imageUrl || sample.imageUrl,
+      }
+    })
+  }
 
   // Fetch reviews from API, fallback to sample reviews
   useEffect(() => {
@@ -357,8 +432,8 @@ export function Reviews() {
         })
         if (response.ok) {
           const data = await response.json()
-          // Use sample reviews if no database reviews exist
-          setReviews(data.length > 0 ? data : sampleReviews)
+          // Use API reviews (enriched with sample photos when missing), or sample reviews if none
+          setReviews(data.length > 0 ? withFallbackPhotos(data) : sampleReviews)
         } else {
           // API not available, use sample reviews silently
           setReviews(sampleReviews)
@@ -373,12 +448,15 @@ export function Reviews() {
     fetchReviews()
   }, [])
 
-  // Use display reviews (with fallback stats)
-  const displayReviews = reviews.length > 0 ? reviews : sampleReviews
-  
-  // Fixed professional stats (not dependent on actual review count)
-  const avgRating = "5.0"
-  const clientCount = "150+"
+  // Use custom reviews from override, else API/sample
+  const displayReviews = customReviews ?? (reviews.length > 0 ? reviews : sampleReviews)
+
+  const defaultStats = [
+    { value: "150+", label: "לקוחות מרוצים" },
+    { value: "5.0", label: "דירוג ממוצע" },
+    { value: "98%", label: "ממליצים עלינו" },
+  ]
+  const trustStats = statsOverride ?? defaultStats
 
   return (
     <section
@@ -395,23 +473,19 @@ export function Reviews() {
           className="text-center"
         >
           <span className="inline-block text-teal-600 font-semibold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3">
-            {reviewsConfig.badge}
+            {badge}
           </span>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-900 mb-3 sm:mb-4">
-            {reviewsConfig.headline}
-            <span className="gradient-text">{reviewsConfig.headlineHighlight}</span>
+            {headline}
+            <span className="gradient-text">{headlineHighlight}</span>
           </h2>
           <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto">
-            {reviewsConfig.subheadline}
+            {subheadline}
           </p>
           
           {/* Trust Stats */}
           <div className="flex flex-wrap justify-center gap-4 sm:gap-8 lg:gap-10 mt-6 sm:mt-8">
-            {[
-              { value: clientCount, label: "לקוחות מרוצים" },
-              { value: avgRating, label: "דירוג ממוצע" },
-              { value: "98%", label: "ממליצים עלינו" },
-            ].map((stat, index) => (
+            {trustStats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -434,7 +508,7 @@ export function Reviews() {
         transition={{ duration: 0.6, delay: 0.3 }}
         className="mb-10 sm:mb-14 lg:mb-16"
       >
-        {isLoading ? (
+        {(isLoading && !customReviews) ? (
           <div className="flex justify-center py-8 sm:py-12">
             <div className="animate-spin w-6 h-6 sm:w-8 sm:h-8 border-3 sm:border-4 border-teal-500 border-t-transparent rounded-full"></div>
           </div>
@@ -461,7 +535,7 @@ export function Reviews() {
         >
           <div className="text-center mb-4 sm:mb-6">
             <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900">
-              {featuredCaseStudy.title}
+              {caseStudy.title}
             </h3>
           </div>
           
@@ -469,7 +543,7 @@ export function Reviews() {
             {/* Background Image Overlay */}
             <div className="absolute inset-0 opacity-20">
               <img
-                src={featuredCaseStudy.image}
+                src={caseStudy.image}
                 alt=""
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -477,18 +551,19 @@ export function Reviews() {
             </div>
             
             {/* Content */}
-            <div className="relative p-5 sm:p-8 lg:p-12 text-white">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-                {/* Left side - Story */}
-                <div>
-                  <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1 sm:px-4 sm:py-1.5 mb-3 sm:mb-4">
+            <div className="relative p-5 sm:p-8 lg:p-10 xl:p-12 text-white">
+              {/* Desktop: two columns side by side (story | stats row). Mobile: stacked. */}
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-10 xl:gap-12 items-start">
+                {/* Story block (challenge, solution, quote) */}
+                <div className="min-w-0 lg:max-w-[55%] xl:max-w-[52%]">
+                  <div className="inline-flex items-center gap-2 bg-slate-800/80 backdrop-blur-sm rounded-full px-3 py-1 sm:px-4 sm:py-1.5 mb-3 sm:mb-4 border border-white/10">
                     <span className="text-[10px] sm:text-xs font-medium text-teal-300">תיק עבודות</span>
-                    <span className="text-[10px] sm:text-xs text-white/60">|</span>
-                    <span className="text-[10px] sm:text-xs text-white/80">{featuredCaseStudy.industry}</span>
+                    <span className="text-[10px] sm:text-xs text-slate-400">|</span>
+                    <span className="text-[10px] sm:text-xs text-slate-200">{caseStudy.industry}</span>
                   </div>
                   
-                  <h4 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4">
-                    {featuredCaseStudy.company}
+                  <h4 className="text-lg sm:text-xl lg:text-xl font-bold text-white mb-3 sm:mb-4 whitespace-nowrap">
+                    {caseStudy.company}
                   </h4>
                   
                   <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
@@ -498,9 +573,9 @@ export function Reviews() {
                           <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                       </div>
-                      <div className="text-sm sm:text-base">
-                        <span className="text-white/60">האתגר: </span>
-                        <span className="text-white/90">{featuredCaseStudy.challenge}</span>
+                      <div className="text-xs sm:text-sm min-w-0 lg:whitespace-nowrap">
+                        <span className="text-slate-400">האתגר: </span>
+                        <span className="text-slate-100">{caseStudy.challenge}</span>
                       </div>
                     </div>
                     <div className="flex items-start gap-2 sm:gap-3">
@@ -509,33 +584,33 @@ export function Reviews() {
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       </div>
-                      <div className="text-sm sm:text-base">
-                        <span className="text-white/60">הפתרון: </span>
-                        <span className="text-white/90">{featuredCaseStudy.solution}</span>
+                      <div className="text-xs sm:text-sm min-w-0 lg:whitespace-nowrap">
+                        <span className="text-slate-400">הפתרון: </span>
+                        <span className="text-slate-100">{caseStudy.solution}</span>
                       </div>
                     </div>
                   </div>
                   
-                  <blockquote className="text-base sm:text-lg lg:text-xl italic text-white/90 border-r-4 border-amber-400 pr-3 sm:pr-4 mb-3 sm:mb-4">
-                    &ldquo;{featuredCaseStudy.quote}&rdquo;
+                  <blockquote className="text-sm sm:text-base lg:text-base italic text-slate-100 border-r-4 border-amber-400 pr-3 sm:pr-4 mb-3 sm:mb-4">
+                    &ldquo;{caseStudy.quote}&rdquo;
                   </blockquote>
-                  <p className="text-xs sm:text-sm text-white/60">— {featuredCaseStudy.author}</p>
+                  <p className="text-xs sm:text-sm text-slate-300">— {caseStudy.author}</p>
                 </div>
                 
-                {/* Right side - Results */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-4">
-                  {featuredCaseStudy.results.map((result, index) => (
+                {/* Stats row: always one row on all breakpoints, flex so they don't stack */}
+                <div className="flex flex-row gap-2 sm:gap-4 lg:gap-5 flex-1 lg:flex-initial lg:flex-row justify-center lg:justify-start min-w-0">
+                  {caseStudy.results.map((result, index) => (
                     <motion.div
                       key={result.label}
                       initial={{ opacity: 0, y: 20 }}
                       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                       transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                      className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 text-center border border-white/10"
+                      className="flex-1 min-w-0 max-w-[120px] sm:max-w-[150px] lg:max-w-[180px] xl:max-w-[200px] min-h-[72px] sm:min-h-[80px] lg:min-h-[88px] bg-slate-900/90 backdrop-blur-md rounded-xl sm:rounded-2xl p-2.5 sm:p-4 lg:p-5 text-center border border-white/20 overflow-hidden flex flex-col items-center justify-start shadow-lg"
                     >
-                      <div className="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-amber-400 mb-0.5 sm:mb-1">
+                      <div className="text-base sm:text-xl lg:text-base xl:text-lg font-bold text-amber-300 mb-0.5 sm:mb-1 break-words line-clamp-2 leading-tight text-center">
                         {result.metric}
                       </div>
-                      <div className="text-[10px] sm:text-xs lg:text-sm text-white/70">{result.label}</div>
+                      <div className="text-[10px] sm:text-xs lg:text-xs xl:text-sm text-slate-200 break-words line-clamp-2 leading-tight text-center">{result.label}</div>
                     </motion.div>
                   ))}
                 </div>
@@ -548,11 +623,11 @@ export function Reviews() {
                     const element = document.getElementById("contact")
                     if (element) element.scrollIntoView({ behavior: "smooth", block: "start" })
                   }}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg transition-all duration-300 active:scale-95"
+                  className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg transition-all duration-300 active:scale-95 border border-amber-500/50"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >
-                  <span>{featuredCaseStudy.ctaText}</span>
+                  <span>{caseStudy.ctaText}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
